@@ -1,5 +1,6 @@
 # Source: https://github.com/paritytech/scripts/blob/master/dockerfiles/base-ci-linux/Dockerfile
 # Source: https://github.com/paritytech/scripts/blob/master/dockerfiles/contracts-ci-linux/Dockerfile
+# Changes shown in Git commits
 
 FROM docker.io/library/debian:bullseye-slim
 ARG DEBIAN_CODENAME=bullseye

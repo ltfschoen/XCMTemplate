@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Contract",
+            "type": "shell",
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "args": ["contract", "build"],
+            "options": {
+                "cwd": "${workspaceRoot}/dapps/mydapp",
+                "shell": {
+                    "executable": "/bin/bash",
+                    "args": ["-c", "-i"]
+                }
+            },
+            "command": "cargo",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+            },
+        }
+        
+    ]
+}

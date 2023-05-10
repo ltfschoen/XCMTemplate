@@ -1,0 +1,11 @@
+# Source: https://github.com/paritytech/scripts/blob/master/dockerfiles/utility/base-ci-linux-config
+
+[target.wasm32-unknown-unknown]
+runner = "node"
+linker="clang-14"
+
+[target.x86_64-unknown-linux-gnu]
+# Enables the aes-ni instructions for RustCrypto dependency.
+rustflags = ["-Ctarget-feature=+aes,+sse2,+ssse3"]
+# setup clang as Linker
+linker="clang-14"
