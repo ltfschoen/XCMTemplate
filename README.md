@@ -105,6 +105,10 @@ code_hash: 0x......
 ```
   * Note: only one copy of the code is stored, but there can be many instance of one code blob, differs from other EVM chains where each node has a copy
 
+* Upload and Execute it
+	```
+	cargo contract upload --suri //Alice --execute
+	```
 
 ##### Interact with ink! Contracts using Contracts Node
 

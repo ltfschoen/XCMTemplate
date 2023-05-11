@@ -9,10 +9,15 @@ services:
       dockerfile: ./docker/Dockerfile
     volumes:
       - ./:/app
-    ports:
-      - "8080:8080"
-      - "9933:9933"
-      - "9944:9944"
-      - "30333:30333"
+    # ports:
+    #   - "8080:8080"
+    #   - "9933:9933"
+    #   - "9944:9944"
+    #   - "9615:9615"
+    #   - "30333:30333"
+    #   - "443:443"
+    #   - "80:80"
+    # expose all ports from docker container
+    network_mode: host
     env_file:
       - .env

@@ -11,7 +11,7 @@
 //     "extensions": ["dbaeumer.vscode-eslint"],
   
 //     // An array port numbers to forward
-//     "forwardPorts": [8080, 30333, 9933, 9944],
+//     "forwardPorts": [8080, 30333, 9933, 9944, 9615, 443, 80],
   
 //     // Container user VS Code should use when connecting
 //     "remoteUser": "vscode",
