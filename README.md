@@ -78,37 +78,76 @@ cargo contract upload --suri //Alice
 ```
 
 * Actual output:
-	* Terminal #1:
-```
-2023-05-10 18:28:43.609  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #0 (0xac6a…5c4f), finalized #0 (0xac6a…5c4f), ⬇ 0 ⬆ 0    
-2023-05-10 18:28:44.188 DEBUG tokio-runtime-worker sync: Propagating transactions    
-2023-05-10 18:28:47.088 DEBUG tokio-runtime-worker sync: Propagating transactions    
-2023-05-10 18:28:47.088  INFO tokio-runtime-worker jsonrpsee_server::server: Accepting new connection 1/100
-2023-05-10 18:28:47.967  INFO tokio-runtime-worker jsonrpsee_server::server: Accepting new connection 2/100
-2023-05-10 18:28:48.086 ERROR tokio-runtime-worker jsonrpsee_server::transport::ws: WS transport error: i/o error: Transport endpoint is not connected (os error 107); terminate connection: 0
-```
+
+	* Terminal #1
+		```
+		Result Success!
+		Code hash "0xec3a66a8f99674ecf25d180fc39ee8e620d45e8de459277e353ece20753d6c53"
+			Deposit 434925000000
+		Your upload call has not been executed.
+		To submit the transaction and execute the call on chain, add -x/--execute flag to the command
+		```
 
 	* Terminal #2
-```
-# cargo contract upload --suri //Alice
-      Result Success!
-   Code hash "0xa0c52cd7843da761236263923f454d5860db1794855de29396cc9908c58bd4b9"
-     Deposit 434790000000
-Your upload call has not been executed.
-To submit the transaction and execute the call on chain, add -x/--execute flag to the command.
-```
-
-* It should output:
-```
-CodeStored event
-code_hash: 0x......
-```
-  * Note: only one copy of the code is stored, but there can be many instance of one code blob, differs from other EVM chains where each node has a copy
+		```
+		2023-05-11 05:49:47.389  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #0 (0x18c5…59af), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0    
+		2023-05-11 05:49:48.124 DEBUG tokio-runtime-worker sync: Propagating transactions    
+		2023-05-11 05:49:48.437  INFO tokio-runtime-worker jsonrpsee_ws_server::server: Accepting new connection 1/100
+		2023-05-11 05:49:50.006  INFO tokio-runtime-worker jsonrpsee_ws_server::server: Accepting new connection 2/100
+		2023-05-11 05:49:51.027 DEBUG tokio-runtime-worker sync: Propagating transactions    
+		2023-05-11 05:49:52.392  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #0 (0x18c5…59af), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0
+		```
 
 * Upload and Execute it
+```
+cargo contract upload --suri //Alice --execute
+```
+
+* Note: The output format should be:
 	```
-	cargo contract upload --suri //Alice --execute
+	CodeStored event
+	code_hash: 0x......
 	```
+  * Note: only one copy of the code is stored, but there can be many instance of one code blob, differs from other EVM chains where each node has a copy
+
+* Actual output:
+
+	* Terminal #1
+		```
+			Events
+			Event Balances ➜ Withdraw
+				who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+				amount: 2.068216063mUNIT
+			Event Balances ➜ Reserved
+				who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+				amount: 434.925mUNIT
+			Event Contracts ➜ CodeStored
+				code_hash: 0xec3a66a8f99674ecf25d180fc39ee8e620d45e8de459277e353ece20753d6c53
+			Event TransactionPayment ➜ TransactionFeePaid
+				who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+				actual_fee: 2.068216063mUNIT
+				tip: 0UNIT
+			Event System ➜ ExtrinsicSuccess
+				dispatch_info: DispatchInfo { weight: Weight { ref_time: 2068203465, proof_size: 0 }, class: Normal, pays_fee: Yes }
+
+		Code hash "0xec3a66a8f99674ecf25d180fc39ee8e620d45e8de459277e353ece20753d6c53"
+		```
+
+	* Terminal #2
+		```
+		2023-05-11 05:56:10.582  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #0 (0x18c5…59af), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0    
+		2023-05-11 05:56:11.793  INFO tokio-runtime-worker jsonrpsee_ws_server::server: Accepting new connection 1/100
+		2023-05-11 05:56:11.797 DEBUG tokio-runtime-worker sync: Propagating transactions    
+		2023-05-11 05:56:13.276 DEBUG tokio-runtime-worker sync: Propagating transaction [0x27855e94096938dcb8a0b54aa6eb10f1c7fc4b6a4691cbe8022218600c8a5b30]    
+		2023-05-11 05:56:13.320  INFO tokio-runtime-worker sc_basic_authorship::basic_authorship: 🙌 Starting consensus session on top of parent 0x18c5ce867c31a60bfdd97f1cc6656e684370cea155a1556c9340f18d47ac59af    
+		2023-05-11 05:56:13.960  INFO tokio-runtime-worker sc_basic_authorship::basic_authorship: 🎁 Prepared block for proposing at 1 (431 ms) [hash: 0x9bc460edc15179afa81912948bbb0f537add47434c9dea3a08ef52154165be22; parent_hash: 0x18c5…59af; extrinsics (2): [0xa8a7…4455, 0x2785…5b30]]    
+		2023-05-11 05:56:14.046 DEBUG tokio-runtime-worker sync: Reannouncing block 0x9bc460edc15179afa81912948bbb0f537add47434c9dea3a08ef52154165be22 is_best: true    
+		2023-05-11 05:56:14.047 DEBUG tokio-runtime-worker sync: New best block imported 0x9bc460edc15179afa81912948bbb0f537add47434c9dea3a08ef52154165be22/#1    
+		2023-05-11 05:56:14.053  INFO tokio-runtime-worker sc_consensus_manual_seal::rpc: Instant Seal success: CreatedBlock { hash: 0x9bc460edc15179afa81912948bbb0f537add47434c9dea3a08ef52154165be22, aux: ImportedAux { header_only: false, clear_justification_requests: false, needs_justification: false, bad_justification: false, is_new_best: true } }    
+		2023-05-11 05:56:14.102  INFO tokio-runtime-worker substrate: ✨ Imported #1 (0x9bc4…be22)    
+		2023-05-11 05:56:14.699 DEBUG tokio-runtime-worker sync: Propagating transactions    
+		2023-05-11 05:56:15.591  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #1 (0x9bc4…be22), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0
+		```
 
 ##### Interact with ink! Contracts using Contracts Node
 

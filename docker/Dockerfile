@@ -100,16 +100,20 @@ RUN set -eux; \
 	# Install the latest `cargo-contract` to allow you to compile and interact with contracts
 	# (published on crates.io)
 	# Note: To install a specific version run `cargo install cargo-contract --version x.x.x`
-	cargo install --git https://github.com/paritytech/cargo-contract \
-        --locked --branch master --force && \
+	# cargo install --git https://github.com/paritytech/cargo-contract \
+    #     --locked --branch master --force && \
+	cargo install cargo-contract --version 2.2.1 && \
 
 	# Download the latest `substrate-contracts-node` binary
 	# Note: To install a specific version run
 	# `cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node/ --version x.x.x`
-	curl -L -o substrate-contracts-node.zip 'https://gitlab.parity.io/parity/mirrors/substrate-contracts-node/-/jobs/artifacts/main/download?job=build-linux' && \
-	unzip substrate-contracts-node.zip && \
-	mv artifacts/substrate-contracts-node-linux/substrate-contracts-node /usr/local/cargo/bin/substrate-contracts-node && \
-	rm -r artifacts substrate-contracts-node.zip && \
+	# curl -L -o substrate-contracts-node.zip 'https://gitlab.parity.io/parity/mirrors/substrate-contracts-node/-/jobs/artifacts/main/download?job=build-linux' && \
+	# unzip substrate-contracts-node.zip && \
+	# mv artifacts/substrate-contracts-node-linux/substrate-contracts-node /usr/local/cargo/bin/substrate-contracts-node && \
+	# rm -r artifacts substrate-contracts-node.zip && \
+	# chmod +x /usr/local/cargo/bin/substrate-contracts-node && \
+
+	cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --tag v0.23.0 --force --locked && \
 	chmod +x /usr/local/cargo/bin/substrate-contracts-node && \
 
 	# We use `estuary` as a lightweight cargo registry in the CI to test if
