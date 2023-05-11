@@ -3,5 +3,5 @@
 exclude = []
 
 members = [
-	"dapps/mydapp",
+	"dapps/flipper",
 ]

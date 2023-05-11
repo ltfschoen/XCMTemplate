@@ -15,9 +15,9 @@
 	* Cargo Contract
 	* Substrate Contracts Node
 
-* Run from a Docker container and follow the terminal log instructions.
+* Run Docker container and follow the terminal log instructions.
 ```bash
-cp .env.example .env
+touch .env && cp .env.example .env
 ./docker.sh
 ```
 
@@ -67,11 +67,10 @@ substrate-contracts-node \
 
 * Create Rust project with template
 ```
-cargo contract new mydapp
-mkdir -p dapps/mydapp && mv mydapp dapps/mydapp
-cd dapps/mydapp
+cargo contract new flipper
+mkdir -p dapps/ && mv flipper dapps/ && cd dapps/flipper
 ```
-* Optionally build with VSCode by adding the project `"dapps/mydapp"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the DApps using the configuration in ./.vscode/launch.json
+* Optionally build with VSCode by adding the project `"dapps/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the DApps using the configuration in ./.vscode/launch.json
 * Generate .contract, .wasm, and metadata.json code. Note: Use `--release` to deploy
 ```
 cargo contract build
@@ -104,7 +103,9 @@ cargo contract upload --suri //Alice
 
 * Upload and Execute it. Optionally `--skip-dry-run`
 ```
-cargo contract upload --suri //Alice --execute
+cargo contract upload --suri //Alice \
+	--execute \
+	--skip-confirm
 ```
 
 * Note: The output format should be:
@@ -162,7 +163,9 @@ cargo contract upload --suri //Alice --execute
 cargo contract instantiate \
 	--suri //Bob \
 	--constructor new \
-	--args true
+	--args true \
+	--execute \
+	--skip-confirm
 ```
 
 * Wait for response
@@ -179,33 +182,36 @@ Event Contracts + Instantiated
 ```
 
 * Check value was assigned correctly
-* Use `dry-run` because if execute as a transaction then we won't see the return value
+* If use `--skip-dry-run` and execute as a transaction then we won't see the return value
 ```
 cargo contract call \
 	--suri //Charlie \
 	--contract 5G... \
 	--message get \
-	--dry-run
+	--execute \
+	--skip-confirm
 ```
 
-* Interact to increment by 5, not a dry run so no response but we get a gas limit response
+* Interact to flip the boolean value, not a dry run so no response but we get a gas limit response
 
 ```
 cargo contract call \
 	--suri //Charlie \
 	--contract 5G... \
-	--message inc \
-	--args 5
+	--message flip \
+	--execute \
+	--skip-confirm
 ```
 
-* Check it incremented
+* Check it flipped the boolean value
 
 ```
 cargo contract call \
 	--suri //Charlie \
 	--contract 5G... \
 	--message get \
-	--dry-run
+	--execute \
+	--skip-confirm
 ```
 
 * Note: only works in debug mode `cargo build` (not release)
