@@ -9,7 +9,7 @@
             ],
             "args": ["contract", "build"],
             "options": {
-                "cwd": "${workspaceRoot}/dapps/mydapp",
+                "cwd": "${workspaceRoot}/contract/flipper",
                 "shell": {
                     "executable": "/bin/bash",
                     "args": ["-c", "-i"]

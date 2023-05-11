@@ -130,7 +130,7 @@ RUN set -eux; \
 # show backtraces
 ENV	RUST_BACKTRACE=1
 
-COPY ./dapps .
+COPY ./contract .
 
 # not required since using `network_mode: host` 
 # EXPOSE 8080 30333 9933 9944 9615 443 80

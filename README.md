@@ -68,9 +68,9 @@ substrate-contracts-node \
 * Create Rust project with template
 ```
 cargo contract new flipper
-mkdir -p dapps/ && mv flipper dapps/ && cd dapps/flipper
+mkdir -p contract/ && mv flipper contract/ && cd contract/flipper
 ```
-* Optionally build with VSCode by adding the project `"dapps/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the DApps using the configuration in ./.vscode/launch.json
+* Optionally build with VSCode by adding the project `"contract/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the contract using the configuration in ./.vscode/launch.json
 * Generate .contract, .wasm, and metadata.json code. Note: Use `--release` to deploy
 ```
 cargo contract build

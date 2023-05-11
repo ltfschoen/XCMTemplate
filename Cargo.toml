@@ -3,5 +3,5 @@
 exclude = []
 
 members = [
-	"dapps/flipper",
+	"contract/flipper",
 ]
