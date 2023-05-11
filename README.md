@@ -21,6 +21,10 @@ cp .env.example .env
 ./docker.sh
 ```
 
+* Check Memory & CPU usage. Update memory limits in docker-compose.yml
+```bash
+docker stats
+```
 * Enter Docker container
 ```bash
 docker exec -it ink /bin/bash
@@ -45,7 +49,7 @@ substrate-contracts-node \
 	--dev \
 	--alice \
 	--name "ink-test" \
-	--tmp \
+	--base-path "/tmp/ink" \
 	--force-authoring \
 	--port 30333 \
 	--rpc-port 9933 \
@@ -98,7 +102,7 @@ cargo contract upload --suri //Alice
 		2023-05-11 05:49:52.392  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #0 (0x18c5…59af), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0
 		```
 
-* Upload and Execute it
+* Upload and Execute it. Optionally `--skip-dry-run`
 ```
 cargo contract upload --suri //Alice --execute
 ```
@@ -158,7 +162,7 @@ cargo contract upload --suri //Alice --execute
 cargo contract instantiate \
 	--suri //Bob \
 	--constructor new \
-	--args 10
+	--args true
 ```
 
 * Wait for response
