@@ -125,15 +125,30 @@ RUN set -eux; \
 	rustup show && \
 	cargo --version && \
 	echo $( substrate-contracts-node --version | awk 'NF' ) && \
-	estuary --version
+	estuary --version && \
+	# TODO - haven't checked that the below works yet
+	export NVM_DIR="$HOME/.nvm" && (
+		git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR" && \
+		cd "$NVM_DIR" && \
+		git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)` \
+	) && \
+	. "$NVM_DIR/nvm.sh" && \
+	source ~/.nvm/nvm.sh && \
+	echo -e "\n# Enable NVM" >> ~/.bashrc && \
+	echo -e 'source $HOME/.nvm/nvm.sh' >> ~/.bashrc \
+	nvm install v20.1.0 && \
+	nvm use v20.1.0 && \
+	curl -o- -L https://yarnpkg.com/install.sh | bash && \
+	echo -e 'export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"' >> ~/.bashrc && \
+	. ./.bashrc
 
 # show backtraces
 ENV	RUST_BACKTRACE=1
 
 COPY ./contract .
 
-# not required since using `network_mode: host` 
-# EXPOSE 8080 30333 9933 9944 9615 443 80
+# should not be required since using `network_mode: host` 
+EXPOSE 8080 30333 9933 9944 9615 3000 443 80
 
 CMD tail -f /dev/null
 

@@ -43,6 +43,9 @@ rustup show
 cargo-contract --version
 substrate-contracts-node --version
 ```
+
+##### Run Cargo Contract Node in Docker Container
+
 * Run Cargo Contract Node
 ```
 substrate-contracts-node \
@@ -65,16 +68,22 @@ substrate-contracts-node \
 * Leave that terminal tab running the node. Enter the terminal again in a new tab with `docker exec -it ink /bin/bash` and run the following:
 * Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
 
+##### Build & Upload Smart Contract to Local Testnet (using Cargo Contract)
+
 * Create Rust project with template
 ```
+cd dapps/wasm-flipper/contract
 cargo contract new flipper
-mkdir -p contract/ && mv flipper contract/ && cd contract/flipper
+cd flipper
 ```
-* Optionally build with VSCode by adding the project `"contract/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the contract using the configuration in ./.vscode/launch.json
+* Optionally build with VSCode by adding the project `"dapps/wasm-flipper/contract/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the contract using the configuration in ./.vscode/launch.json
 * Generate .contract, .wasm, and metadata.json code. Note: Use `--release` to deploy
 ```
-cargo contract build
+cargo contract build --manifest-path /app/dapps/wasm-flipper/contract/flipper/Cargo.toml
 ```
+* Copy ./target/ink/flipper/flipper.json
+	* Paste this as the ABI value of `const abi = ` ./dapps/wasm-flipper/ui/components/abi.ts
+
 * Upload Contract (note: prefer to use contracts-ui to avoid exposing private key)
 ```
 cargo contract upload --suri //Alice
@@ -154,6 +163,75 @@ cargo contract upload --suri //Alice \
 		2023-05-11 05:56:15.591  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #1 (0x9bc4…be22), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0
 		```
 
+##### Build & Upload Smart Contract to Local Testnet (using Swanky CLI)
+
+Install Swanky CLI https://github.com/AstarNetwork/swanky-cli
+```bash
+cd dapps/wasm-flipper
+nvm use
+yarn global add @astar-network/swanky-cli@2.1.2
+```
+
+0. Init
+
+```bash
+cd contract
+swanky init flipper
+```
+Note: Choose `ink` as a contract language and `flipper` as template and a chosen contract name.
+Optionally choose from `Y/N` when asking to download the Swanky Node (NOT required if already using Substrate Contracts Node).
+
+1. Start the local node
+
+If you chose to download the Swanky Node then run it in your local environment:
+```bash
+cd flipper
+swanky node start
+```
+
+2. Build the contract
+
+Build the contract in a new tab
+```bash
+swanky contract compile flipper
+```
+Note: Try `rustup update` if you face error
+
+3. Deploy the contract
+
+Local Testnet
+```bash
+swanky contract deploy flipper --account alice -g 100000000000 -a true
+```
+
+Shibuya Testnet
+```bash
+swanky contract deploy flipper --account alice --gas 100000000000 --args true --network shibuya
+```
+Copy paste the contract address.
+
+4. Update `WS_PROVIDER` to check if it connects to Shibuya or localhost in ./dapps/wasm-flipper/ui/components/app.tsx
+
+5. View in block explorer if deploy on Astar https://astar.subscan.io/wasm_contract_dashboard?tab=contract
+
+##### Interact with Contract using Flipper and Polkadot.js API
+
+```cd dapps/wasm-flipper
+yarn
+yarn dev
+```
+
+* Go to http://localhost:3000
+
+* FIXME: Currently getting error:
+```
+API-WS: disconnected from ws://127.0.0.1:9944: 1006:: Abnormal Closure
+```
+* Tried these solutions unsuccessfully:
+	* https://substrate.stackexchange.com/questions/5966/connecting-to-a-chain-on-ws-localhost-with-polkadot-js-app-fails-when-running
+
+* Reference https://polkadot.js.org/docs/api-contract/start/basics
+
 ##### Interact with ink! Contracts using Contracts Node
 
 ###### Cargo Contracts
@@ -222,11 +300,6 @@ ink::env::debug_println("inc by {}, new value {}", by, self.value);
 * Note: it should output on substrate-contracts-node too as `tokio-runtime-worker runtime::contracts Execution finished with debug buffer...`
 * Note: it should show in contracts-ui website too
 * Note: events are not emitted in a dry-run (why wouldn't we want this in debugging mode?)
-
-##### Interact with Contract using Polkadot.js API
-
-* Reference https://polkadot.js.org/docs/api-contract/start/basics
-
 
 ### Useful Docker Commands
 

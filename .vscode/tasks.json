@@ -9,7 +9,7 @@
             ],
             "args": ["contract", "build"],
             "options": {
-                "cwd": "${workspaceRoot}/contract/flipper",
+                "cwd": "${workspaceRoot}/dapps/wasm-flipper/contract/flipper",
                 "shell": {
                     "executable": "/bin/bash",
                     "args": ["-c", "-i"]

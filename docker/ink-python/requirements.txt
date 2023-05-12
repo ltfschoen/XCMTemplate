@@ -1,0 +1,4 @@
+bumpversion
+python-dotenv==1.0.0
+substrate-interface==1.7.0
+when-changed
