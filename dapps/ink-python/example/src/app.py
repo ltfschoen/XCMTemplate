@@ -1,4 +1,5 @@
 # https://polkascan.github.io/py-substrate-interface/usage
+# https://github.com/polkascan/py-substrate-interface
 import os
 from dotenv import load_dotenv
 from substrateinterface import SubstrateInterface, Keypair, KeypairType, ContractCode, ContractInstance
@@ -33,6 +34,8 @@ keypair_charlie = Keypair.create_from_uri(
     crypto_type=KeypairType.SR25519
 )
 print(keypair_charlie.ss58_address)
+# FIXME - conditionally run only if `LS_CONTRACTS` is defined
+# FIXME - why does this return `ValueError: Invalid mnemonic: invalid word in phrase`
 keypair_ls = Keypair.create_from_mnemonic(
     LS_CONTRACTS,
     crypto_type=KeypairType.SR25519
@@ -42,7 +45,7 @@ print(keypair_ls.ss58_address)
 # deploy contract
 # https://polkascan.github.io/py-substrate-interface/usage/ink-contract-interfacing/#work-with-an-existing-instance
 # https://stackoverflow.com/questions/2860153/how-do-i-get-the-parent-directory-in-python
-up = [os.pardir]*3
+up = [os.pardir]*4
 go_up = os.path.join(*up)
 code = ContractCode.create_from_contract_files(
     metadata_file=os.path.join(os.path.dirname(__file__), go_up, 'target', 'ink', 'flipper', 'flipper.json'),

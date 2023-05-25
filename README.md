@@ -10,44 +10,68 @@
 
 * Install and run [Docker](https://www.docker.com/)
 * Generate .env file from sample file
+	* Generate a Substrate-based account on an air-gapped machine using [Subkey](https://support.polkadot.network/support/solutions/articles/65000180519-how-to-create-an-account-in-subkey) or by installing [Subkey in Docker](https://github.com/paritytech/substrate/tree/master/docker) on an air-gapped machine
+	* Add the mnemonic phrase of the Substrate-based account to the value of `LS_CONTRACTS` in the .env file.
+	* Obtain testnet tokens from faucet at https://use.ink/faucet/
 * Check versions used in Dockerfile:
-	* Rust version
+	* Rust nightly version
+	* Node.js version
 	* Cargo Contract
 	* Substrate Contracts Node
-
+* Update dependencies in ./dapps/ink-rust/wasm-flipper/package.json https://stackoverflow.com/a/70588930/3208553
+	```
+	cd ./dapps/ink-rust/wasm-flipper/
+	yarn upgrade
+	```
+* Update dependencies in ./dapps/ink-rust/wasm-flipper/contract/flipper/Cargo.toml
+	```
+	cd ./dapps/ink-rust/wasm-flipper/contract/flipper/
+	cargo update
+	```
 * Run Docker container and follow the terminal log instructions.
-```bash
-touch .env && cp .env.example .env
-./docker.sh
-```
+	* Note: Optionally **exclude** installing substrate-contracts-node by running `time ./docker/docker.sh "without_node"` since including it will increase build time substantially and may not be necessary if you are deploying to remote testnets
+
+	```bash
+	touch .env && cp .env.example .env
+	time ./docker/docker.sh
+	```
 
 * Check Memory & CPU usage. Update memory limits in docker-compose.yml
-```bash
-docker stats
-```
+	```bash
+	docker stats
+	```
 * Enter Docker container
-```bash
-docker exec -it ink /bin/bash
-```
+	```bash
+	docker exec -it ink /bin/bash
+	```
 * Optional [Attach to Container in Visual Studio Code (VSCode)](https://code.visualstudio.com/docs/devcontainers/attach-container#_attach-to-a-docker-container)
 	* Open folder /app
 		```
 		cd /app
 		```
 
-* Check versions
-```
+* Check versions. Note: 
+```bash
 rustup toolchain list
 rustup update
 rustup show
 cargo-contract --version
+```
+* Check if substrate-contracts-node was installed if you used the "with-node" argument
+```bash
 substrate-contracts-node --version
 ```
 
 ##### Run Cargo Contract Node in Docker Container
 
+* **Important** This is only available if you did not run ./docker/run.sh using "without_node" argument
+
 * Run Cargo Contract Node
-```
+	* Note: Use either `--tmp` or `--base-path "/tmp/ink"`
+	* Note: Delete chain database `rm -rf /tmp/ink`.
+	* Note: Check disk space used by database `du /tmp/ink`
+
+```bash
 substrate-contracts-node \
 	--dev \
 	--alice \
@@ -63,7 +87,6 @@ substrate-contracts-node \
 	--telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
 	-lsync=debug
 ```
-	* Note: Use either `--tmp` or `--base-path "/tmp/ink"`
 
 * Leave that terminal tab running the node. Enter the terminal again in a new tab with `docker exec -it ink /bin/bash` and run the following:
 * Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
@@ -72,17 +95,17 @@ substrate-contracts-node \
 
 * Create Rust project with template
 ```
-cd dapps/wasm-flipper/contract
+cd dapps/ink-rust/wasm-flipper/contract
 cargo contract new flipper
 cd flipper
 ```
-* Optionally build with VSCode by adding the project `"dapps/wasm-flipper/contract/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the contract using the configuration in ./.vscode/launch.json
+* Optionally build with VSCode by adding the project `"dapps/ink-rust/wasm-flipper/contract/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the contract using the configuration in ./.vscode/launch.json
 * Generate .contract, .wasm, and metadata.json code. Note: Use `--release` to deploy
 ```
-cargo contract build --manifest-path /app/dapps/wasm-flipper/contract/flipper/Cargo.toml
+cargo contract build --manifest-path /app/dapps/ink-rust/wasm-flipper/contract/flipper/Cargo.toml
 ```
 * Copy ./target/ink/flipper/flipper.json
-	* Paste this as the ABI value of `const abi = ` ./dapps/wasm-flipper/ui/components/abi.ts
+	* Paste this as the ABI value of `const abi = ` ./dapps/ink-rust/wasm-flipper/ui/components/abi.ts
 
 * Upload Contract (note: prefer to use contracts-ui to avoid exposing private key)
 ```
@@ -167,7 +190,7 @@ cargo contract upload --suri //Alice \
 
 Install Swanky CLI https://github.com/AstarNetwork/swanky-cli
 ```bash
-cd dapps/wasm-flipper
+cd dapps/ink-rust/wasm-flipper
 nvm use
 yarn global add @astar-network/swanky-cli@2.1.2
 ```
@@ -210,13 +233,24 @@ swanky contract deploy flipper --account alice --gas 100000000000 --args true --
 ```
 Copy paste the contract address.
 
-4. Update `WS_PROVIDER` to check if it connects to Shibuya or localhost in ./dapps/wasm-flipper/ui/components/app.tsx
+4. Update `WS_PROVIDER` to check if it connects to Shibuya or localhost in ./dapps/ink-rust/wasm-flipper/ui/components/app.tsx
 
 5. View in block explorer if deploy on Astar https://astar.subscan.io/wasm_contract_dashboard?tab=contract
 
+##### Interact with Contract using ink! Python
+
+* Note: This assumes
+
+```bash
+cd dapps/ink-python/example
+pip3 install --no-cache-dir -r requirements.txt
+python3 ./src/app.py
+```
+
 ##### Interact with Contract using Flipper and Polkadot.js API
 
-```cd dapps/wasm-flipper
+```bash
+cd dapps/ink-rust/wasm-flipper
 yarn
 yarn dev
 ```
@@ -311,6 +345,7 @@ docker ps -a
 * List Docker images
 ```bash
 docker images -a
+docker buildx ls
 ```
 
 * Enter Docker container shell
@@ -331,4 +366,54 @@ docker stop $CONTAINER_ID; docker rm $CONTAINER_ID;
 * Remove Docker image
 ```bash
 docker rmi $IMAGE_ID
+docker buildx rm --all-inactive
 ```
+
+* Reduce space used by Docker Desktop
+	* Docker Preferences -> Resources -> Advanced -> Virtual Disk Limit
+		* e.g. 64Gb reduce to 32Gb
+		* Note: This deletes all Docker images similar to `docker system prune -a --volumes`
+
+### Notes
+
+* Strategy:
+	* Why use smart contract instead of blockchain?
+		* Faster iterations of design, development, testing, and release of applications to market
+		* Provide core functionality for the base layer of a general purpose blockchain that is being built
+		* Allow smart contracts to interact with an application-specific blockchain pallet logic and use them to expose some logic to users since smart contracts treat all user input as untrusted and potentially adversarial
+		* Example:
+			* Building an application where most logic in Substrate pallets
+				* Allow users to upload their own trading algorithms using smart contracts
+				* Smart contracts require gas fees to execute so users would pay for the execution time of those trading algorithms
+				* Expose relevant primitives similar to the [Chain extension primitive](https://ink.substrate.io/macros-attributes/chain-extension/) of the Contracts pallet 
+	* What types of smart contracts may be deployed on Substrate runtime?
+		* WebAssembly
+		* EVM-compatible
+	* What is a smart contract?
+		* Instructions that are instantiated and executed on a host platform using a specific smart contract chain account address 
+		* Instructions written in a language
+	* What Substrate pallet is best to use when building a runtime to host smart contracts that are being built?
+		* Contracts pallet allows deployment and execution of WebAssembly-based smart contracts
+	* What trait do smart contract accounts used in the Contracts pallet of Substrate extend?
+		* `Currency` trait
+
+
+* Link
+	* https://docs.substrate.io/build/smart-contracts-strategy/
+
+TODO - continue summarising from "Smart contract accounts" section
+
+### Links
+
+#### Ink
+
+* https://use.ink/
+* https://github.com/paritytech/awesome-ink
+* https://github.com/paritytech/ink-examples
+* https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes
+* https://www.youtube.com/@ink-lang
+* https://github.com/paritytech/cargo-contract
+
+#### Docker
+
+* https://docs.docker.com/engine/reference/builder/#here-documents
