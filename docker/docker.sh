@@ -43,10 +43,12 @@ bash -e <<TRY
     --tag ink:latest ./
 TRY
 if [ $? -ne 0 ]; then
-	printf "\n*** Detected error running 'docker build'. Trying 'docker buildx' instead...\n"
-	DOCKER_BUILDKIT=0 docker buildx build \
+    printf "\n*** Detected error running 'docker build'. Trying 'docker buildx' instead...\n"
+    DOCKER_BUILDKIT=0 docker buildx build \
         -f {PARENT_DIR}/docker/Dockerfile \
-        --build-arg WITHOUT_NODE=${WITHOUT_NODE} ./
+        --build-arg WITHOUT_NODE=${WITHOUT_NODE} \
+        --no-cache \
+        --tag ink:latest ./
 fi
 
 docker images
@@ -56,24 +58,24 @@ docker ps -a
 # memory measured in bytes
 # restart alternative "no"
 docker run -it -d \
-	--env-file "${PARENT_DIR}/.env" \
-	--hostname ink \
-	--name ink \
+    --env-file "${PARENT_DIR}/.env" \
+    --hostname ink \
+    --name ink \
     --restart "on-failure" \
     --memory 750M \
     --memory-reservation 125M \
     --memory-swap 15G \
     --cpus 1 \
-	--publish 0.0.0.0:8080:8080 \
-	--publish 0.0.0.0:9933:9933 \
-	--publish 0.0.0.0:9944:9944 \
-	--publish 0.0.0.0:9615:9615 \
-	--publish 0.0.0.0:30333:30333 \
-	--publish 0.0.0.0:3000:3000 \
-	--publish 0.0.0.0:443:443 \
-	--publish 0.0.0.0:80:80 \
-	--volume ${PARENT_DIR}:/app:rw \
-	ink:latest
+    --publish 0.0.0.0:8080:8080 \
+    --publish 0.0.0.0:9933:9933 \
+    --publish 0.0.0.0:9944:9944 \
+    --publish 0.0.0.0:9615:9615 \
+    --publish 0.0.0.0:30333:30333 \
+    --publish 0.0.0.0:3000:3000 \
+    --publish 0.0.0.0:443:443 \
+    --publish 0.0.0.0:80:80 \
+    --volume ${PARENT_DIR}:/app:rw \
+    ink:latest
 if [ $? -ne 0 ]; then
     kill "$PPID"; exit 1;
 fi

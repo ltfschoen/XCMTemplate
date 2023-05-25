@@ -42,15 +42,6 @@ EXPOSE 8080 30333 9933 9944 9615 3000 443 80
 
 CMD tail -f /dev/null
 
-	# cargo clean up
-	# removes compilation artifacts cargo install creates (>250M)
-	# rm -rf "${CARGO_HOME}/registry" "${CARGO_HOME}/git" /root/.cache/sccache && \
-
-	# apt clean up
-	# apt-get autoremove -y && \
-	# apt-get clean && \
-	# rm -rf /var/lib/apt/lists/*
-
 # set this at end of Dockerfile, with `ENV DEBIAN_FRONTEND noninteractive` at beginning
 # so both interactive and non-interactive modes get set.
 ARG DEBIAN_FRONTEND teletype

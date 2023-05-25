@@ -1,4 +1,6 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+// https://github.com/paritytech/cargo-contract/issues/1130
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
+#[no_main]
 
 #[ink::contract]
 mod flipper {

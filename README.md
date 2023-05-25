@@ -18,6 +18,7 @@
 	* Node.js version
 	* Cargo Contract
 	* Substrate Contracts Node
+* Configure amount of CPUs and memory of the host machine the Docker container should use in ./docker/docker.sh
 * Update dependencies in ./dapps/ink-rust/wasm-flipper/package.json https://stackoverflow.com/a/70588930/3208553
 	```
 	cd ./dapps/ink-rust/wasm-flipper/
@@ -104,6 +105,7 @@ cd flipper
 ```
 cargo contract build --manifest-path /app/dapps/ink-rust/wasm-flipper/contract/flipper/Cargo.toml
 ```
+	* Note: If you get error `ERROR: Cannot read /app/target/ink/flipper/.target` then run `rm -rf /app/target`
 * Copy ./target/ink/flipper/flipper.json
 	* Paste this as the ABI value of `const abi = ` ./dapps/ink-rust/wasm-flipper/ui/components/abi.ts
 
@@ -249,20 +251,18 @@ python3 ./src/app.py
 
 ##### Interact with Contract using Flipper and Polkadot.js API
 
-```bash
-cd dapps/ink-rust/wasm-flipper
-yarn
-yarn dev
-```
+* Enter the Docker container shell in a new terminal window if necessary:
+	```bash
+	docker exec -it ink /bin/bash
+	```
+* Install dependencies and run the Flipper DApp
+	```bash
+	cd dapps/ink-rust/wasm-flipper
+	yarn
+	yarn dev
+	```
 
-* Go to http://localhost:3000
-
-* FIXME: Currently getting error:
-```
-API-WS: disconnected from ws://127.0.0.1:9944: 1006:: Abnormal Closure
-```
-* Tried these solutions unsuccessfully:
-	* https://substrate.stackexchange.com/questions/5966/connecting-to-a-chain-on-ws-localhost-with-polkadot-js-app-fails-when-running
+* Go to this address in web browser http://localhost:3000
 
 * Reference https://polkadot.js.org/docs/api-contract/start/basics
 
