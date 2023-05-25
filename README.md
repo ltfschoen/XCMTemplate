@@ -293,12 +293,18 @@ Event Contracts + Instantiated
 ...
 ```
 
+* Store the response in an environment variable for reuse. Replace the example value below of `5G....` with the actual contract account address provided in the event response above.
+```bash
+CONTRACT_ADDR=5G....
+echo "stored in variable CONTRACT_ADDR the contract address value ${CONTRACT_ADDR" 
+```
+
 * Check value was assigned correctly
 * If use `--skip-dry-run` and execute as a transaction then we won't see the return value
 ```
 cargo contract call \
 	--suri //Charlie \
-	--contract 5G... \
+	--contract $CONTRACT_ADDR \
 	--message get \
 	--execute \
 	--skip-confirm
@@ -309,8 +315,19 @@ cargo contract call \
 ```
 cargo contract call \
 	--suri //Charlie \
-	--contract 5G... \
+	--contract $CONTRACT_ADDR \
 	--message flip \
+	--execute \
+	--skip-confirm
+```
+
+* Check it flipped the boolean value (dry run only)
+
+```
+cargo contract call \
+	--suri //Charlie \
+	--contract $CONTRACT_ADDR \
+	--message get \
 	--execute \
 	--skip-confirm
 ```
@@ -320,10 +337,13 @@ cargo contract call \
 ```
 cargo contract call \
 	--suri //Charlie \
-	--contract 5G... \
+	--contract $CONTRACT_ADDR \
 	--message get \
 	--execute \
-	--skip-confirm
+	--skip-confirm \
+	--skip-dry-run \
+	--gas 100000000000 \
+	--proof-size 100000000000
 ```
 
 * Note: only works in debug mode `cargo build` (not release)
