@@ -57,7 +57,9 @@ docker ps -a
 
 # memory measured in bytes
 # restart alternative "no"
-docker run -it -d \
+# note: run with `--privileged` to be able to use
+# `systemctl` and `journalctl` service commands
+docker run --privileged -it -d \
     --env-file "${PARENT_DIR}/.env" \
     --hostname ink \
     --name ink \
@@ -79,5 +81,7 @@ docker run -it -d \
 if [ $? -ne 0 ]; then
     kill "$PPID"; exit 1;
 fi
+# check if running in privileged mode
+docker inspect --format='{{.HostConfig.Privileged}}' ink
 CONTAINER_ID=$(docker ps -n=1 -q)
 printf "\n*** Finished building Docker container ${CONTAINER_ID}.\n\n"

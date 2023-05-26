@@ -6,6 +6,7 @@
 	* [Setup Docker Container](#setup-container)
 	* [Run Cargo Contracts Node in Docker Container](#run-cargo-contracts-node)
 * Build & Upload
+	* [**Quickstart** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#quick-build-upload)
 	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
 	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
 * Interact
@@ -63,10 +64,7 @@
 	docker exec -it ink /bin/bash
 	```
 * Optional [Attach to Container in Visual Studio Code (VSCode)](https://code.visualstudio.com/docs/devcontainers/attach-container#_attach-to-a-docker-container)
-	* Open folder /app
-		```
-		cd /app
-		```
+	* Open folder /app with `cd /app`
 
 * Check versions. Note: 
 ```bash
@@ -84,30 +82,67 @@ substrate-contracts-node --version
 
 * **Important** This is only available if you did not run ./docker/run.sh using "without_node" argument
 
-* Run Cargo Contract Node
+#### Option 1: Run Node normally **without** using a Service
+
+* Run Cargo Contract Node 
 	* Note: Use either `--tmp` or `--base-path "/tmp/ink"`
 	* Note: Delete chain database `rm -rf /tmp/ink`.
 	* Note: Check disk space used by database `du /tmp/ink`
 * Note: Refer to debugging docs https://use.ink/basics/contract-debugging
 
 ```bash
-substrate-contracts-node \
-	--dev \
-	--alice \
-	--name "ink-test" \
-	--base-path "/tmp/ink" \
-	--force-authoring \
-	--port 30333 \
-	--rpc-port 9933 \
-	--ws-port 9944 \
-	--unsafe-ws-external \
-	--rpc-methods Unsafe \
-	--unsafe-rpc-external \
-	--rpc-cors all \
-	--prometheus-external \
-	--telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
-	-lsync=debug,runtime::contracts=debug
+./docker/run-scn.sh
 ```
+
+* Leave that terminal tab running the node. Enter the terminal again in a new tab with `docker exec -it ink /bin/bash`
+* Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
+
+#### Option 2: Run Node using Service
+
+* Run the following to configured service and so it restarts on failure
+
+```bash
+mkdir -p /opt/scn && \
+cp /app/docker/run-scn.sh \
+    /opt/scn/run-scn.sh
+
+{
+  echo '[Unit]'
+  echo 'Description=SubstrateContractsNode'
+  echo 'StartLimitIntervalSec=500'
+  echo 'StartLimitBurst=5'
+  echo '[Service]'
+  echo 'Type=simple'
+  echo 'ExecStart=/opt/scn/run-scn.sh'
+  echo 'Restart=on-failure'
+  echo 'RestartSec=5s'
+  echo '[Install]'
+  echo 'WantedBy=multi-user.target'
+} > /etc/systemd/system/scn.service
+
+cat /etc/systemd/system/scn.service
+```
+
+* Start service
+```bash
+systemctl daemon-reload
+systemctl enable scn
+systemctl start scn
+systemctl status scn
+journalctl -u scn.service -f
+```
+
+* Stop service
+```bash
+systemctl stop scn
+```
+
+* Kill the service process if necessary
+```bash
+kill -9 $(lsof -ti:30333)
+```
+
+#### Interact with Node
 
 * Verify that you are able to connect from websites like:
 	* https://contracts-ui.substrate.io/?rpc=ws://127.0.0.1:9944, and;
@@ -115,8 +150,16 @@ substrate-contracts-node \
 * Note: It is necessary to use `--unsafe-rpc-external` and `--unsafe-ws-external` instead of just `--rpc-external` and `--ws-external`, otherwise you will get an error `API-WS: disconnected from ws://127.0.0.1:9944: 1006:: Abnormal Closure` if you try to connect to the local node at https://contracts-ui.substrate.io/?rpc=ws://127.0.0.1:9944
 * Note: It is also necessary if using the Brave browser to **disable Advertisement blocker shields** to avoid that error as mentioned in my response here https://substrate.stackexchange.com/a/8648/83
 
-* Leave that terminal tab running the node. Enter the terminal again in a new tab with `docker exec -it ink /bin/bash` and run the following:
-* Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
+### **Demo Quickstart** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-build-upload"></a>
+
+* Prerequisites prior to repeatedly running:
+	* Stop substrate-contracts-node
+	* Empty the chain database with `rm -rf /tmp/ink` so we can redeploy the Flipper contract
+	* Run substrate-contracts-node
+	* Run the quickstart command below
+```bash
+./docker/quickstart.sh
+```
 
 ### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
 
@@ -135,6 +178,7 @@ cd flipper
 	```
 * Copy ./target/ink/flipper/flipper.json
 	* Paste this as the ABI value of `const abi = ` ./dapps/ink-rust/wasm-flipper/ui/components/abi.ts
+	* Note: Refer to ./docker/quickstart.sh that shows how to do this programmatically
 
 * Upload Contract (note: prefer to use contracts-ui to avoid exposing private key)
 ```bash
@@ -415,6 +459,7 @@ TODO - continue summarising from "Smart contract accounts" section
 * https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes
 * https://www.youtube.com/@ink-lang
 * https://github.com/paritytech/cargo-contract
+* https://polkadot.js.org/docs/api-contract
 
 #### Docker
 
