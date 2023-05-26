@@ -1,8 +1,25 @@
 ### Smart Contract in ink!
 
-#### Docker
+## Table of Contents
 
-##### Setup Container
+* Setup
+	* [Setup Docker Container](#setup-container)
+	* [Run Cargo Contracts Node in Docker Container](#run-cargo-contracts-node)
+* Build & Upload
+	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
+	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
+* Interact
+	* [Interact with ink! Python Smart Contract](#interact-python)
+	* [Interact with ink! Rust Flipper Smart Contract using Polkadot.js API](#interact-polkadot-js-flipper)
+	* [Interact with ink! Rust Flipper Smart Contract using Substrate Contracts Node](#interact-substrate-contracts-node-flipper)
+* Tips
+	* [Tips Docker Commands](#tips-docker)
+	* [Tips Notes](#tips-notes)
+	* [Tips Links](#tips-links)
+
+#### Setup
+
+##### Setup Docker Container <a id="setup-container"></a>
 
 * Note:
 	* The docker/Dockerfile and its dependencies in docker/utility are modified copies of files in https://github.com/paritytech/scripts/blob/master/dockerfiles to have the flexibility to develop locally using ink! in a Docker container that uses Linux without any dependency issues, and where changes replicated on the host machine.
@@ -63,7 +80,7 @@ cargo-contract --version
 substrate-contracts-node --version
 ```
 
-##### Run Cargo Contract Node in Docker Container
+##### Run Cargo Contracts Node in Docker Container <a id="run-cargo-contracts-node"></a>
 
 * **Important** This is only available if you did not run ./docker/run.sh using "without_node" argument
 
@@ -101,7 +118,7 @@ substrate-contracts-node \
 * Leave that terminal tab running the node. Enter the terminal again in a new tab with `docker exec -it ink /bin/bash` and run the following:
 * Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
 
-##### Build & Upload Smart Contract to Local Testnet (using Cargo Contract)
+##### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
 
 * Create Rust project with template
 ```
@@ -111,7 +128,7 @@ cd flipper
 ```
 * Optionally build with VSCode by adding the project `"dapps/ink-rust/wasm-flipper/contract/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the contract using the configuration in ./.vscode/launch.json
 * Generate .contract, .wasm, and metadata.json code. Note: Use `--release` to deploy in "release" mode (without debug logs) instead of "debug" mode
-```
+```bash
 cargo contract build --manifest-path /app/dapps/ink-rust/wasm-flipper/contract/flipper/Cargo.toml
 ```
 	* Note: If you get error `ERROR: Cannot read /app/target/ink/flipper/.target` then run `rm -rf /app/target`
@@ -119,7 +136,7 @@ cargo contract build --manifest-path /app/dapps/ink-rust/wasm-flipper/contract/f
 	* Paste this as the ABI value of `const abi = ` ./dapps/ink-rust/wasm-flipper/ui/components/abi.ts
 
 * Upload Contract (note: prefer to use contracts-ui to avoid exposing private key)
-```
+```bash
 cargo contract upload --suri //Alice
 ```
 
@@ -139,9 +156,6 @@ cargo contract upload --suri //Alice
 		2023-05-11 05:49:47.389  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #0 (0x18c5…59af), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0    
 		2023-05-11 05:49:48.124 DEBUG tokio-runtime-worker sync: Propagating transactions    
 		2023-05-11 05:49:48.437  INFO tokio-runtime-worker jsonrpsee_ws_server::server: Accepting new connection 1/100
-		2023-05-11 05:49:50.006  INFO tokio-runtime-worker jsonrpsee_ws_server::server: Accepting new connection 2/100
-		2023-05-11 05:49:51.027 DEBUG tokio-runtime-worker sync: Propagating transactions    
-		2023-05-11 05:49:52.392  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #0 (0x18c5…59af), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0
 		```
 
 * Upload and Execute it. Optionally `--skip-dry-run`
@@ -150,6 +164,8 @@ cargo contract upload --suri //Alice \
 	--execute \
 	--skip-confirm
 ```
+
+* Copy the "Code hash" that is output since you can query the contract by pasting it at https://contracts-ui.substrate.io/hash-lookup?rpc=ws://127.0.0.1:9944 and pasting its ABI as the Metadata using the contents of ./target/ink/flipper/flipper.json
 
 * Note: The output format should be:
 	```
@@ -162,42 +178,21 @@ cargo contract upload --suri //Alice \
 
 	* Terminal #1
 		```
-			Events
-			Event Balances ➜ Withdraw
-				who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-				amount: 2.068216063mUNIT
-			Event Balances ➜ Reserved
-				who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-				amount: 434.925mUNIT
-			Event Contracts ➜ CodeStored
-				code_hash: 0xec3a66a8f99674ecf25d180fc39ee8e620d45e8de459277e353ece20753d6c53
-			Event TransactionPayment ➜ TransactionFeePaid
-				who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-				actual_fee: 2.068216063mUNIT
-				tip: 0UNIT
-			Event System ➜ ExtrinsicSuccess
-				dispatch_info: DispatchInfo { weight: Weight { ref_time: 2068203465, proof_size: 0 }, class: Normal, pays_fee: Yes }
+		Events
+			...
 
 		Code hash "0xec3a66a8f99674ecf25d180fc39ee8e620d45e8de459277e353ece20753d6c53"
 		```
 
 	* Terminal #2
 		```
-		2023-05-11 05:56:10.582  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #0 (0x18c5…59af), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0    
-		2023-05-11 05:56:11.793  INFO tokio-runtime-worker jsonrpsee_ws_server::server: Accepting new connection 1/100
-		2023-05-11 05:56:11.797 DEBUG tokio-runtime-worker sync: Propagating transactions    
-		2023-05-11 05:56:13.276 DEBUG tokio-runtime-worker sync: Propagating transaction [0x27855e94096938dcb8a0b54aa6eb10f1c7fc4b6a4691cbe8022218600c8a5b30]    
-		2023-05-11 05:56:13.320  INFO tokio-runtime-worker sc_basic_authorship::basic_authorship: 🙌 Starting consensus session on top of parent 0x18c5ce867c31a60bfdd97f1cc6656e684370cea155a1556c9340f18d47ac59af    
-		2023-05-11 05:56:13.960  INFO tokio-runtime-worker sc_basic_authorship::basic_authorship: 🎁 Prepared block for proposing at 1 (431 ms) [hash: 0x9bc460edc15179afa81912948bbb0f537add47434c9dea3a08ef52154165be22; parent_hash: 0x18c5…59af; extrinsics (2): [0xa8a7…4455, 0x2785…5b30]]    
-		2023-05-11 05:56:14.046 DEBUG tokio-runtime-worker sync: Reannouncing block 0x9bc460edc15179afa81912948bbb0f537add47434c9dea3a08ef52154165be22 is_best: true    
-		2023-05-11 05:56:14.047 DEBUG tokio-runtime-worker sync: New best block imported 0x9bc460edc15179afa81912948bbb0f537add47434c9dea3a08ef52154165be22/#1    
-		2023-05-11 05:56:14.053  INFO tokio-runtime-worker sc_consensus_manual_seal::rpc: Instant Seal success: CreatedBlock { hash: 0x9bc460edc15179afa81912948bbb0f537add47434c9dea3a08ef52154165be22, aux: ImportedAux { header_only: false, clear_justification_requests: false, needs_justification: false, bad_justification: false, is_new_best: true } }    
+
 		2023-05-11 05:56:14.102  INFO tokio-runtime-worker substrate: ✨ Imported #1 (0x9bc4…be22)    
 		2023-05-11 05:56:14.699 DEBUG tokio-runtime-worker sync: Propagating transactions    
 		2023-05-11 05:56:15.591  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #1 (0x9bc4…be22), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0
 		```
 
-##### Build & Upload Smart Contract to Local Testnet (using Swanky CLI)
+##### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI) <a id="build-upload-swanky"></a>
 
 Install Swanky CLI https://github.com/AstarNetwork/swanky-cli
 ```bash
@@ -248,7 +243,7 @@ Copy paste the contract address.
 
 5. View in block explorer if deploy on Astar https://astar.subscan.io/wasm_contract_dashboard?tab=contract
 
-##### Interact with Contract using ink! Python
+##### Interact with ink! Python Smart Contract <a id="interact-python"></a>
 
 * Note: This assumes
 
@@ -258,7 +253,7 @@ pip3 install --no-cache-dir -r requirements.txt
 python3 ./src/app.py
 ```
 
-##### Interact with Contract using Flipper and Polkadot.js API
+##### Interact with ink! Rust Flipper Smart Contract using Polkadot.js API <a id="interact-polkadot-js-flipper"></a>
 
 * Enter the Docker container shell in a new terminal window if necessary:
 	```bash
@@ -275,7 +270,7 @@ python3 ./src/app.py
 
 * Reference https://polkadot.js.org/docs/api-contract/start/basics
 
-##### Interact with ink! Contracts using Contracts Node
+##### Interact with ink! Rust Flipper Smart Contract using Substrate Contracts Node <a id="interact-substrate-contracts-node-flipper"></a>
 
 ###### Cargo Contracts
 
@@ -308,17 +303,6 @@ CONTRACT_ADDR=5G....
 echo "stored in variable CONTRACT_ADDR the contract address value ${CONTRACT_ADDR" 
 ```
 
-* Check value was assigned correctly
-* If use `--skip-dry-run` and execute as a transaction then we won't see the return value
-```
-cargo contract call \
-	--suri //Charlie \
-	--contract $CONTRACT_ADDR \
-	--message get \
-	--execute \
-	--skip-confirm
-```
-
 * Interact to flip the boolean value, not a dry run so no response but we get a gas limit response
 
 ```
@@ -330,7 +314,7 @@ cargo contract call \
 	--skip-confirm
 ```
 
-* Check it flipped the boolean value (dry run only)
+* Check it flipped the boolean value (**dry run** only)
 
 ```
 cargo contract call \
@@ -341,30 +325,18 @@ cargo contract call \
 	--skip-confirm
 ```
 
-* Check it flipped the boolean value
-
-```
-cargo contract call \
-	--suri //Charlie \
-	--contract $CONTRACT_ADDR \
-	--message get \
-	--execute \
-	--skip-confirm \
+* Check the outputs:
+	* Emitted events in the terminal where you run `cargo contract ...` comments
+	* Debug logs in the substrate-contracts-node terminal
+	* Optionally go to https://contracts-ui.substrate.io/hash-lookup?rpc=ws://127.0.0.1:9944 and paste the "Code hash" from when you initially uploaded the contract, and pasting its ABI as the Metadata using the contents of ./target/ink/flipper/flipper.json
+* Note: If you don't build in "debug" mode with `cargo contract build ...` instead of `cargo contract build --release ...` and you run it using **dry run** by running extra options like the following, or if you execute as a transaction, then you won't be able to see node terminal debug logs like `tokio-runtime-worker runtime::contracts Execution finished with debug buffer...` from your use of `ink::env::debug_println!` in the smart contract
+```bash
 	--skip-dry-run \
 	--gas 100000000000 \
 	--proof-size 100000000000
 ```
 
-* Note: only works in debug mode `cargo build` (not release)
-```
-ink::env::debug_println!("inc by {}, new value {}", by, self.value);
-```
-
-* Note: it should output on substrate-contracts-node too as `tokio-runtime-worker runtime::contracts Execution finished with debug buffer...`
-* Note: it should show in contracts-ui website too
-* Note: events are not emitted in a dry-run (why wouldn't we want this in debugging mode?)
-
-### Useful Docker Commands
+### Tips Docker Commands <a id="tips-docker"></a>
 
 * List Docker containers
 ```bash
@@ -403,7 +375,7 @@ docker buildx rm --all-inactive
 		* e.g. 64Gb reduce to 32Gb
 		* Note: This deletes all Docker images similar to `docker system prune -a --volumes`
 
-### Notes
+### Notes <a id="tips-notes"></a>
 
 * Strategy:
 	* Why use smart contract instead of blockchain?
@@ -432,7 +404,7 @@ docker buildx rm --all-inactive
 
 TODO - continue summarising from "Smart contract accounts" section
 
-### Links
+### Links <a id="tips-links"></a>
 
 #### Ink
 

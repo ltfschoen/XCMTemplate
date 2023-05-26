@@ -49,9 +49,9 @@ mod flipper {
         #[ink(message)]
         pub fn get(&self) -> bool {
             let from: AccountId = Self::env().caller();
-            ink::env::debug_println!("flipper self.value is: {}", self.value);
-            ink::env::debug_print!("flipper self.value is: {}", self.value);
-            let message = ink::env::format!("caller of flipper get function {:#?}", from);
+            ink::env::debug_println!("flipper self.value is: {}\n", self.value);
+            ink::env::debug_print!("flipper self.value is: {}\n", self.value);
+            let message = ink::env::format!("caller of flipper get function {:#?}\n", from);
             ink::env::debug_println!("{:#?}", &message);  
 
             // https://use.ink/basics/events
