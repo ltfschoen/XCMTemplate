@@ -45,7 +45,7 @@ TRY
 if [ $? -ne 0 ]; then
     printf "\n*** Detected error running 'docker build'. Trying 'docker buildx' instead...\n"
     DOCKER_BUILDKIT=0 docker buildx build \
-        -f {PARENT_DIR}/docker/Dockerfile \
+        -f ${PARENT_DIR}/docker/Dockerfile \
         --build-arg WITHOUT_NODE=${WITHOUT_NODE} \
         --no-cache \
         --tag ink:latest ./
