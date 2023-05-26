@@ -58,7 +58,8 @@ docker ps -a
 # memory measured in bytes
 # restart alternative "no"
 # note: run with `--privileged` to be able to use
-# `systemctl` and `journalctl` service commands
+# `systemctl` and `journalctl` service commands.
+# but `--privileged` breaks the Docker isolation
 docker run --privileged -it -d \
     --env-file "${PARENT_DIR}/.env" \
     --hostname ink \
