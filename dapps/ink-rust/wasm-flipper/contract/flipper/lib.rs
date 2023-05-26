@@ -4,6 +4,15 @@
 #[ink::contract]
 mod flipper {
 
+    /// Defines an event that is emitted
+    /// every time value is retrieved.
+    #[ink(event)]
+    pub struct Retrieved {
+        #[ink(topic)]
+        from: Option<AccountId>,
+        value: bool,
+    }
+
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
@@ -39,8 +48,18 @@ mod flipper {
         /// Simply returns the current value of our `bool`.
         #[ink(message)]
         pub fn get(&self) -> bool {
+            let from: AccountId = Self::env().caller();
             ink::env::debug_println!("flipper self.value is: {}", self.value);
             ink::env::debug_print!("flipper self.value is: {}", self.value);
+            let message = ink::env::format!("caller of flipper get function {:#?}", from);
+            ink::env::debug_println!("{:#?}", &message);  
+
+            // https://use.ink/basics/events
+            self.env().emit_event(Retrieved {
+                from: Some(from),
+                value: self.value
+            });
+
             self.value
         }
     }
