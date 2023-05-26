@@ -107,9 +107,24 @@ substrate-contracts-node --version
 
 ### **Demo Quickstart** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-build-upload"></a>
 
+#### Option 1: Run from host machine
+
 ```bash
-./docker/quickstart.sh
+SCN_PORT=$(docker exec -it ink lsof -ti:30333) && \
+docker exec -it ink echo $(kill -9 $SCN_PORT) && \
+docker exec -it ink /app/docker/quickstart.sh
 ```
+
+#### Option 2: Run from shell inside Docker container
+
+	* Enter shell of Docker container
+		```bash
+		docker exec -it ink /bin/bash
+		```
+	* Run quickstart
+		```bash
+		./docker/quickstart.sh
+		```
 
 * Note: This may be run repeatedly since it automatically:
 	* Kills any existing substrate-contracts-node on port 30333
