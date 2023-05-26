@@ -71,6 +71,7 @@ substrate-contracts-node --version
 	* Note: Use either `--tmp` or `--base-path "/tmp/ink"`
 	* Note: Delete chain database `rm -rf /tmp/ink`.
 	* Note: Check disk space used by database `du /tmp/ink`
+* Note: Refer to debugging docs https://use.ink/basics/contract-debugging
 
 ```bash
 substrate-contracts-node \
@@ -82,12 +83,20 @@ substrate-contracts-node \
 	--port 30333 \
 	--rpc-port 9933 \
 	--ws-port 9944 \
-	--ws-external \
+	--unsafe-ws-external \
 	--rpc-methods Unsafe \
+	--unsafe-rpc-external \
 	--rpc-cors all \
+	--prometheus-external \
 	--telemetry-url "wss://telemetry.polkadot.io/submit/ 0" \
-	-lsync=debug
+	-lsync=debug,runtime::contracts=debug
 ```
+
+* Verify that you are able to connect from websites like:
+	* https://contracts-ui.substrate.io/?rpc=ws://127.0.0.1:9944, and;
+	* https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944
+* Note: It is necessary to use `--unsafe-rpc-external` and `--unsafe-ws-external` instead of just `--rpc-external` and `--ws-external`, otherwise you will get an error `API-WS: disconnected from ws://127.0.0.1:9944: 1006:: Abnormal Closure` if you try to connect to the local node at https://contracts-ui.substrate.io/?rpc=ws://127.0.0.1:9944
+* Note: It is also necessary if using the Brave browser to **disable Advertisement blocker shields** to avoid that error as mentioned in my response here https://substrate.stackexchange.com/a/8648/83
 
 * Leave that terminal tab running the node. Enter the terminal again in a new tab with `docker exec -it ink /bin/bash` and run the following:
 * Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
@@ -101,7 +110,7 @@ cargo contract new flipper
 cd flipper
 ```
 * Optionally build with VSCode by adding the project `"dapps/ink-rust/wasm-flipper/contract/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the contract using the configuration in ./.vscode/launch.json
-* Generate .contract, .wasm, and metadata.json code. Note: Use `--release` to deploy
+* Generate .contract, .wasm, and metadata.json code. Note: Use `--release` to deploy in "release" mode (without debug logs) instead of "debug" mode
 ```
 cargo contract build --manifest-path /app/dapps/ink-rust/wasm-flipper/contract/flipper/Cargo.toml
 ```
@@ -348,7 +357,7 @@ cargo contract call \
 
 * Note: only works in debug mode `cargo build` (not release)
 ```
-ink::env::debug_println("inc by {}, new value {}", by, self.value);
+ink::env::debug_println!("inc by {}, new value {}", by, self.value);
 ```
 
 * Note: it should output on substrate-contracts-node too as `tokio-runtime-worker runtime::contracts Execution finished with debug buffer...`
