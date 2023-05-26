@@ -85,8 +85,8 @@
     #     --locked --branch master --force && \
 	cargo install cargo-contract --version ${CARGO_CONTRACT_VERSION}
 
-	if [ ${WITHOUT_NODE} = "without_node" ]; then
-		#
+	if [[ ${WITHOUT_NODE} == "without_node" ]]; then
+		echo "skipping installation of substrate-contracts-node"
 	else
 		echo "installing substrate-contracts-node"
 
