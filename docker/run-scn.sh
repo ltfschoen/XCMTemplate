@@ -21,7 +21,7 @@ TELEMETRY_URL="wss://telemetry.polkadot.io/submit/ 0"
 DETECT_LOG="tokio-runtime-worker runtime::contracts"
 
 # run the node and highlight output that contains debug logs from smart contract
-CMD="$SCN_PATH \
+$SCN_PATH \
 	--dev \
 	--alice \
 	--name $NAME \
@@ -35,12 +35,6 @@ CMD="$SCN_PATH \
 	--unsafe-rpc-external \
 	--rpc-cors all \
 	--prometheus-external \
-	--telemetry-url $TELEMETRY_URL \
+	--telemetry-url "${TELEMETRY_URL}" \
 	-lsync=debug,runtime::contracts=debug \
     | grep --color=always -z DETECT_LOG
-"
-echo "-----------------------"
-echo "Executing: $CMD"
-echo "----------------------"
-
-$CMD

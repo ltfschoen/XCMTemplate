@@ -82,7 +82,7 @@ substrate-contracts-node --version
 
 * **Important** This is only available if you did not run ./docker/run.sh using "without_node" argument
 
-#### Option 1: Run Node normally **without** using a Service
+#### Run Node
 
 * Run Cargo Contract Node 
 	* Note: Use either `--tmp` or `--base-path "/tmp/ink"`
@@ -97,51 +97,6 @@ substrate-contracts-node --version
 * Leave that terminal tab running the node. Enter the terminal again in a new tab with `docker exec -it ink /bin/bash`
 * Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
 
-#### Option 2: Run Node using Service
-
-* Run the following to configured service and so it restarts on failure
-
-```bash
-mkdir -p /opt/scn && \
-cp /app/docker/run-scn.sh \
-    /opt/scn/run-scn.sh
-
-{
-  echo '[Unit]'
-  echo 'Description=SubstrateContractsNode'
-  echo 'StartLimitIntervalSec=500'
-  echo 'StartLimitBurst=5'
-  echo '[Service]'
-  echo 'Type=simple'
-  echo 'ExecStart=/opt/scn/run-scn.sh'
-  echo 'Restart=on-failure'
-  echo 'RestartSec=5s'
-  echo '[Install]'
-  echo 'WantedBy=multi-user.target'
-} > /etc/systemd/system/scn.service
-
-cat /etc/systemd/system/scn.service
-```
-
-* Start service
-```bash
-systemctl daemon-reload
-systemctl enable scn
-systemctl start scn
-systemctl status scn
-journalctl -u scn.service -f
-```
-
-* Stop service
-```bash
-systemctl stop scn
-```
-
-* Kill the service process if necessary
-```bash
-kill -9 $(lsof -ti:30333)
-```
-
 #### Interact with Node
 
 * Verify that you are able to connect from websites like:
@@ -152,14 +107,16 @@ kill -9 $(lsof -ti:30333)
 
 ### **Demo Quickstart** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-build-upload"></a>
 
-* Prerequisites prior to repeatedly running:
-	* Stop substrate-contracts-node
-	* Empty the chain database with `rm -rf /tmp/ink` so we can redeploy the Flipper contract
-	* Run substrate-contracts-node
-	* Run the quickstart command below
 ```bash
 ./docker/quickstart.sh
 ```
+
+* Note: This may be run repeatedly since it automatically:
+	* Kills any existing substrate-contracts-node on port 30333
+	* Empties the chain database with `rm -rf /tmp/ink` so we can redeploy the Flipper contract to the same address
+	* Run substrate-contracts-node again
+	* Redeploys the Flipper contract
+	* Interacts with the Flipper contract
 
 ### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
 
