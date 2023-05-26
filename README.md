@@ -17,9 +17,9 @@
 	* [Tips Notes](#tips-notes)
 	* [Tips Links](#tips-links)
 
-#### Setup
+## Setup
 
-##### Setup Docker Container <a id="setup-container"></a>
+### Setup Docker Container <a id="setup-container"></a>
 
 * Note:
 	* The docker/Dockerfile and its dependencies in docker/utility are modified copies of files in https://github.com/paritytech/scripts/blob/master/dockerfiles to have the flexibility to develop locally using ink! in a Docker container that uses Linux without any dependency issues, and where changes replicated on the host machine.
@@ -80,7 +80,7 @@ cargo-contract --version
 substrate-contracts-node --version
 ```
 
-##### Run Cargo Contracts Node in Docker Container <a id="run-cargo-contracts-node"></a>
+### Run Cargo Contracts Node in Docker Container <a id="run-cargo-contracts-node"></a>
 
 * **Important** This is only available if you did not run ./docker/run.sh using "without_node" argument
 
@@ -118,7 +118,7 @@ substrate-contracts-node \
 * Leave that terminal tab running the node. Enter the terminal again in a new tab with `docker exec -it ink /bin/bash` and run the following:
 * Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
 
-##### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
+### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
 
 * Create Rust project with template
 ```
@@ -128,10 +128,11 @@ cd flipper
 ```
 * Optionally build with VSCode by adding the project `"dapps/ink-rust/wasm-flipper/contract/flipper"` to the list of members in the Cargo.toml file in the project root, and running "Terminal > Run Task > Build Contract" to build all the contract using the configuration in ./.vscode/launch.json
 * Generate .contract, .wasm, and metadata.json code. Note: Use `--release` to deploy in "release" mode (without debug logs) instead of "debug" mode
-```bash
-cargo contract build --manifest-path /app/dapps/ink-rust/wasm-flipper/contract/flipper/Cargo.toml
-```
 	* Note: If you get error `ERROR: Cannot read /app/target/ink/flipper/.target` then run `rm -rf /app/target`
+
+	```bash
+	cargo contract build --manifest-path /app/dapps/ink-rust/wasm-flipper/contract/flipper/Cargo.toml
+	```
 * Copy ./target/ink/flipper/flipper.json
 	* Paste this as the ABI value of `const abi = ` ./dapps/ink-rust/wasm-flipper/ui/components/abi.ts
 
@@ -192,7 +193,7 @@ cargo contract upload --suri //Alice \
 		2023-05-11 05:56:15.591  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #1 (0x9bc4…be22), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0
 		```
 
-##### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI) <a id="build-upload-swanky"></a>
+### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI) <a id="build-upload-swanky"></a>
 
 Install Swanky CLI https://github.com/AstarNetwork/swanky-cli
 ```bash
@@ -243,7 +244,7 @@ Copy paste the contract address.
 
 5. View in block explorer if deploy on Astar https://astar.subscan.io/wasm_contract_dashboard?tab=contract
 
-##### Interact with ink! Python Smart Contract <a id="interact-python"></a>
+### Interact with ink! Python Smart Contract <a id="interact-python"></a>
 
 * Note: This assumes
 
@@ -253,7 +254,7 @@ pip3 install --no-cache-dir -r requirements.txt
 python3 ./src/app.py
 ```
 
-##### Interact with ink! Rust Flipper Smart Contract using Polkadot.js API <a id="interact-polkadot-js-flipper"></a>
+### Interact with ink! Rust Flipper Smart Contract using Polkadot.js API <a id="interact-polkadot-js-flipper"></a>
 
 * Enter the Docker container shell in a new terminal window if necessary:
 	```bash
@@ -270,9 +271,9 @@ python3 ./src/app.py
 
 * Reference https://polkadot.js.org/docs/api-contract/start/basics
 
-##### Interact with ink! Rust Flipper Smart Contract using Substrate Contracts Node <a id="interact-substrate-contracts-node-flipper"></a>
+### Interact with ink! Rust Flipper Smart Contract using Substrate Contracts Node <a id="interact-substrate-contracts-node-flipper"></a>
 
-###### Cargo Contracts
+#### Cargo Contracts
 
 * Instantiate Contract
 ```
