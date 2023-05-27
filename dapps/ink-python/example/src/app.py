@@ -8,10 +8,11 @@ load_dotenv()
 
 LS_CONTRACTS = os.getenv('LS_CONTRACTS')
 
-provider_rococo = "wss://rococo-contracts-rpc.polkadot.io"
-# provider_local = "ws://127.0.0.1:9944"
+# provider_rococo = "wss://rococo-contracts-rpc.polkadot.io"
+provider_local = "ws://127.0.0.1:9944"
 substrate = SubstrateInterface(
-    url=provider_rococo,
+    # url=provider_rococo,
+    url=provider_local,
     ss58_format=42,
     type_registry_preset='substrate-node-template',
 )
@@ -34,13 +35,35 @@ keypair_charlie = Keypair.create_from_uri(
     crypto_type=KeypairType.SR25519
 )
 print(keypair_charlie.ss58_address)
-# FIXME - conditionally run only if `LS_CONTRACTS` is defined
-# FIXME - why does this return `ValueError: Invalid mnemonic: invalid word in phrase`
+
 keypair_ls = Keypair.create_from_mnemonic(
     LS_CONTRACTS,
     crypto_type=KeypairType.SR25519
 )
 print(keypair_ls.ss58_address)
+
+result = substrate.query('System', 'Account', [keypair_alice.ss58_address])
+print(f"Alice free balance is: {result.value['data']['free']}")
+
+result = substrate.query('System', 'Account', [keypair_ls.ss58_address])
+print(f"LS_CONTRACT free balance is: {result.value['data']['free']}")
+
+print(f"Transferring funds from Alice to LS_CONTRACT")
+call = substrate.compose_call(
+    call_module='Balances',
+    call_function='transfer',
+    call_params={
+        'dest': keypair_ls.ss58_address,
+        'value': 10 * 10**12
+    }
+)
+extrinsic = substrate.create_signed_extrinsic(call=call, keypair=keypair_alice)
+receipt = substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True)
+
+print(f"Extrinsic '{receipt.extrinsic_hash}' sent and included in block '{receipt.block_hash}'")
+
+result = substrate.query('System', 'Account', [keypair_ls.ss58_address])
+print(f"LS_CONTRACT free balance is: {result.value['data']['free']}")
 
 # deploy contract
 # https://polkascan.github.io/py-substrate-interface/usage/ink-contract-interfacing/#work-with-an-existing-instance
@@ -58,10 +81,10 @@ contract = code.deploy(
     args={'init_value': True},
     value=0,
     # endowment=0,
-    gas_limit={'ref_time': 25990000000, 'proof_size': 11990}, # gas_limit=1000000000000, # gas_limit: dict = None,
+    gas_limit={'ref_time': 50_000_000_000, 'proof_size': 10_000_000}, # gas_limit=1000000000000, # gas_limit: dict = None,
     deployment_salt="",
     upload_code=True,
-    storage_deposit_limit=1000000000000
+    storage_deposit_limit=1_000_000_000_000
 )
 print(f'✅ Deployed @ {contract.contract_address}')
 
@@ -88,19 +111,20 @@ print('Current value of "get":', result.contract_result_data)
 result = contract_existing.read(keypair_ls, 'get')
 print('Current value of "get":', result.contract_result_data)
 
-# keypair creation and signing
-# mnemonic = Keypair.generate_mnemonic()
-# keypair = Keypair.create_from_mnemonic(
-#     mnemonic,
-#     crypto_type=KeypairType.SR25519 # or ECDSA, ED25519 
-# )
-# print(keypair.ss58_address)
-# signature = keypair.sign("Test123")
-# if keypair.verify("Test123", signature):
-#     print('Verified')
+print(f"# keypair creation and signing")
+mnemonic = Keypair.generate_mnemonic()
+keypair = Keypair.create_from_mnemonic(
+    mnemonic,
+    crypto_type=KeypairType.SR25519 # or ECDSA, ED25519 
+)
+print(keypair.ss58_address)
+signature = keypair.sign("Test123")
+if keypair.verify("Test123", signature):
+    print('Verified')
 
-# # generate signature payload then use to perform offline signing of extrinsics
-# # on another offline machine and later send to network with generated signature
+# print(f"# generate signature payload then")
+# print(f"# use to perform offline signing of extrinsics on another")
+# print(f"# offline machine and later send to network with generated signature")
 # call = substrate.compose_call(
 #     call_module='Balances',
 #     call_function='transfer',
@@ -112,7 +136,9 @@ print('Current value of "get":', result.contract_result_data)
 # era = {'period': 64, 'current': 22719}
 # nonce = 0
 # signature_payload = substrate.generate_signature_payload(call=call, era=era, nonce=nonce)
-# # generate the signature with given `signature_payload` on another offline machine
+# print(f"# generate the signature with given 'signature_payload'")
+# print(f"# on another offline machine")
+
 # # TODO - find mnemonic phrase of Charlie and replace line below
 # keypair = Keypair.create_from_mnemonic("nature exchange gasp toy result bacon coin broccoli rule oyster believe lyrics")
 # signature = keypair.sign(signature_payload)

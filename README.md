@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-* Setup
+* [Setup](#setup)
 	* [Setup Docker Container](#setup-container)
 	* [Run Cargo Contracts Node in Docker Container](#run-cargo-contracts-node)
 * Build & Upload
@@ -18,7 +18,7 @@
 	* [Tips Notes](#tips-notes)
 	* [Tips Links](#tips-links)
 
-## Setup
+## Setup <a id="setup"></a>
 
 ### Setup Docker Container <a id="setup-container"></a>
 
@@ -36,7 +36,7 @@
 	* Node.js version
 	* Cargo Contract
 	* Substrate Contracts Node
-* Configure amount of CPUs and memory of the host machine the Docker container should use in ./docker/docker.sh
+* Configure amount of CPUs and memory of the host machine the Docker container should use in ./docker/docker.sh. Use `docker update` to change the configuration https://docs.docker.com/engine/reference/commandline/container_update/
 * Update dependencies in ./dapps/ink-rust/wasm-flipper/package.json https://stackoverflow.com/a/70588930/3208553
 	```
 	cd ./dapps/ink-rust/wasm-flipper/
@@ -96,6 +96,9 @@ substrate-contracts-node --version
 
 * Leave that terminal tab running the node. Enter the terminal again in a new tab with `docker exec -it ink /bin/bash`
 * Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
+
+* Restart the node and delete the chain database by running `./docker/reset.sh` inside the Docker container or `docker exec -it ink /app/docker/reset.sh` from outside the Docker container and waiting 15 seconds
+```
 
 #### Interact with Node
 
@@ -262,13 +265,21 @@ Copy paste the contract address.
 
 ### Interact with ink! Python Smart Contract <a id="interact-python"></a>
 
-* Note: This assumes
-
+* Run the steps in the [Setup](#setup) section (if you want to connect to a local node)
+* Enter the Docker container with `docker exec -it ink /bin/bash`
+* Run the following inside the Docker container
 ```bash
-cd dapps/ink-python/example
+cd ./dapps/ink-python/example
 pip3 install --no-cache-dir -r requirements.txt
 python3 ./src/app.py
 ```
+
+* Note: If you get error `DuplicateContract', 'docs': ['A contract with the same AccountId already exists` then restart the substrate-contracts-node and reset the database by simply running the following on the host machine from outside the Docker container and waiting for approx. 15 seconds before running your commands again. Or run `/app/docker/reset.sh` from within the Docker container.
+	```bash
+	docker exec -it ink /app/docker/reset.sh
+	```
+
+* Note: If you get error `ValueError: Invalid mnemonic: invalid word in phrase` then you needed to set account mnemonic phrase as the value of `LS_CONTRACT` in the .env file and obtain testnet tokens for it from faucet at https://use.ink/faucet/
 
 ### Interact with ink! Rust Flipper Smart Contract using Polkadot.js API <a id="interact-polkadot-js-flipper"></a>
 
