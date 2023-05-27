@@ -28,8 +28,9 @@ COPY docker/utility/debian-llvm-clang.key /etc/apt/trusted.gpg.d/debian-llvm-cla
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
-        CC=clang-14 \
-        CXX=clang-14
+    CC=clang-14 \
+    CXX=clang-14 \
+    LS_CONTRACT=${LS_CONTRACT}
 
 # https://docs.docker.com/engine/reference/builder/#here-documents
 # install tools and dependencies
