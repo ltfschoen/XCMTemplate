@@ -98,7 +98,6 @@ substrate-contracts-node --version
 * Attach to the running terminal with VSCode if necessary. See [here](https://code.visualstudio.com/docs/devcontainers/attach-container)
 
 * Restart the node and delete the chain database by running `./docker/reset.sh` inside the Docker container or `docker exec -it ink /app/docker/reset.sh` from outside the Docker container and waiting 15 seconds
-```
 
 #### Interact with Node
 
