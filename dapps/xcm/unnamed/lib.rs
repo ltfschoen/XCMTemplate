@@ -9,20 +9,15 @@ mod unnamed {
     /// to add new static storage fields to your contract.
     #[ink(storage)]
     pub struct Unnamed {
-        /// Stores a single `bool` value on the storage.
-        value: bool,
         /// Store a reference to the `OracleContract`.
         oracle_contract: OracleContractRef,
     }
 
     impl Unnamed {
-        /// Constructor that:
-        /// * Instantiates the OracleContract using its uploaded `code_hash`
-        /// * Initializes the `bool` value to the given `init_value`.
+        /// Constructor that instantiates the OracleContract using its uploaded `code_hash`
         #[ink(constructor)]
         pub fn new(
             oracle_contract_code_hash: Hash,
-            init_value: bool
         ) -> Self {
             let oracle_contract = OracleContractRef::new(true)
                 .code_hash(oracle_contract_code_hash)
@@ -32,16 +27,7 @@ mod unnamed {
 
             Self {
                 oracle_contract,
-                value: init_value,
             }
-        }
-
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
         }
 
         /// A message that can be called on instantiated contracts.
