@@ -4,51 +4,70 @@
 mod unnamed {
     use oracle_contract::OracleContractRef;
 
+    use ink::prelude::vec::Vec;
+
+    // refactor into types file
+    pub type MarketGuessId = Vec<u8>;
+    pub type OracleOwner = AccountId;
+
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
+    #[derive(Default)]
     #[ink(storage)]
     pub struct Unnamed {
         /// Store a reference to the `OracleContract`.
-        oracle_contract: OracleContractRef,
+        oracle_contract: Option<OracleContractRef>,
+        owner: Option<OracleOwner>,
     }
+
+    /// Errors that can occur upon calling this contract.
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+    pub enum Error {
+        /// Returned if not oracle contract address exists.
+        NoOracleContractAddress,
+    }
+
+    /// Type alias for the contract's result type.
+    pub type Result<T> = core::result::Result<T, Error>;
 
     impl Unnamed {
         /// Constructor that instantiates the OracleContract using its uploaded `code_hash`
         #[ink(constructor)]
         pub fn new(
             oracle_contract_code_hash: Hash,
+            id_market: MarketGuessId,
+            block_number_guessed: BlockNumber,
+            block_number_entropy: BlockNumber,
+            block_number_end: BlockNumber,
         ) -> Self {
-            let oracle_contract = OracleContractRef::new(true)
+            let instance = Self::default();
+            let caller = instance.env().caller();
+            let oracle_contract = OracleContractRef::new(
+                    id_market,
+                    block_number_guessed,
+                    block_number_entropy,
+                    block_number_end,
+                )
                 .code_hash(oracle_contract_code_hash)
                 .endowment(0)
                 .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
                 .instantiate();
 
             Self {
-                oracle_contract,
+                oracle_contract: Some(oracle_contract),
+                owner: Some(caller),
             }
-        }
-
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
-        #[ink(message)]
-        pub fn flip(&mut self) {
-            self.value = !self.value;
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn get(&self) -> bool {
-            self.value
         }
 
         /// Using the `OracleContractRef` we can call all the messages of the `OracleContract`
         #[ink(message)]
-        pub fn flip_and_get(&mut self) -> bool {
-            self.oracle_contract.flip();
-            self.oracle_contract.get()
+        pub fn get_oracle_contract_address(&self) -> Result<AccountId> {
+            match &self.oracle_contract {
+                Some(c) => Ok(c.get_oracle_contract_address()),
+                None => return Err(Error::NoOracleContractAddress),
+            }
         }
     }
 

@@ -19,6 +19,7 @@ mod oracle_contract {
     // use core::str;
     // use hex;
 
+    // refactor into types file
     pub type MarketGuessId = Vec<u8>;
     pub type OracleOwner = AccountId;
 
@@ -63,7 +64,7 @@ mod oracle_contract {
         /// Market guess id.
         id_market: MarketGuessId,
         /// Oracle account owner
-        oracle_owner: OracleOwner,
+        oracle_owner: Option<OracleOwner>,
         /// Block number when market guesses were made.
         block_number_guessed: BlockNumber,
         /// Block number in the future to use the block hash of for entropy.
@@ -104,9 +105,8 @@ mod oracle_contract {
             block_number_end: BlockNumber,
         ) -> Self {
             let mut instance = Self::default();
-            let oracle_owner: OracleOwner = instance.env().caller();
-            let market_data = Mapping::default();
-            assert!(instance.exists_market_data_for_id(id_market), "unable to find market data for given id");
+            let caller = instance.env().caller();
+            assert!(instance.exists_market_data_for_id(id_market.clone()), "unable to find market data for given id");
             let block_number_current = Self::env().block_number();
             // TODO - we need to verify that the block hash exists for the block number
             // when they say guessing occurred
@@ -127,17 +127,19 @@ mod oracle_contract {
                 block used for entropy"
             );
             let new_market_guess = MarketGuess {
-                id_market,
-                oracle_owner,
+                id_market: id_market.clone(),
+                // must be set to Option<AccountId> to avoid error:
+                // the trait `Default` is not implemented for `ink::ink_primitives::AccountId`
+                oracle_owner: Some(caller),
                 block_number_guessed,
                 block_number_entropy,
                 block_hash_entropy: Default::default(),
                 block_number_end,
             };
             instance.market_data.insert(&id_market, &new_market_guess);
-            self.env().emit_event(NewOracleMarketGuessForMarketId {
-                id_market,
-                oracle_owner,
+            instance.env().emit_event(NewOracleMarketGuessForMarketId {
+                id_market: id_market.clone(),
+                oracle_owner: caller,
                 block_number_guessed,
                 block_number_entropy,
                 block_number_end,
@@ -153,27 +155,33 @@ mod oracle_contract {
         ) -> Result<()> {
             let caller: AccountId = self.env().caller();
             // assert!(self.exists_market_data_for_id(id_market), "unable to find market data for given id");
-            let market_guess = match self.market_data.get(id_market) {
+            // TODO - convert Vec<u8> to &str to avoid use of .clone()
+            let market_guess = match self.market_data.get(id_market.clone()) {
                 Some(data) => data,
                 None => return Err(Error::NoDataForMarketGuessId),
             };
             // singleton change of block hash entropy from the default value set at instantiation of the contract
             assert!(market_guess.block_hash_entropy == Default::default(), "unable to set block hash entropy for market id once");
-            if market_guess.oracle_owner != caller {
+            if market_guess.oracle_owner != Some(caller) {
                 return Err(Error::CallerIsNotOracleOwner)
             }
             let new_market_guess = MarketGuess {
                 block_hash_entropy,
                 ..market_guess
             };
-            self.market_data.insert(&id_market, &new_market_guess);
+            self.market_data.insert(id_market.clone(), &new_market_guess);
             self.env().emit_event(SetBlockHashEntropyForMarketId {
-                id_market,
+                id_market: id_market.clone(),
                 oracle_owner: caller,
                 block_number_entropy: market_guess.block_number_entropy,
                 block_hash_entropy,
             });
             Ok(())
+        }
+
+        #[ink(message)]
+        pub fn get_oracle_contract_address(&self) -> AccountId {
+            self.env().account_id()
         }
 
         // #[ink(message)]
