@@ -2,6 +2,7 @@
 
 #[ink::contract]
 mod unnamed {
+    use oracle_contract::OracleContractRef;
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
@@ -10,13 +11,29 @@ mod unnamed {
     pub struct Unnamed {
         /// Stores a single `bool` value on the storage.
         value: bool,
+        /// Store a reference to the `OracleContract`.
+        oracle_contract: OracleContractRef,
     }
 
     impl Unnamed {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
+        /// Constructor that:
+        /// * Instantiates the OracleContract using its uploaded `code_hash`
+        /// * Initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+        pub fn new(
+            oracle_contract_code_hash: Hash,
+            init_value: bool
+        ) -> Self {
+            let oracle_contract = OracleContractRef::new(true)
+                .code_hash(oracle_contract_code_hash)
+                .endowment(0)
+                .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+                .instantiate();
+
+            Self {
+                oracle_contract,
+                value: init_value,
+            }
         }
 
         /// Constructor that initializes the `bool` value to `false`.
@@ -39,6 +56,13 @@ mod unnamed {
         #[ink(message)]
         pub fn get(&self) -> bool {
             self.value
+        }
+
+        /// Using the `OracleContractRef` we can call all the messages of the `OracleContract`
+        #[ink(message)]
+        pub fn flip_and_get(&mut self) -> bool {
+            self.oracle_contract.flip();
+            self.oracle_contract.get()
         }
     }
 
