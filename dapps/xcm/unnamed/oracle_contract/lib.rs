@@ -47,7 +47,7 @@ mod oracle_contract {
         #[ink(topic)]
         block_number_entropy: BlockNumber,
         #[ink(topic)]
-        block_hash_entropy: Hash,
+        block_hash_entropy: Option<[u8; 32]>, // Hash
     }
 
     // https://docs.rs/ink/latest/ink/attr.storage_item.html
@@ -71,7 +71,7 @@ mod oracle_contract {
         block_number_entropy: BlockNumber,
         /// Block hash associated with `block_number_entropy` when finalized
         /// to use for entropy.
-        block_hash_entropy: Hash,
+        block_hash_entropy: Option<[u8; 32]>, // Hash
         /// Market guess period end block number
         block_number_end: BlockNumber,
     }
@@ -133,7 +133,7 @@ mod oracle_contract {
                 oracle_owner: Some(caller),
                 block_number_guessed,
                 block_number_entropy,
-                block_hash_entropy: Default::default(),
+                block_hash_entropy: None,
                 block_number_end,
             };
             instance.market_data.insert(&id_market, &new_market_guess);
@@ -151,7 +151,7 @@ mod oracle_contract {
         pub fn set_block_hash_entropy_for_market_id(
             &mut self,
             id_market: MarketGuessId,
-            block_hash_entropy: Hash,
+            block_hash_entropy: [u8; 32], // Hash
         ) -> Result<()> {
             let caller: AccountId = self.env().caller();
             // assert!(self.exists_market_data_for_id(id_market), "unable to find market data for given id");
@@ -161,12 +161,15 @@ mod oracle_contract {
                 None => return Err(Error::NoDataForMarketGuessId),
             };
             // singleton change of block hash entropy from the default value set at instantiation of the contract
-            assert!(market_guess.block_hash_entropy == Default::default(), "unable to set block hash entropy for market id once");
+            assert!(
+                market_guess.block_hash_entropy == None,
+                "unable to set block hash entropy for market id more than once"
+            );
             if market_guess.oracle_owner != Some(caller) {
                 return Err(Error::CallerIsNotOracleOwner)
             }
             let new_market_guess = MarketGuess {
-                block_hash_entropy,
+                block_hash_entropy: Some(block_hash_entropy),
                 ..market_guess
             };
             self.market_data.insert(id_market.clone(), &new_market_guess);
@@ -174,7 +177,7 @@ mod oracle_contract {
                 id_market: id_market.clone(),
                 oracle_owner: caller,
                 block_number_entropy: market_guess.block_number_entropy,
-                block_hash_entropy,
+                block_hash_entropy: Some(block_hash_entropy),
             });
             Ok(())
         }
@@ -184,31 +187,53 @@ mod oracle_contract {
             self.env().account_id()
         }
 
-        // #[ink(message)]
-        // // pub fn get_entropy_for_market_id(&self, id_market: MarketGuessId) -> (BlockNumber, BlockNumber, ????) {
-        // pub fn get_entropy_for_market_id(&self, id_market: MarketGuessId) -> (BlockNumber, BlockNumber) {
-        //     let market_guess = match self.market_data.get(id_market) {
-        //         Some(data) => data,
-        //         None => return Err(Error::NoDataForMarketGuessId),
-        //     };
-        //     assert!(market_guess.block_hash_entropy != Default::default(), "block hash entropy must be set prior to obtaining entropy");
-        //     let block_number_entropy = market_guess.block_number_entropy;
-        //     let block_hash_entropy = market_guess.block_hash_entropy;
+        #[ink(message)]
+        pub fn get_entropy_for_market_id(&self, id_market: MarketGuessId) -> Result<(BlockNumber, [u8; 32], i16, i16)> {
+            let market_guess = match self.market_data.get(id_market) {
+                Some(data) => data,
+                None => return Err(Error::NoDataForMarketGuessId),
+            };
+            assert!(
+                market_guess.block_hash_entropy != None,
+                "block hash entropy must be set prior to obtaining entropy"
+            );
+            let block_number_entropy = market_guess.block_number_entropy;
+            // e."0xaef6eca62ae61934a7ab5ad3814f6e319abd3e4e4aa1a3386466ad197d1c4dea"
+            // note: Hash is [u8; 32] 32 bytes (&[u8]) without 0x prefix and 64 symbols, 32 bytes, 256 bits
+            let block_hash_entropy: [u8; 32] = market_guess.block_hash_entropy.unwrap();
+            // let block_hash_entropy: &[u8] =
+            //     "aef6eca62ae61934a7ab5ad3814f6e319abd3e4e4aa1a3386466ad197d1c4dea".as_bytes();
+            // note: changed `block_hash_entropy` to `[u8; 32]` instead of `Hash` so we can get the `.len()`
+            assert!(block_hash_entropy.len() == 64, "block hash should be a 256 bit block hash");
+            ink::env::debug_println!("block_hash_entropy: {:?}\n", block_hash_entropy);
+            // https://peterlyons.com/problog/2017/12/rust-converting-bytes-chars-and-strings/
+            let (c1_u8a, c2_u8a): (&[u8], &[u8]) = self.last_bytes(&block_hash_entropy);
+            ink::env::debug_println!("c1_u8a: {:?}\n", c1_u8a);
+            ink::env::debug_println!("c2_u8a: {:?}\n", c2_u8a);
+            let c1_hex = String::from_utf8_lossy(&c1_u8a);
+            let c2_hex = String::from_utf8_lossy(&c2_u8a);
+            ink::env::debug_println!("c1_hex: {:?}", c1_hex);
+            ink::env::debug_println!("c2_hex: {:?}", c2_hex);
+            // use u16 since max value 65535
+            // let without_prefix = hex.trim_start_matches("0x");
+            let c1_decimal = i16::from_str_radix(&c1_hex, 16).unwrap();
+            let c2_decimal = i16::from_str_radix(&c2_hex, 16).unwrap();
+            ink::env::debug_println!("c1_decimal {:?}", c1_decimal);
+            ink::env::debug_println!("c2_decimal {:?}", c2_decimal);
+            // remainders are 0 or 1 and represent the random side the coin flipped on
+            let c1_rem = c1_decimal % 2i16;
+            let c2_rem = c2_decimal % 2i16;
+            ink::env::debug_println!("c1_rem {:?}", c1_rem);
+            ink::env::debug_println!("c2_rem {:?}", c2_rem);
 
-        //     let entropy = block_hash_entropy.replace(&["0x"][..], "");
-            // let str = decode(entropy);
-            // let buffer = <[u8; 12]>::from_hex(entropy)?;
-            // let str = str::from_utf8(&buffer).expect("invalid buffer length");
-            // let sub = &str[..5];
-            // ink::env::debug_println!("sub: {}\n", sub);
+            Ok((block_number_entropy, block_hash_entropy, c1_rem, c2_rem))
+        }
 
-            // generate random number from block hash
-            // don't allow them to use the default value for the random number, they need to have set the
-            // block hash entropy to a block hash 
-
-            // (block_number_entropy, block_hash_entropy, ???)
-        //     (block_number_entropy, block_hash_entropy)
-        // }
+        // get symbols 61-64 for coin1 and 57-60 for coin2 fro the block hash
+        fn last_bytes<'a>(&'a self, slice: &'a [u8; 32]) -> (&[u8], &[u8]) {
+            let bytes = slice.split_at(slice.len() - 8).1;
+            (bytes.split_at(bytes.len() - 4).0, bytes.split_at(bytes.len() - 4).1)
+        }
 
         // helper methods
         fn exists_market_data_for_id(&self, id_market: MarketGuessId) -> bool {
