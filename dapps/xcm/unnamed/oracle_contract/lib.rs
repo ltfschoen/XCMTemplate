@@ -34,7 +34,6 @@ mod oracle_contract {
         block_number_guessed: BlockNumber,
         #[ink(topic)]
         block_number_entropy: BlockNumber,
-        // #[ink(topic)]
         block_number_end: BlockNumber,
     }
 
@@ -48,6 +47,32 @@ mod oracle_contract {
         block_number_entropy: BlockNumber,
         #[ink(topic)]
         block_hash_entropy: Option<[u8; 32]>, // Hash
+    }
+
+    /// Emitted when set entropy for market id.
+    #[ink(event)]
+    pub struct SetEntropyForMarketId {
+        #[ink(topic)]
+        id_market: MarketGuessId,
+        oracle_owner: OracleOwner,
+        #[ink(topic)]
+        block_number_entropy: BlockNumber,
+        block_hash_entropy: Option<[u8; 32]>, // Hash
+        c1_entropy: i16,
+        c2_entropy: i16
+    }
+
+    /// Emitted when set block hash entropy for market id.
+    #[ink(event)]
+    pub struct GeneratedEntropyForMarketId {
+        #[ink(topic)]
+        id_market: MarketGuessId,
+        oracle_owner: OracleOwner,
+        #[ink(topic)]
+        block_number_entropy: BlockNumber,
+        block_hash_entropy: Option<[u8; 32]>, // Hash
+        c1_entropy: i16,
+        c2_entropy: i16,
     }
 
     // https://docs.rs/ink/latest/ink/attr.storage_item.html
@@ -74,6 +99,10 @@ mod oracle_contract {
         block_hash_entropy: Option<[u8; 32]>, // Hash
         /// Market guess period end block number
         block_number_end: BlockNumber,
+        /// Entropy random number for coin 1
+        c1_entropy: Option<i16>,
+        /// Entropy random number for coin 2
+        c2_entropy: Option<i16>,
     }
 
     #[derive(Default)]
@@ -135,6 +164,8 @@ mod oracle_contract {
                 block_number_entropy,
                 block_hash_entropy: None,
                 block_number_end,
+                c1_entropy: None,
+                c2_entropy: None,
             };
             instance.market_data.insert(&id_market, &new_market_guess);
             instance.env().emit_event(NewOracleMarketGuessForMarketId {
@@ -148,9 +179,10 @@ mod oracle_contract {
         }
 
         #[ink(message)]
-        pub fn set_block_hash_entropy_for_market_id(
+        pub fn set_block_for_entropy_for_market_id(
             &mut self,
             id_market: MarketGuessId,
+            block_number_entropy: BlockNumber, // always require this even though it may not have changed
             block_hash_entropy: [u8; 32], // Hash
         ) -> Result<()> {
             let caller: AccountId = self.env().caller();
@@ -160,15 +192,25 @@ mod oracle_contract {
                 Some(data) => data,
                 None => return Err(Error::NoDataForMarketGuessId),
             };
-            // singleton change of block hash entropy from the default value set at instantiation of the contract
+            // note: oracle_owner may need to run this function more than once incase entropy block number missed or chain reorg
+            // // singleton change of block hash entropy from the value set at instantiation of the contract
+            // assert!(
+            //     market_guess.block_hash_entropy == None,
+            //     "unable to set block hash entropy for market id more than once"
+            // );
+
             assert!(
-                market_guess.block_hash_entropy == None,
-                "unable to set block hash entropy for market id more than once"
+                block_number_entropy - market_guess.block_number_entropy > 128,
+                "unable to update block number entropy for market id again until after \
+                waiting sufficient blocks after previous so guarantee of waiting until \
+                validators change after a certain amount of epochs"
             );
+
             if market_guess.oracle_owner != Some(caller) {
                 return Err(Error::CallerIsNotOracleOwner)
             }
             let new_market_guess = MarketGuess {
+                block_number_entropy,
                 block_hash_entropy: Some(block_hash_entropy),
                 ..market_guess
             };
@@ -176,8 +218,50 @@ mod oracle_contract {
             self.env().emit_event(SetBlockHashEntropyForMarketId {
                 id_market: id_market.clone(),
                 oracle_owner: caller,
-                block_number_entropy: market_guess.block_number_entropy,
+                block_number_entropy,
                 block_hash_entropy: Some(block_hash_entropy),
+            });
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn set_entropy_for_market_id(
+            &mut self,
+            id_market: MarketGuessId,
+            block_number_entropy: BlockNumber, // always require this even though it may not have changed
+            block_hash_entropy: [u8; 32], // Hash
+            c1_entropy: i16,
+            c2_entropy: i16,
+        ) -> Result<()> {
+            let caller: AccountId = self.env().caller();
+            let market_guess = match self.market_data.get(id_market.clone()) {
+                Some(data) => data,
+                None => return Err(Error::NoDataForMarketGuessId),
+            };
+            if market_guess.oracle_owner != Some(caller) {
+                return Err(Error::CallerIsNotOracleOwner)
+            }
+            assert!(
+                block_number_entropy == market_guess.block_number_entropy &&
+                block_hash_entropy == market_guess.block_hash_entropy.unwrap(),
+                "block_number entropy and block hash storage must be set prior to setting entropy for the market"
+            );
+            assert!(self.exists_market_data_for_id(id_market.clone()), "unable to find market data for given id");
+            let new_market_guess = MarketGuess {
+                block_number_entropy,
+                block_hash_entropy: Some(block_hash_entropy),
+                c1_entropy: Some(c1_entropy),
+                c2_entropy: Some(c2_entropy),
+                ..market_guess
+            };
+            self.market_data.insert(id_market.clone(), &new_market_guess);
+            self.env().emit_event(SetEntropyForMarketId {
+                id_market: id_market.clone(),
+                oracle_owner: caller,
+                block_number_entropy,
+                block_hash_entropy: Some(block_hash_entropy),
+                c1_entropy,
+                c2_entropy,
             });
             Ok(())
         }
@@ -189,14 +273,19 @@ mod oracle_contract {
 
         #[ink(message)]
         pub fn get_entropy_for_market_id(&self, id_market: MarketGuessId) -> Result<(BlockNumber, [u8; 32], i16, i16)> {
-            let market_guess = match self.market_data.get(id_market) {
+            let caller: AccountId = self.env().caller();
+            let market_guess = match self.market_data.get(id_market.clone()) {
                 Some(data) => data,
                 None => return Err(Error::NoDataForMarketGuessId),
             };
-            assert!(
-                market_guess.block_hash_entropy != None,
-                "block hash entropy must be set prior to obtaining entropy"
-            );
+            if market_guess.oracle_owner != Some(caller) {
+                return Err(Error::CallerIsNotOracleOwner)
+            }
+            // note: oracle_owner may need to run this function more than once incase entropy block number missed or chain reorg
+            // assert!(
+            //     market_guess.block_hash_entropy != None,
+            //     "block hash entropy must be set prior to obtaining entropy"
+            // );
             let block_number_entropy = market_guess.block_number_entropy;
             // e."0xaef6eca62ae61934a7ab5ad3814f6e319abd3e4e4aa1a3386466ad197d1c4dea"
             // note: Hash is [u8; 32] 32 bytes (&[u8]) without 0x prefix and 64 symbols, 32 bytes, 256 bits
@@ -225,6 +314,15 @@ mod oracle_contract {
             let c2_rem = c2_decimal % 2i16;
             ink::env::debug_println!("c1_rem {:?}", c1_rem);
             ink::env::debug_println!("c2_rem {:?}", c2_rem);
+
+            self.env().emit_event(GeneratedEntropyForMarketId {
+                id_market: id_market.clone(),
+                oracle_owner: caller,
+                block_number_entropy: market_guess.block_number_entropy,
+                block_hash_entropy: Some(block_hash_entropy),
+                c1_entropy: c1_rem,
+                c2_entropy: c2_rem,
+            });
 
             Ok((block_number_entropy, block_hash_entropy, c1_rem, c2_rem))
         }
