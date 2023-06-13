@@ -1155,7 +1155,7 @@ dependencies = [
 name = "flipper"
 version = "0.1.0"
 dependencies = [
- "ink",
+ "ink 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ink_e2e",
  "parity-scale-codec",
  "scale-info",
@@ -1673,12 +1673,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b374fcb3c9b91f8293bdc93d69292e2ec6ea19e97e00725806d79bf563fa5e55"
 dependencies = [
  "derive_more",
- "ink_env",
- "ink_macro",
- "ink_metadata",
- "ink_prelude",
- "ink_primitives",
- "ink_storage",
+ "ink_env 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_macro 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_metadata 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_prelude 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_storage 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parity-scale-codec",
+]
+
+[[package]]
+name = "ink"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "derive_more",
+ "ink_env 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_macro 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_metadata 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_prelude 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_primitives 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_storage 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
  "parity-scale-codec",
 ]
 
@@ -1687,6 +1702,14 @@ name = "ink_allocator"
 version = "4.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1cdc9dbbc38d0e0cd7b053068112ca8ab8140b8ece33b9e197af5544ed3d97e1"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
+name = "ink_allocator"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
 dependencies = [
  "cfg-if",
 ]
@@ -1703,10 +1726,31 @@ dependencies = [
  "env_logger",
  "heck",
  "impl-serde 0.4.0",
- "ink_ir",
- "ink_primitives",
+ "ink_ir 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools",
  "log",
+ "parity-scale-codec",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "syn 2.0.16",
+]
+
+[[package]]
+name = "ink_codegen"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "blake2",
+ "derive_more",
+ "either",
+ "heck",
+ "impl-serde 0.4.0",
+ "ink_ir 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_primitives 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "itertools",
  "parity-scale-codec",
  "proc-macro2",
  "quote",
@@ -1724,10 +1768,10 @@ dependencies = [
  "env_logger",
  "funty",
  "impl-serde 0.3.2",
- "ink",
+ "ink 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ink_e2e_macro",
- "ink_env",
- "ink_primitives",
+ "ink_env 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpsee 0.17.1",
  "log",
  "pallet-contracts-primitives",
@@ -1752,7 +1796,7 @@ dependencies = [
  "contract-build",
  "derive_more",
  "env_logger",
- "ink_ir",
+ "ink_ir 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log",
  "proc-macro2",
  "quote",
@@ -1769,7 +1813,21 @@ checksum = "77c4af49e092a93e65d1161ce31d23c2e57d724462c96a8944acd647a52787f0"
 dependencies = [
  "blake2",
  "derive_more",
- "ink_primitives",
+ "ink_primitives 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parity-scale-codec",
+ "secp256k1 0.27.0",
+ "sha2 0.10.6",
+ "sha3",
+]
+
+[[package]]
+name = "ink_engine"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "blake2",
+ "derive_more",
+ "ink_primitives 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
  "parity-scale-codec",
  "secp256k1 0.27.0",
  "sha2 0.10.6",
@@ -1786,11 +1844,38 @@ dependencies = [
  "blake2",
  "cfg-if",
  "derive_more",
- "ink_allocator",
- "ink_engine",
- "ink_prelude",
- "ink_primitives",
- "ink_storage_traits",
+ "ink_allocator 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_engine 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_prelude 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_storage_traits 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits",
+ "parity-scale-codec",
+ "paste",
+ "rlibc",
+ "scale-decode",
+ "scale-encode",
+ "scale-info",
+ "secp256k1 0.27.0",
+ "sha2 0.10.6",
+ "sha3",
+ "static_assertions",
+]
+
+[[package]]
+name = "ink_env"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "arrayref",
+ "blake2",
+ "cfg-if",
+ "derive_more",
+ "ink_allocator 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_engine 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_prelude 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_primitives 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_storage_traits 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
  "num-traits",
  "parity-scale-codec",
  "paste",
@@ -1819,14 +1904,43 @@ dependencies = [
 ]
 
 [[package]]
+name = "ink_ir"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "blake2",
+ "either",
+ "ink_prelude 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "itertools",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.16",
+]
+
+[[package]]
 name = "ink_macro"
 version = "4.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "15abf802e89909c65b6c15d0c655beb3c7ab86309626effb5d9b330d97308114"
 dependencies = [
- "ink_codegen",
- "ink_ir",
- "ink_primitives",
+ "ink_codegen 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_ir 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parity-scale-codec",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.16",
+ "synstructure",
+]
+
+[[package]]
+name = "ink_macro"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "ink_codegen 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_ir 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_primitives 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
  "parity-scale-codec",
  "proc-macro2",
  "quote",
@@ -1842,9 +1956,23 @@ checksum = "4af082b4c2eb246d27b358411ef950811f851c1099aa507ba4bcdd7214d40ccd"
 dependencies = [
  "derive_more",
  "impl-serde 0.4.0",
- "ink_prelude",
- "ink_primitives",
+ "ink_prelude 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "scale-info",
+ "serde",
+]
+
+[[package]]
+name = "ink_metadata"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "derive_more",
+ "impl-serde 0.4.0",
+ "ink_prelude 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_primitives 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "scale-info",
+ "schemars",
  "serde",
 ]
 
@@ -1858,13 +1986,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "ink_prelude"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
 name = "ink_primitives"
 version = "4.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52693c5e74600f5bd4c0f6d447ba9c4e491e4edf685eaf9f9f347a3cb1cde66b"
 dependencies = [
  "derive_more",
- "ink_prelude",
+ "ink_prelude 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parity-scale-codec",
+ "scale-decode",
+ "scale-encode",
+ "scale-info",
+ "xxhash-rust",
+]
+
+[[package]]
+name = "ink_primitives"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "derive_more",
+ "ink_prelude 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
  "parity-scale-codec",
  "scale-decode",
  "scale-encode",
@@ -1881,11 +2031,28 @@ dependencies = [
  "array-init",
  "cfg-if",
  "derive_more",
- "ink_env",
- "ink_metadata",
- "ink_prelude",
- "ink_primitives",
- "ink_storage_traits",
+ "ink_env 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_metadata 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_prelude 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_storage_traits 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parity-scale-codec",
+ "scale-info",
+]
+
+[[package]]
+name = "ink_storage"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "array-init",
+ "cfg-if",
+ "derive_more",
+ "ink_env 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_metadata 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_prelude 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_primitives 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_storage_traits 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
  "parity-scale-codec",
  "scale-info",
 ]
@@ -1896,9 +2063,21 @@ version = "4.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ec58d70937c1e1490a00b84e2eb9a799f1a5331dd0e5cc68d550de1dbf6a8f4"
 dependencies = [
- "ink_metadata",
- "ink_prelude",
- "ink_primitives",
+ "ink_metadata 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_prelude 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_primitives 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parity-scale-codec",
+ "scale-info",
+]
+
+[[package]]
+name = "ink_storage_traits"
+version = "4.2.0"
+source = "git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number#d372cced1ec74143b7aabfaa4ca5ae08bb5f7f2c"
+dependencies = [
+ "ink_metadata 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_prelude 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
+ "ink_primitives 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
  "parity-scale-codec",
  "scale-info",
 ]
@@ -2526,7 +2705,7 @@ name = "oracle_contract"
 version = "0.1.0"
 dependencies = [
  "ethers-core",
- "ink",
+ "ink 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
  "ink_e2e",
  "parity-scale-codec",
  "scale-info",
@@ -3162,6 +3341,7 @@ dependencies = [
  "derive_more",
  "parity-scale-codec",
  "scale-info-derive",
+ "schemars",
  "serde",
 ]
 
@@ -3202,6 +3382,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "713cfb06c7059f3588fb8044c0fad1d09e3c01d225e25b9220dbfdcf16dbb1b3"
 dependencies = [
  "windows-sys 0.42.0",
+]
+
+[[package]]
+name = "schemars"
+version = "0.8.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "02c613288622e5f0c3fdc5dbd4db1c5fbe752746b1d1a56a0630b78fd00de44f"
+dependencies = [
+ "dyn-clone",
+ "schemars_derive",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "schemars_derive"
+version = "0.8.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "109da1e6b197438deb6db99952990c7f959572794b80ff93707d55a232545e7c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "serde_derive_internals",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -3364,6 +3568,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.16",
+]
+
+[[package]]
+name = "serde_derive_internals"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85bf8229e7920a9f636479437026331ce11aa132b4dde37d121944a44d6e5f3c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -4448,7 +4663,7 @@ checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 name = "unnamed"
 version = "0.1.0"
 dependencies = [
- "ink",
+ "ink 4.2.0 (git+https://github.com/ltfschoen/ink?branch=ltfschoen-env-offchain-test-set-block-number)",
  "ink_e2e",
  "oracle_contract",
  "parity-scale-codec",

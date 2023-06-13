@@ -199,8 +199,9 @@ mod oracle_contract {
             //     "unable to set block hash entropy for market id more than once"
             // );
 
+            let block_number_current = Self::env().block_number();
             assert!(
-                block_number_entropy - market_guess.block_number_entropy > 128,
+                block_number_current - market_guess.block_number_entropy > 128,
                 "unable to update block number entropy for market id again until after \
                 waiting sufficient blocks after previous so guarantee of waiting until \
                 validators change after a certain amount of epochs"
@@ -293,7 +294,7 @@ mod oracle_contract {
             // let block_hash_entropy: &[u8] =
             //     "aef6eca62ae61934a7ab5ad3814f6e319abd3e4e4aa1a3386466ad197d1c4dea".as_bytes();
             // note: changed `block_hash_entropy` to `[u8; 32]` instead of `Hash` so we can get the `.len()`
-            assert!(block_hash_entropy.len() == 64, "block hash should be a 256 bit block hash");
+            assert!(block_hash_entropy.len() == 32, "block hash should be a 256 bit block hash");
             ink::env::debug_println!("block_hash_entropy: {:?}\n", block_hash_entropy);
             // https://peterlyons.com/problog/2017/12/rust-converting-bytes-chars-and-strings/
             let (c1_u8a, c2_u8a): (&[u8], &[u8]) = self.last_bytes(&block_hash_entropy);
@@ -348,50 +349,21 @@ mod tests {
     // use ethers::core::types::H256;
     use ethers_core::types::{H256};
     use std::str::FromStr;
-    // use ink::primitives::{Hash};
 
-    use ink::env::{
-        Environment,
-        DefaultEnvironment,
-    };
-
-    #[ink::chain_extension]
-    pub trait CustomBlocknumberExtension {
-        type ErrorCode = CustomBlocknumberError;
-
-        #[ink(extension = 0x1111)]
-        fn fake_current_block_number() -> Result<BlockNumber> {
-            // TODO - figure out how to stub the ink! environment functions
-            // See https://substrate.stackexchange.com/questions/8867/how-to-stub-ink-contract-environment-to-produce-fake-values-for-use-in-tests
-        };
-    }    
-
-    /// An environment using default ink environment types
-    #[derive(Debug, Clone, PartialEq, Eq)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-    pub enum CustomEnvironment {}
-
-    impl Environment for CustomEnvironment {
-        const MAX_EVENT_TOPICS: usize =
-            <ink::env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
-
-        type AccountId = <ink::env::DefaultEnvironment as Environment>::AccountId;
-        type Balance = <ink::env::DefaultEnvironment as Environment>::Balance;
-        type Hash = <ink::env::DefaultEnvironment as Environment>::Hash;
-        type Timestamp = <ink::env::DefaultEnvironment as Environment>::Timestamp;
-        type BlockNumber = <ink::env::DefaultEnvironment as Environment>::BlockNumber;
-
-        type ChainExtension = crate::CustomBlocknumberExtension;
-    }
+    type BlockNumber = u32;
 
     /// We test a simple use case of our contract.
-    #[ink::test(env = crate::CustomEnvironment)]
+    #[ink::test]
     fn it_works() {
-        assert!(self.env().extension().fake_current_block_number(), 200);
         let id_market: Vec<u8> = String::from_utf8("my_id".into()).unwrap().into();
-        let block_number_guessed = 100;
-        let block_number_entropy = 228;
-        let block_number_end = 300;
+        let block_number_guessed = 50;
+        // override `Self::env().block_number();` for tests
+        // See https://substrate.stackexchange.com/questions/8867/how-to-stub-ink-contract-environment-to-produce-fake-values-for-use-in-tests
+        let mut new_block_number: BlockNumber = 100;
+        ink::env::test::set_block_number::<ink::env::DefaultEnvironment>(new_block_number);
+        let block_number_entropy = 228; // must be more than 100 blocks after current block_number
+        let block_number_end = 500; // must be more than 200 blocks after block_number_entropy
+
         let mut oracle_contract = OracleContract::new(
             id_market.clone(),
             block_number_guessed.clone(),
@@ -399,10 +371,13 @@ mod tests {
             block_number_end.clone(),
         );
         let str_block_hash_entropy: String =
-            "0xaef6eca62ae61934a7ab5ad3814f6e319abd3e4e4aa1a3386466ad197d1c4dea".to_string();
+            "aef6eca62ae61934a7ab5ad3814f6e319abd3e4e4aa1a3386466ad197d1c4dea".to_string();
 
         let hash_block_hash_entropy: H256 = str_block_hash_entropy.as_str().parse::<H256>().unwrap();
         let bytes_block_hash_entropy: [u8; 32] = hash_block_hash_entropy.to_fixed_bytes();
+
+        new_block_number = 357; // >128 after block_number_entropy (228 + 128 + 1 = 357)
+        ink::env::test::set_block_number::<ink::env::DefaultEnvironment>(new_block_number);
         assert_eq!(oracle_contract.set_block_for_entropy_for_market_id(
             id_market.clone(),
             block_number_entropy.clone(),

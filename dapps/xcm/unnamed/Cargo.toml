@@ -5,7 +5,8 @@ authors = ["[your_name] <[your_email]>"]
 edition = "2021"
 
 [dependencies]
-ink = { version = "4.2.0", default-features = false }
+# ink = { version = "4.2.0", default-features = false }
+ink = { git = 'https://github.com/ltfschoen/ink', branch = 'ltfschoen-env-offchain-test-set-block-number', default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3.5.0", default-features = false, features = ["derive"] }
 scale-info = { version = "2.7", default-features = false, features = ["derive"], optional = true }
