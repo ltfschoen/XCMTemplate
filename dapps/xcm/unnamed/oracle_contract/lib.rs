@@ -135,7 +135,7 @@ mod oracle_contract {
         ) -> Self {
             let mut instance = Self::default();
             let caller = instance.env().caller();
-            assert!(instance.exists_market_data_for_id(id_market.clone()), "unable to find market data for given id");
+            assert!(!instance.exists_market_data_for_id(id_market.clone()), "market data for given id already exists");
             let block_number_current = Self::env().block_number();
             // TODO - we need to verify that the block hash exists for the block number
             // when they say guessing occurred
@@ -337,5 +337,92 @@ mod oracle_contract {
         fn exists_market_data_for_id(&self, id_market: MarketGuessId) -> bool {
             self.market_data.contains(id_market)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::oracle_contract::OracleContract;
+    // use ethers::core::types::H256;
+    use ethers_core::types::{H256};
+    use std::str::FromStr;
+    // use ink::primitives::{Hash};
+
+    use ink::env::{
+        Environment,
+        DefaultEnvironment,
+    };
+
+    #[ink::chain_extension]
+    pub trait CustomBlocknumberExtension {
+        type ErrorCode = CustomBlocknumberError;
+
+        #[ink(extension = 0x1111)]
+        fn fake_current_block_number() -> Result<BlockNumber> {
+            // TODO - figure out how to stub the ink! environment functions
+            // See https://substrate.stackexchange.com/questions/8867/how-to-stub-ink-contract-environment-to-produce-fake-values-for-use-in-tests
+        };
+    }    
+
+    /// An environment using default ink environment types
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum CustomEnvironment {}
+
+    impl Environment for CustomEnvironment {
+        const MAX_EVENT_TOPICS: usize =
+            <ink::env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
+
+        type AccountId = <ink::env::DefaultEnvironment as Environment>::AccountId;
+        type Balance = <ink::env::DefaultEnvironment as Environment>::Balance;
+        type Hash = <ink::env::DefaultEnvironment as Environment>::Hash;
+        type Timestamp = <ink::env::DefaultEnvironment as Environment>::Timestamp;
+        type BlockNumber = <ink::env::DefaultEnvironment as Environment>::BlockNumber;
+
+        type ChainExtension = crate::CustomBlocknumberExtension;
+    }
+
+    /// We test a simple use case of our contract.
+    #[ink::test(env = crate::CustomEnvironment)]
+    fn it_works() {
+        assert!(self.env().extension().fake_current_block_number(), 200);
+        let id_market: Vec<u8> = String::from_utf8("my_id".into()).unwrap().into();
+        let block_number_guessed = 100;
+        let block_number_entropy = 228;
+        let block_number_end = 300;
+        let mut oracle_contract = OracleContract::new(
+            id_market.clone(),
+            block_number_guessed.clone(),
+            block_number_entropy.clone(),
+            block_number_end.clone(),
+        );
+        let str_block_hash_entropy: String =
+            "0xaef6eca62ae61934a7ab5ad3814f6e319abd3e4e4aa1a3386466ad197d1c4dea".to_string();
+
+        let hash_block_hash_entropy: H256 = str_block_hash_entropy.as_str().parse::<H256>().unwrap();
+        let bytes_block_hash_entropy: [u8; 32] = hash_block_hash_entropy.to_fixed_bytes();
+        assert_eq!(oracle_contract.set_block_for_entropy_for_market_id(
+            id_market.clone(),
+            block_number_entropy.clone(),
+            bytes_block_hash_entropy.clone(),
+        ), Ok(()));
+
+        let oracle_contract_address = oracle_contract.get_oracle_contract_address();
+
+        let c1_entropy = 0i16;
+        let c2_entropy = 0i16;
+        assert_eq!(
+            oracle_contract.get_entropy_for_market_id(
+                id_market.clone(),
+            ).unwrap(),
+            (
+                block_number_entropy.clone(),
+                bytes_block_hash_entropy.clone(),
+                c1_entropy.clone(),
+                c2_entropy.clone(),
+            )
+        );
     }
 }

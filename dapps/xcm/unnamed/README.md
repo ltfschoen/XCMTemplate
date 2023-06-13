@@ -14,3 +14,5 @@ rustup show
 ```
 cargo contract build --manifest-path ./dapps/xcm/unnamed/Cargo.toml
 ```
+
+* TODO - use rand-extension to get random number on-chain
