@@ -85,9 +85,26 @@ mod unnamed {
 
         /// Using the `OracleContractRef` we can call all the messages of the `OracleContract`
         #[ink(message)]
+        pub fn get_entropy_for_market_id(&self, id_market: String) -> Result<(BlockNumber, String, i16, i16)> {
+            match &self.oracle_contract {
+                Some(c) => {
+                    let res = match c.clone().get_entropy_for_market_id(id_market) {
+                        Ok(r) => r,
+                        Err(_e) => panic!("arr {:?}", _e),
+                    };
+                    Ok(res)
+                },
+                None => return Err(Error::NoOracleContractAddress),
+            }
+        }
+
+        /// Using the `OracleContractRef` we can call all the messages of the `OracleContract`
+        #[ink(message)]
         pub fn get_oracle_contract_address(&self) -> Result<AccountId> {
             match &self.oracle_contract {
-                Some(c) => Ok(c.get_oracle_contract_address()),
+                Some(c) => {
+                    Ok(c.clone().get_oracle_contract_address())
+                },
                 None => return Err(Error::NoOracleContractAddress),
             }
         }

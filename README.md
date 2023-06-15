@@ -424,6 +424,9 @@ docker buildx rm --all-inactive
 		* Contracts pallet allows deployment and execution of WebAssembly-based smart contracts
 	* What trait do smart contract accounts used in the Contracts pallet of Substrate extend?
 		* `Currency` trait
+	* How to resolve `ERROR: This contract has already been uploaded with code hash`
+		* It may be because you ran a Substrate contract node on your host machine and then tried running another one in your Docker container. So it may be necessary to run `kill -9 $(lsof -ti:30333)` on
+		both the host machine and inside the Docker container. Or just restart Docker.
 
 
 * Link

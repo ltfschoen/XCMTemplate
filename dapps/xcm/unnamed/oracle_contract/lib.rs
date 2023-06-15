@@ -285,6 +285,7 @@ mod oracle_contract {
 
         #[ink(message)]
         pub fn get_oracle_contract_address(&self) -> AccountId {
+            ink::env::debug_println!("oracle contract address {:?}", self.env().account_id());
             self.env().account_id()
         }
 
