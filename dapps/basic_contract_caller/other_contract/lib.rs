@@ -4,7 +4,7 @@
 ///
 /// This let's other crates which pull this contract in as a dependency to interact
 /// with this contract in a type-safe way.
-pub use self::other_contract::OtherContractRef;
+// pub use self::other_contract::OtherContractRef;
 
 #[ink::contract]
 mod other_contract {
@@ -28,6 +28,12 @@ mod other_contract {
         #[ink(message)]
         pub fn get(&self) -> bool {
             self.value
+        }
+
+        #[ink(message)]
+        pub fn get_other_contract_address(&self) -> AccountId {
+            ink::env::debug_println!("oracle contract address {:?}", self.env().account_id());
+            self.env().account_id()
         }
     }
 }

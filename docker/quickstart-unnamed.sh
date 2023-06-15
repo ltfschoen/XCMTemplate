@@ -104,6 +104,8 @@ ARG_ID_MARKET="\"my_id\""
 # }
 # ```
 
+cd $PROJECT_ROOT
+
 # instantiate "main" contract, providing the code hash generated from uploading the "sub" contract
 echo "Instantiating main-contract..."
 
