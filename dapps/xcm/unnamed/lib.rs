@@ -4,10 +4,10 @@
 mod unnamed {
     use oracle_contract::OracleContractRef;
 
+    use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
 
     // refactor into types file
-    pub type MarketGuessId = Vec<u8>;
     pub type OracleOwner = AccountId;
 
     /// Defines the storage of your contract.
@@ -37,7 +37,7 @@ mod unnamed {
         #[ink(constructor)]
         pub fn new(
             oracle_contract_code_hash: Hash,
-            id_market: MarketGuessId,
+            id_market: String,
             block_number_guessed: BlockNumber,
             block_number_entropy: BlockNumber,
             block_number_end: BlockNumber,
@@ -58,6 +58,28 @@ mod unnamed {
             Self {
                 oracle_contract: Some(oracle_contract),
                 owner: Some(caller),
+            }
+        }
+
+        /// Using the `OracleContractRef` we can call all the messages of the `OracleContract`
+        #[ink(message)]
+        pub fn set_block_for_entropy_for_market_id(
+            &mut self,
+            id_market: String,
+            block_number_entropy: BlockNumber, // always require this even though it may not have changed
+            block_hash_entropy: String, // Hash
+        ) -> Result<()> {
+            ink::env::debug_println!("&self.oracle_contract {:?}", &self.oracle_contract);
+            match &self.oracle_contract {
+                Some(c) => {
+                    let res = c.clone().set_block_for_entropy_for_market_id(
+                        id_market,
+                        block_number_entropy,
+                        block_hash_entropy.clone(),
+                    );
+                    Ok(())
+                },
+                None => return Err(Error::NoOracleContractAddress),
             }
         }
 

@@ -10,9 +10,13 @@ rustup component add rust-src --toolchain 1.69
 rustup toolchain list
 rustup show
 ```
-* Run
+* Update Cargo Contract to latest version. Check latest version on Github then:
 ```
-cargo contract build --manifest-path ./dapps/xcm/unnamed/Cargo.toml
+cargo-contract --version
+cargo install --force --locked cargo-contract
 ```
+* Run the following to start a contracts-node, upload and instantiate the contracts,
+and call the relevant functions
 
-* TODO - use rand-extension to get random number on-chain
+* Links
+    * use [rand-extension](https://github.com/paritytech/ink-examples/blob/main/rand-extension/lib.rs) to get random number on-chain
