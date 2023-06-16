@@ -29,5 +29,11 @@ mod other_contract {
         pub fn get(&self) -> bool {
             self.value
         }
+
+        #[ink(message)]
+        pub fn get_other_contract_address(&self) -> AccountId {
+            ink::env::debug_println!("oracle contract address {:?}", self.env().account_id());
+            self.env().account_id()
+        }
     }
 }

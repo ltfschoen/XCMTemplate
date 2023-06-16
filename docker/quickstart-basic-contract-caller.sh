@@ -43,7 +43,7 @@ echo "Uploading sub-contract..."
 args=(
     --suri //Alice
 	--execute
-    --skip-dry-run
+    # --skip-dry-run
 	--skip-confirm
     $PARENT_DIR/target/ink/other_contract/other_contract.wasm
 )
@@ -81,8 +81,7 @@ OUTPUT_CODE_HASH_MAIN_REMOVED_LABEL=$(echo "$OUTPUT_CODE_HASH_MAIN" | sed 's/Cod
 CODE_HASH_MAIN=$(echo $OUTPUT_CODE_HASH_MAIN_REMOVED_LABEL)
 echo $CODE_HASH_MAIN
 
-ARG_ID_MARKET="\"my_id\""
-
+cd $PROJECT_ROOT
 
 # instantiate "main" contract, providing the code hash generated from uploading the "sub" contract
 echo "Instantiating main-contract..."
@@ -91,7 +90,7 @@ args=(
     --manifest-path $PARENT_DIR/dapps/basic_contract_caller/Cargo.toml
     --suri //Alice
     --constructor new
-    --args "true"
+    --args $CODE_HASH_SUB
     --execute
     --gas 100000000000
     --proof-size 100000000000
@@ -115,7 +114,7 @@ args=(
     --manifest-path $PARENT_DIR/dapps/basic_contract_caller/other_contract/Cargo.toml
     --suri //Alice
     --constructor new
-    --args "true"
+    --args true
     --execute
     --gas 100000000000
     --proof-size 100000000000
@@ -137,11 +136,22 @@ echo $CONTRACT_ADDR_SUB
 echo "Calling contract method flip..."
 args=(
 	--suri //Alice
-	--contract $CONTRACT_ADDR_MAIN
+	--contract $CONTRACT_ADDR_SUB
 	--message flip
 	--execute
     --gas 100000000000
     --proof-size 100000000000
+    # --skip-dry-run
+	--skip-confirm
+)
+cargo contract call "${args[@]}" | grep --color=always -z 'data'
+
+echo "Calling contract method get ..."
+args=(
+	--suri //Alice
+	--contract $CONTRACT_ADDR_SUB
+	--message get
+	--execute
     # --skip-dry-run
 	--skip-confirm
 )
@@ -158,6 +168,17 @@ args=(
 )
 cargo contract call "${args[@]}" | grep --color=always -z 'data'
 
+echo "Calling contract method flip_and_get ..."
+args=(
+	--suri //Alice
+	--contract $CONTRACT_ADDR_MAIN
+	--message flip_and_get
+	--execute
+    # --skip-dry-run
+	--skip-confirm
+)
+cargo contract call "${args[@]}" | grep --color=always -z 'data'
+
 # highlight the `data` line in output containing the value of the emitted `Retrieve` event
 echo "Calling contract method get_other_contract_address ..."
 args=(
@@ -168,5 +189,4 @@ args=(
     # --skip-dry-run
 	--skip-confirm
 )
-# FIXME - why doesn't this return anything?
 cargo contract call "${args[@]}" | grep --color=always -z 'data'
