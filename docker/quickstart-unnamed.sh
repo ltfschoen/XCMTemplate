@@ -115,8 +115,8 @@ args=(
     --constructor new
     --args $CODE_HASH_SUB $ARG_ID_MARKET "100" "228" "500"
     --execute
-    --gas 100000000000
-    --proof-size 100000000000
+    --gas 1000000000000
+    --proof-size 1000000000000
     # --skip-dry-run
     --skip-confirm
 )
@@ -139,8 +139,8 @@ args=(
     --constructor new
     --args $ARG_ID_MARKET "100" "228" "500"
     --execute
-    --gas 100000000000
-    --proof-size 100000000000
+    --gas 1000000000000
+    --proof-size 1000000000000
     # --skip-dry-run
     --skip-confirm
 )
@@ -165,8 +165,8 @@ args=(
 	--message set_block_for_entropy_for_market_id
     --args $ARG_ID_MARKET "228" $ARG_BLOCK_HASH_ENTROPY
 	--execute
-    --gas 100000000000
-    --proof-size 100000000000
+    --gas 1000000000000
+    --proof-size 1000000000000
     # --skip-dry-run
 	--skip-confirm
 )

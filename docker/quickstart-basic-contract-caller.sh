@@ -83,32 +83,6 @@ echo $CODE_HASH_MAIN
 
 cd $PROJECT_ROOT
 
-# instantiate "main" contract, providing the code hash generated from uploading the "sub" contract
-echo "Instantiating main-contract..."
-
-args=(
-    --manifest-path $PARENT_DIR/dapps/basic_contract_caller/Cargo.toml
-    --suri //Alice
-    --constructor new
-    --args $CODE_HASH_SUB
-    --execute
-    --gas 100000000000
-    --proof-size 100000000000
-    # --skip-dry-run
-    --skip-confirm
-)
-OUTPUT_CONTRACT_ADDR_MAIN=$(
-    cargo contract instantiate "${args[@]}" | tail -1
-)
-
-# example: '  Contract 5...'
-echo $OUTPUT_CONTRACT_ADDR_MAIN
-# remove text 'Contract'
-OUTPUT_CONTRACT_ADDR_MAIN_REMOVED_LABEL=$(echo "$OUTPUT_CONTRACT_ADDR_MAIN" | sed 's/Contract//;s/$//')
-# trim whitespace using `echo ...`
-CONTRACT_ADDR_MAIN=$(echo $OUTPUT_CONTRACT_ADDR_MAIN_REMOVED_LABEL)
-echo $CONTRACT_ADDR_MAIN
-
 echo "Instantiating sub-contract..."
 args=(
     --manifest-path $PARENT_DIR/dapps/basic_contract_caller/other_contract/Cargo.toml
@@ -116,6 +90,7 @@ args=(
     --constructor new
     --args true
     --execute
+    # unlimited gas is 0
     --gas 100000000000
     --proof-size 100000000000
     # --skip-dry-run
@@ -133,13 +108,42 @@ OUTPUT_CONTRACT_ADDR_SUB_REMOVED_LABEL=$(echo "$OUTPUT_CONTRACT_ADDR_SUB" | sed 
 CONTRACT_ADDR_SUB=$(echo $OUTPUT_CONTRACT_ADDR_SUB_REMOVED_LABEL)
 echo $CONTRACT_ADDR_SUB
 
+# instantiate "main" contract, providing the code hash generated from uploading the "sub" contract
+echo "Instantiating main-contract..."
+
+args=(
+    --manifest-path $PARENT_DIR/dapps/basic_contract_caller/Cargo.toml
+    --suri //Alice
+    --constructor new
+    --args $CODE_HASH_SUB $CONTRACT_ADDR_SUB
+    --execute
+    # unlimited gas is 0
+    # --storage-deposit-limit 50000000000 \
+    # https://substrate.stackexchange.com/questions/3992/i-get-a-the-executed-contract-exhausted-its-gas-limit-when-attempting-to-inst
+    --gas 200000000000 \
+    --proof-size 100000000000
+    # --skip-dry-run
+    --skip-confirm
+)
+OUTPUT_CONTRACT_ADDR_MAIN=$(
+    cargo contract instantiate "${args[@]}" | tail -1
+)
+
+# example: '  Contract 5...'
+echo $OUTPUT_CONTRACT_ADDR_MAIN
+# remove text 'Contract'
+OUTPUT_CONTRACT_ADDR_MAIN_REMOVED_LABEL=$(echo "$OUTPUT_CONTRACT_ADDR_MAIN" | sed 's/Contract//;s/$//')
+# trim whitespace using `echo ...`
+CONTRACT_ADDR_MAIN=$(echo $OUTPUT_CONTRACT_ADDR_MAIN_REMOVED_LABEL)
+echo $CONTRACT_ADDR_MAIN
+
 echo "Calling contract method flip..."
 args=(
 	--suri //Alice
 	--contract $CONTRACT_ADDR_SUB
 	--message flip
 	--execute
-    --gas 100000000000
+    --gas 200000000000
     --proof-size 100000000000
     # --skip-dry-run
 	--skip-confirm
@@ -163,6 +167,8 @@ args=(
 	--contract $CONTRACT_ADDR_MAIN
 	--message get
 	--execute
+    # --gas 200000000000
+    # --proof-size 100000000000
     # --skip-dry-run
 	--skip-confirm
 )
@@ -174,6 +180,8 @@ args=(
 	--contract $CONTRACT_ADDR_MAIN
 	--message flip_and_get
 	--execute
+    # --gas 200000000000
+    # --proof-size 100000000000
     # --skip-dry-run
 	--skip-confirm
 )
@@ -186,6 +194,8 @@ args=(
 	--contract $CONTRACT_ADDR_MAIN
 	--message get_other_contract_address
 	--execute
+    # --gas 200000000000
+    # --proof-size 100000000000
     # --skip-dry-run
 	--skip-confirm
 )

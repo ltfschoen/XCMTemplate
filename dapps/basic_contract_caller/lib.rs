@@ -2,6 +2,15 @@
 
 #[ink::contract]
 mod basic_contract_caller {
+    use ink::env::{
+        call::{
+            build_create,
+            build_call,
+            ExecutionInput,
+            Selector,
+        },
+        DefaultEnvironment,
+    };
     /// We import the generated `ContractRef` of our other contract.
     ///
     /// Note that the other contract must have re-exported it (`pub use
@@ -12,6 +21,7 @@ mod basic_contract_caller {
     pub struct BasicContractCaller {
         /// We specify that our contract will store a reference to the `OtherContract`.
         other_contract: Option<OtherContractRef>,
+        other_contract_address: Option<AccountId>,
     }
 
     /// Errors that can occur upon calling this contract.
@@ -30,21 +40,44 @@ mod basic_contract_caller {
         ///
         /// To do this we will use the uploaded `code_hash` of `OtherContract`.
         #[ink(constructor)]
-        pub fn new(other_contract_code_hash: Hash) -> Self {
-            let other_contract = OtherContractRef::new(true)
+        pub fn new(other_contract_code_hash: Hash, other_contract_address: AccountId) -> Self {
+            // using `CreateBuilder` to instantiate contract
+            // https://use.ink/basics/cross-contract-calling#createbuilder
+            let other_contract: OtherContractRef = build_create::<OtherContractRef>()
                 .code_hash(other_contract_code_hash)
+                // https://substrate.stackexchange.com/questions/3992/i-get-a-the-executed-contract-exhausted-its-gas-limit-when-attempting-to-inst
+                .gas_limit(100000000000)
+                // https://substrate.stackexchange.com/questions/8445/cross-contract-instantiation-failed-with-transferfailed/8447#8447
                 .endowment(0)
-                .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+                .exec_input(
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
+                        .push_arg(true)
+                )
+                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .returns::<OtherContractRef>()
                 .instantiate();
 
-            Self { other_contract: Some(other_contract) }
+            Self {
+                other_contract: Some(other_contract),
+                other_contract_address: Some(other_contract_address),
+            }
         }
 
         #[ink(message)]
         pub fn get(&mut self) -> Result<bool> {
-            match &self.other_contract {
+            match &self.other_contract_address {
                 Some(c) => {
-                    Ok(c.clone().get())
+                    ink::env::debug_println!("c {:?}", c.clone());
+                    let my_return_value = build_call::<DefaultEnvironment>()
+                        .call(c.clone())
+                        .gas_limit(100000000000)
+                        .transferred_value(10)
+                        .exec_input(
+                            ExecutionInput::new(Selector::new(ink::selector_bytes!("get")))
+                        )
+                        .returns::<bool>()
+                        .invoke();
+                    Ok(my_return_value)
                 },
                 None => return Err(Error::NoOtherContractAddress),
             }
@@ -52,36 +85,67 @@ mod basic_contract_caller {
 
         #[ink(message)]
         pub fn flip(&mut self) -> Result<()> {
-            match &self.other_contract {
+            match &self.other_contract_address {
                 Some(c) => {
-                    c.clone().flip();
+                    // using CallBuilder
+                    // https://use.ink/basics/cross-contract-calling#callbuilder
+                    build_call::<DefaultEnvironment>()
+                        .call(c.clone())
+                        .gas_limit(100000000000)
+                        .transferred_value(10)
+                        .exec_input(
+                            ExecutionInput::new(Selector::new(ink::selector_bytes!("flip")))
+                        )
+                        .returns::<()>()
+                        .invoke();
                     Ok(())
                 },
                 None => return Err(Error::NoOtherContractAddress),
             }
         }
 
-        /// Using the `ContractRef` we can call all the messages of the `OtherContract` as
-        /// if they were normal Rust methods (because at the end of the day, they
-        /// are!).
         #[ink(message)]
         pub fn flip_and_get(&mut self) -> Result<bool> {
-            match &self.other_contract {
+            match &self.other_contract_address {
                 Some(c) => {
-                    c.clone().flip();
-                    Ok(c.clone().get())
+                    build_call::<DefaultEnvironment>()
+                        .call(c.clone())
+                        .gas_limit(100000000000)
+                        .transferred_value(10)
+                        .exec_input(
+                            ExecutionInput::new(Selector::new(ink::selector_bytes!("flip")))
+                        )
+                        .returns::<()>()
+                        .invoke();
+                    let my_return_value = build_call::<DefaultEnvironment>()
+                        .call(c.clone())
+                        .gas_limit(100000000000)
+                        .transferred_value(10)
+                        .exec_input(
+                            ExecutionInput::new(Selector::new(ink::selector_bytes!("get")))
+                        )
+                        .returns::<bool>()
+                        .invoke();
+                    Ok(my_return_value)
                 },
                 None => return Err(Error::NoOtherContractAddress),
             }
         }
 
-
-        /// Using the `OtherContractRef` we can call all the messages of the `OtherContract`
         #[ink(message)]
         pub fn get_other_contract_address(&self) -> Result<AccountId> {
-            match &self.other_contract {
+            match &self.other_contract_address {
                 Some(c) => {
-                    Ok(c.clone().get_other_contract_address())
+                    let my_return_value = build_call::<DefaultEnvironment>()
+                        .call(c.clone())
+                        .gas_limit(100000000000)
+                        .transferred_value(10)
+                        .exec_input(
+                            ExecutionInput::new(Selector::new(ink::selector_bytes!("get_other_contract_address")))
+                        )
+                        .returns::<AccountId>()
+                        .invoke();
+                    Ok(my_return_value)
                 },
                 None => return Err(Error::NoOtherContractAddress),
             }

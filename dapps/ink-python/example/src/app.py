@@ -81,7 +81,7 @@ contract = code.deploy(
     args={'init_value': True},
     value=0,
     # endowment=0,
-    gas_limit={'ref_time': 50_000_000_000, 'proof_size': 10_000_000}, # gas_limit=1000000000000, # gas_limit: dict = None,
+    gas_limit={'ref_time': 50_000_000_000, 'proof_size': 10_000_000}, # gas_limit=10000000000000, # gas_limit: dict = None,
     deployment_salt="",
     upload_code=True,
     storage_deposit_limit=1_000_000_000_000
