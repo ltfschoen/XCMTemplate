@@ -40,15 +40,15 @@ mod basic_contract_caller {
             Self { other_contract: Some(other_contract) }
         }
 
-        #[ink(message)]
-        pub fn get(&mut self) -> Result<bool> {
-            match &self.other_contract {
-                Some(c) => {
-                    Ok(c.clone().get())
-                },
-                None => return Err(Error::NoOtherContractAddress),
-            }
-        }
+        // #[ink(message)]
+        // pub fn get(&mut self) -> Result<bool> {
+        //     match &self.other_contract {
+        //         Some(c) => {
+        //             Ok(c.clone().get())
+        //         },
+        //         None => return Err(Error::NoOtherContractAddress),
+        //     }
+        // }
 
         #[ink(message)]
         pub fn flip(&mut self) -> Result<()> {
