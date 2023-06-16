@@ -157,16 +157,16 @@ args=(
 )
 cargo contract call "${args[@]}" | grep --color=always -z 'data'
 
-# echo "Calling contract method get ..."
-# args=(
-# 	--suri //Alice
-# 	--contract $CONTRACT_ADDR_MAIN
-# 	--message get
-# 	--execute
-#     # --skip-dry-run
-# 	--skip-confirm
-# )
-# cargo contract call "${args[@]}" | grep --color=always -z 'data'
+echo "Calling contract method get ..."
+args=(
+	--suri //Alice
+	--contract $CONTRACT_ADDR_MAIN
+	--message get
+	--execute
+    # --skip-dry-run
+	--skip-confirm
+)
+cargo contract call "${args[@]}" | grep --color=always -z 'data'
 
 echo "Calling contract method flip_and_get ..."
 args=(
