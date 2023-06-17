@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# restart the substrate-contracts-node and remove the chain database
+# only restart the substrate-contracts-node
 
 trap "echo; exit" INT
 trap "echo; exit" HUP
@@ -11,10 +11,6 @@ PARENT_DIR=$( echo $(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")") )
 
 # kill the existing substrate-contracts-node that is running on port 30333
 kill -9 $(lsof -ti:30333)
-
-# delete the blockchain database so we don't get this error when we redeploy the
-# smart contract `ERROR: This contract has already been uploaded with code hash:`
-rm -rf /tmp/ink
 
 cd ${PARENT_DIR}/docker/
 # https://www.maketecheasier.com/run-bash-commands-background-linux/

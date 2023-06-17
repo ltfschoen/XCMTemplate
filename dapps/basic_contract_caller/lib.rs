@@ -11,6 +11,7 @@ mod basic_contract_caller {
         },
         DefaultEnvironment,
     };
+    
     /// We import the generated `ContractRef` of our other contract.
     ///
     /// Note that the other contract must have re-exported it (`pub use
@@ -30,6 +31,7 @@ mod basic_contract_caller {
     pub enum Error {
         /// Returned if not other contract address exists.
         NoOtherContractAddress,
+        ResponseError,
     }
 
     /// Type alias for the contract's result type.
@@ -67,17 +69,27 @@ mod basic_contract_caller {
         pub fn get(&mut self) -> Result<bool> {
             match &self.other_contract_address {
                 Some(c) => {
-                    ink::env::debug_println!("c {:?}", c.clone());
-                    let my_return_value = build_call::<DefaultEnvironment>()
+                    let res = build_call::<DefaultEnvironment>()
                         .call(c.clone())
                         .gas_limit(100000000000)
-                        .transferred_value(10)
+                        // .transferred_value(10) // TransferFailed
                         .exec_input(
                             ExecutionInput::new(Selector::new(ink::selector_bytes!("get")))
                         )
                         .returns::<bool>()
-                        .invoke();
-                    Ok(my_return_value)
+                        // https://use.ink/basics/cross-contract-calling#builder-error-handling
+                        .try_invoke()
+                        .expect("Error calling get.");
+                    match res {
+                        Ok(is_flipped) => {
+                            ink::env::debug_println!("is_flipped {:?}", is_flipped);
+                            return Ok(is_flipped);
+                        },
+                        Err(e) => {
+                            ink::env::debug_println!("error {:?}", e);
+                            return Err(Error::ResponseError);
+                        },
+                    };
                 },
                 None => return Err(Error::NoOtherContractAddress),
             }
@@ -89,15 +101,16 @@ mod basic_contract_caller {
                 Some(c) => {
                     // using CallBuilder
                     // https://use.ink/basics/cross-contract-calling#callbuilder
-                    build_call::<DefaultEnvironment>()
+                    let _ = build_call::<DefaultEnvironment>()
                         .call(c.clone())
                         .gas_limit(100000000000)
-                        .transferred_value(10)
+                        .transferred_value(0) // TransferFailed if non-zero
                         .exec_input(
                             ExecutionInput::new(Selector::new(ink::selector_bytes!("flip")))
                         )
                         .returns::<()>()
-                        .invoke();
+                        .try_invoke()
+                        .expect("Error calling flip.");
                     Ok(())
                 },
                 None => return Err(Error::NoOtherContractAddress),
@@ -108,25 +121,35 @@ mod basic_contract_caller {
         pub fn flip_and_get(&mut self) -> Result<bool> {
             match &self.other_contract_address {
                 Some(c) => {
-                    build_call::<DefaultEnvironment>()
+                    let _ = build_call::<DefaultEnvironment>()
                         .call(c.clone())
                         .gas_limit(100000000000)
-                        .transferred_value(10)
+                        .transferred_value(0) // TransferFailed if non-zero
                         .exec_input(
                             ExecutionInput::new(Selector::new(ink::selector_bytes!("flip")))
                         )
                         .returns::<()>()
-                        .invoke();
-                    let my_return_value = build_call::<DefaultEnvironment>()
+                        .try_invoke()
+                        .expect("Error calling flip.");
+                    let res = build_call::<DefaultEnvironment>()
                         .call(c.clone())
                         .gas_limit(100000000000)
-                        .transferred_value(10)
                         .exec_input(
                             ExecutionInput::new(Selector::new(ink::selector_bytes!("get")))
                         )
                         .returns::<bool>()
-                        .invoke();
-                    Ok(my_return_value)
+                        .try_invoke()
+                        .expect("Error calling get.");
+                    match res {
+                        Ok(is_flipped) => {
+                            ink::env::debug_println!("is_flipped {:?}", is_flipped);
+                            return Ok(is_flipped);
+                        },
+                        Err(e) => {
+                            ink::env::debug_println!("error {:?}", e);
+                            return Err(Error::ResponseError);
+                        },
+                    };
                 },
                 None => return Err(Error::NoOtherContractAddress),
             }
@@ -136,16 +159,27 @@ mod basic_contract_caller {
         pub fn get_other_contract_address(&self) -> Result<AccountId> {
             match &self.other_contract_address {
                 Some(c) => {
-                    let my_return_value = build_call::<DefaultEnvironment>()
-                        .call(c.clone())
-                        .gas_limit(100000000000)
-                        .transferred_value(10)
-                        .exec_input(
-                            ExecutionInput::new(Selector::new(ink::selector_bytes!("get_other_contract_address")))
-                        )
-                        .returns::<AccountId>()
-                        .invoke();
-                    Ok(my_return_value)
+                    let res =
+                        build_call::<DefaultEnvironment>()
+                            .call(c.clone())
+                            .gas_limit(100000000000)
+                            // .transferred_value(10) // TransferFailed
+                            .exec_input(
+                                ExecutionInput::new(Selector::new(ink::selector_bytes!("get_other_contract_address")))
+                            )
+                            .returns::<AccountId>()
+                            .try_invoke()
+                            .expect("Error calling get_other_contract_address.");
+                    match res {
+                        Ok(contract_address) => {
+                            ink::env::debug_println!("contract_address {:?}", contract_address);
+                            return Ok(contract_address);
+                        },
+                        Err(e) => {
+                            ink::env::debug_println!("error {:?}", e);
+                            return Err(Error::ResponseError);
+                        },
+                    };
                 },
                 None => return Err(Error::NoOtherContractAddress),
             }

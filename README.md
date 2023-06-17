@@ -7,6 +7,8 @@
 	* [Run Cargo Contracts Node in Docker Container](#run-cargo-contracts-node)
 * Build & Upload
 	* [**Quickstart** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#quick-build-upload)
+	* [**Quickstart** Build & Upload ink! Rust "Basic Contract Caller" Smart Contract to Local Testnet (using Cargo Contract)](#quick-basic-contract-caller)
+	* [**Quickstart** Build & Upload ink! Rust "Unnamed" Smart Contract to Local Testnet (using Cargo Contract)](#quick-unnamed)
 	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
 	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
 * Interact
@@ -114,6 +116,7 @@ substrate-contracts-node --version
 ```bash
 SCN_PORT=$(docker exec -it ink lsof -ti:30333) && \
 docker exec -it ink echo $(kill -9 $SCN_PORT) && \
+docker exec -it ink /app/docker/reset.sh && \
 docker exec -it ink /app/docker/quickstart.sh
 ```
 
@@ -125,6 +128,7 @@ docker exec -it ink /app/docker/quickstart.sh
 		```
 	* Run quickstart
 		```bash
+		./docker/reset.sh
 		./docker/quickstart.sh
 		```
 
@@ -134,6 +138,34 @@ docker exec -it ink /app/docker/quickstart.sh
 	* Run substrate-contracts-node again
 	* Redeploys the Flipper contract
 	* Interacts with the Flipper contract
+
+### **Demo Quickstart** Build & Upload ink! Rust "Basic Contract Caller" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-basic-contract-caller"></a>
+
+#### Run from shell inside Docker container
+
+	* Enter shell of Docker container
+		```bash
+		docker exec -it ink /bin/bash
+		```
+	* Run quickstart
+		```bash
+		./docker/reset.sh
+		./docker/quickstart-basic-contract-caller.sh
+		```
+
+### **Demo Quickstart** Build & Upload ink! Rust "Unnamed" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-unnamed"></a>
+
+#### Run from shell inside Docker container
+
+	* Enter shell of Docker container
+		```bash
+		docker exec -it ink /bin/bash
+		```
+	* Run quickstart
+		```bash
+		./docker/reset.sh
+		./docker/quickstart-unnamed.sh
+		```
 
 ### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
 
@@ -249,12 +281,12 @@ Note: Try `rustup update` if you face error
 
 Local Testnet
 ```bash
-swanky contract deploy flipper --account alice -g 100000000000 -a true
+swanky contract deploy flipper --account alice -g 1000000000000 -a true
 ```
 
 Shibuya Testnet
 ```bash
-swanky contract deploy flipper --account alice --gas 100000000000 --args true --network shibuya
+swanky contract deploy flipper --account alice --gas 1000000000000 --args true --network shibuya
 ```
 Copy paste the contract address.
 
@@ -359,8 +391,8 @@ cargo contract call \
 * Note: If you don't build in "debug" mode with `cargo contract build ...` instead of `cargo contract build --release ...` and you run it using **dry run** by running extra options like the following, or if you execute as a transaction, then you won't be able to see node terminal debug logs like `tokio-runtime-worker runtime::contracts Execution finished with debug buffer...` from your use of `ink::env::debug_println!` in the smart contract
 ```bash
 	--skip-dry-run \
-	--gas 100000000000 \
-	--proof-size 100000000000
+	--gas 1000000000000 \
+	--proof-size 1000000000000
 ```
 
 ### Tips Docker Commands <a id="tips-docker"></a>

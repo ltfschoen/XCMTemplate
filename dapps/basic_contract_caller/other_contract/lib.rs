@@ -21,7 +21,13 @@ mod other_contract {
         }
 
         #[ink(message)]
+        #[ink(payable)]
         pub fn flip(&mut self) {
+            ink::env::debug_println!(
+                "received payment with flip: {}",
+                self.env().transferred_value()
+            );
+
             self.value = !self.value;
         }
 
