@@ -2,8 +2,8 @@
 
 # only restart the substrate-contracts-node
 
-trap "echo; exit" INT
-trap "echo; exit" HUP
+# trap "echo; exit" INT
+# trap "echo; exit" HUP
 
 # if they call this script from project root or from within docker/ folder then
 # in both cases the PARENT_DIR will refer to the project root where the .env file is.
@@ -14,7 +14,8 @@ kill -9 $(lsof -ti:30333)
 
 cd ${PARENT_DIR}/docker/
 # https://www.maketecheasier.com/run-bash-commands-background-linux/
-nohup ./run-scn.sh &>/dev/null &
+# nohup ./run-scn.sh &>/dev/null &
+./run-scn.sh
 cd $PARENT_DIR
 # wait for the blockchain node to start before we interact with it
 # note: if you try to interact with it before it is ready then you will get error

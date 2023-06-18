@@ -88,32 +88,6 @@ ARG_ID_MARKET="\"my_id\""
 
 cd $PROJECT_ROOT
 
-# instantiate "main" contract, providing the code hash generated from uploading the "sub" contract
-echo "Instantiating main-contract..."
-
-args=(
-    --manifest-path $PARENT_DIR/dapps/xcm/unnamed/Cargo.toml
-    --suri //Alice
-    --constructor new
-    --args $CODE_HASH_SUB $ARG_ID_MARKET "100" "228" "500"
-    --execute
-    --gas 1000000000000
-    --proof-size 1000000000000
-    # --skip-dry-run
-    --skip-confirm
-)
-OUTPUT_CONTRACT_ADDR_MAIN=$(
-    cargo contract instantiate "${args[@]}" | tail -1
-)
-
-# example: '  Contract 5...'
-echo $OUTPUT_CONTRACT_ADDR_MAIN
-# remove text 'Contract'
-OUTPUT_CONTRACT_ADDR_MAIN_REMOVED_LABEL=$(echo "$OUTPUT_CONTRACT_ADDR_MAIN" | sed 's/Contract//;s/$//')
-# trim whitespace using `echo ...`
-CONTRACT_ADDR_MAIN=$(echo $OUTPUT_CONTRACT_ADDR_MAIN_REMOVED_LABEL)
-echo $CONTRACT_ADDR_MAIN
-
 echo "Instantiating sub-contract..."
 args=(
     --manifest-path $PARENT_DIR/dapps/xcm/unnamed/oracle_contract/Cargo.toml
@@ -138,6 +112,32 @@ OUTPUT_CONTRACT_ADDR_SUB_REMOVED_LABEL=$(echo "$OUTPUT_CONTRACT_ADDR_SUB" | sed 
 CONTRACT_ADDR_SUB=$(echo $OUTPUT_CONTRACT_ADDR_SUB_REMOVED_LABEL)
 echo $CONTRACT_ADDR_SUB
 
+# instantiate "main" contract, providing the code hash generated from uploading the "sub" contract
+echo "Instantiating main-contract..."
+
+args=(
+    --manifest-path $PARENT_DIR/dapps/xcm/unnamed/Cargo.toml
+    --suri //Alice
+    --constructor new
+    --args $CODE_HASH_SUB $CONTRACT_ADDR_SUB $ARG_ID_MARKET "100" "228" "500"
+    --execute
+    --gas 1000000000000
+    --proof-size 1000000000000
+    # --skip-dry-run
+    --skip-confirm
+)
+OUTPUT_CONTRACT_ADDR_MAIN=$(
+    cargo contract instantiate "${args[@]}" | tail -1
+)
+
+# example: '  Contract 5...'
+echo $OUTPUT_CONTRACT_ADDR_MAIN
+# remove text 'Contract'
+OUTPUT_CONTRACT_ADDR_MAIN_REMOVED_LABEL=$(echo "$OUTPUT_CONTRACT_ADDR_MAIN" | sed 's/Contract//;s/$//')
+# trim whitespace using `echo ...`
+CONTRACT_ADDR_MAIN=$(echo $OUTPUT_CONTRACT_ADDR_MAIN_REMOVED_LABEL)
+echo $CONTRACT_ADDR_MAIN
+
 ARG_BLOCK_HASH_ENTROPY="\"aef6eca62ae61934a7ab5ad3814f6e319abd3e4e4aa1a3386466ad197d1c4dea\""
 
 echo "Calling contract method set_block_for_entropy_for_market_id..."
@@ -154,6 +154,22 @@ args=(
 )
 cargo contract call "${args[@]}" | grep --color=always -z 'data'
 
+# # TODO - change this to try and make it work via `$CONTRACT_ADDR_MAIN`
+# echo "Calling contract method set_entropy_for_market_id ..."
+# args=(
+# 	--suri //Alice
+# 	--contract $CONTRACT_ADDR_MAIN
+# 	--message set_entropy_for_market_id
+#     --args $ARG_ID_MARKET "228" $ARG_BLOCK_HASH_ENTROPY "0" "0"
+# 	--execute
+#     --gas 1000000000000
+#     --proof-size 1000000000000
+#     # --skip-dry-run
+# 	--skip-confirm
+# )
+# cargo contract call "${args[@]}" | grep --color=always -z 'data'
+
+# TODO - change this to try and make it work via `$CONTRACT_ADDR_MAIN`
 echo "Calling contract method get_entropy_for_market_id ..."
 args=(
 	--suri //Alice
@@ -161,23 +177,12 @@ args=(
 	--message get_entropy_for_market_id
     --args $ARG_ID_MARKET
 	--execute
+    --gas 1000000000000
+    --proof-size 1000000000000
     # --skip-dry-run
 	--skip-confirm
 )
 cargo contract call "${args[@]}" | grep --color=always -z 'data'
-
-# TODO - consider removing. maybe use to override results incase of missed blocks?
-#
-# args=(
-# 	--suri //Alice
-# 	--contract $CONTRACT_ADDR_MAIN
-# 	--message set_entropy_for_market_id
-#     --args $ARG_ID_MARKET "228" $ARG_BLOCK_HASH_ENTROPY "0" "0"
-# 	--execute
-#     # --skip-dry-run
-# 	--skip-confirm
-# )
-# cargo contract call "${args[@]}" | grep --color=always -z 'data'
 
 # highlight the `data` line in output containing the value of the emitted `Retrieve` event
 echo "Calling contract method get_oracle_contract_address ..."

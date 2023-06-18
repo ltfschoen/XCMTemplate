@@ -253,7 +253,6 @@ version = "4.2.0"
 dependencies = [
  "ink 4.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ink_e2e",
- "ink_primitives 4.2.1",
  "other_contract",
  "parity-scale-codec",
  "scale-info",

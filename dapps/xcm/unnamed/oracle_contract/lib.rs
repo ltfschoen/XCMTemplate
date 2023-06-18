@@ -23,6 +23,13 @@ mod oracle_contract {
     pub type MarketGuessId = Vec<u8>;
     pub type OracleOwner = AccountId;
 
+    #[derive(Clone, Debug, scale::Encode, scale::Decode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+    )]
+    pub struct EntropyData(BlockNumber, String, i16, i16);
+
     /// Emitted when create new market guess for market id.
     #[ink(event)]
     pub struct NewOracleMarketGuessForMarketId {
@@ -216,17 +223,23 @@ mod oracle_contract {
             //     waiting sufficient blocks after previous so guarantee of waiting until \
             //     validators change after a certain amount of epochs"
             // );
+            ink::env::debug_println!("111");
             let block_hash_entropy_no_prefix = block_hash_entropy.replace("0x", "");
+            ink::env::debug_println!("222");
             assert!(block_hash_entropy_no_prefix.len() == 64, "block hash should be a 256 bit block hash");
-
+            ink::env::debug_println!("333 {:?}, {:?}", market_guess.oracle_owner, caller);
+            // FIXME - if called from the main contract then the caller won't be the oracle_owner,
+            // instead it'll be the main contract's address
             if market_guess.oracle_owner != Some(caller) {
-                return Err(Error::CallerIsNotOracleOwner)
+                return Err(Error::CallerIsNotOracleOwner);
             }
+            ink::env::debug_println!("444");
             let new_market_guess = MarketGuess {
                 block_number_entropy,
                 block_hash_entropy: Some(block_hash_entropy_no_prefix.clone()),
                 ..market_guess
             };
+            ink::env::debug_println!("new_market_guess: {:?}\n", new_market_guess);
             self.market_data.insert(id_market.clone().into_bytes(), &new_market_guess);
             self.env().emit_event(SetBlockHashEntropyForMarketId {
                 id_market: id_market.clone().into_bytes(),
@@ -246,13 +259,14 @@ mod oracle_contract {
             c1_entropy: i16,
             c2_entropy: i16,
         ) -> Result<()> {
+            ink::env::debug_println!("set_entropy_for_market_id");
             let caller: AccountId = self.env().caller();
             let market_guess = match self.market_data.get(id_market.clone().into_bytes()) {
                 Some(data) => data,
                 None => return Err(Error::NoDataForMarketGuessId),
             };
             if market_guess.oracle_owner != Some(caller) {
-                return Err(Error::CallerIsNotOracleOwner)
+                return Err(Error::CallerIsNotOracleOwner);
             }
             let block_hash_entropy_no_prefix = block_hash_entropy.replace("0x", "");
             assert!(block_hash_entropy_no_prefix.len() == 64, "block hash should be a 256 bit block hash");
@@ -271,6 +285,7 @@ mod oracle_contract {
                 c2_entropy: Some(c2_entropy),
                 ..market_guess
             };
+            ink::env::debug_println!("new_market_guess: {:?}\n", new_market_guess);
             self.market_data.insert(id_market.clone().into_bytes(), &new_market_guess);
             self.env().emit_event(SetEntropyForMarketId {
                 id_market: id_market.into_bytes(),
@@ -290,7 +305,7 @@ mod oracle_contract {
         }
 
         #[ink(message)]
-        pub fn get_entropy_for_market_id(&self, id_market: String) -> Result<(BlockNumber, String, i16, i16)> {
+        pub fn get_entropy_for_market_id(&self, id_market: String) -> Result<EntropyData> {
             let caller: AccountId = self.env().caller();
             let market_guess = match self.market_data.get(id_market.clone().into_bytes()) {
                 Some(data) => data,
@@ -349,7 +364,8 @@ mod oracle_contract {
                 c2_entropy: c2_rem,
             });
 
-            Ok((block_number_entropy, block_hash_entropy.clone(), c1_rem, c2_rem))
+            let entropy_data = EntropyData(block_number_entropy, block_hash_entropy.clone(), c1_rem, c2_rem);
+            Ok(entropy_data)
         }
 
         // get symbols 61-64 for coin1 and 57-60 for coin2 fro the block hash
