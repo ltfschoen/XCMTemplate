@@ -96,22 +96,31 @@ mod basic_contract_caller {
         }
 
         #[ink(message)]
-        pub fn flip(&mut self) -> Result<()> {
+        pub fn flip(&mut self) -> Result<bool> {
             match &self.other_contract_address {
                 Some(c) => {
                     // using CallBuilder
                     // https://use.ink/basics/cross-contract-calling#callbuilder
-                    let _ = build_call::<DefaultEnvironment>()
+                    let res = build_call::<DefaultEnvironment>()
                         .call(c.clone())
                         .gas_limit(100000000000)
                         .transferred_value(0) // TransferFailed if non-zero
                         .exec_input(
                             ExecutionInput::new(Selector::new(ink::selector_bytes!("flip")))
                         )
-                        .returns::<()>()
+                        .returns::<bool>()
                         .try_invoke()
                         .expect("Error calling flip.");
-                    Ok(())
+                    match res {
+                        Ok(new_value) => {
+                            ink::env::debug_println!("new_value {:?}", new_value);
+                            return Ok(new_value);
+                        },
+                        Err(e) => {
+                            ink::env::debug_println!("error {:?}", e);
+                            return Err(Error::ResponseError);
+                        },
+                    };
                 },
                 None => return Err(Error::NoOtherContractAddress),
             }
@@ -128,7 +137,7 @@ mod basic_contract_caller {
                         .exec_input(
                             ExecutionInput::new(Selector::new(ink::selector_bytes!("flip")))
                         )
-                        .returns::<()>()
+                        .returns::<bool>()
                         .try_invoke()
                         .expect("Error calling flip.");
                     let res = build_call::<DefaultEnvironment>()

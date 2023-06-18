@@ -122,12 +122,12 @@ echo $CONTRACT_ADDR_MAIN
 echo "Calling contract method flip..."
 args=(
 	--suri //Alice
-	--contract $CONTRACT_ADDR_SUB
+	--contract $CONTRACT_ADDR_MAIN
 	--message flip
 	--execute
     --gas 200000000000
     --proof-size 100000000000
-    --skip-dry-run
+    # --skip-dry-run
 	--skip-confirm
 )
 cargo contract call "${args[@]}" | grep --color=always -z 'data'

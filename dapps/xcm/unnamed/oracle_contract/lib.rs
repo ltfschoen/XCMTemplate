@@ -226,13 +226,14 @@ mod oracle_contract {
             ink::env::debug_println!("111");
             let block_hash_entropy_no_prefix = block_hash_entropy.replace("0x", "");
             ink::env::debug_println!("222");
+            ink::env::debug_println!("block_hash_entropy_no_prefix {:?}", block_hash_entropy_no_prefix);
             assert!(block_hash_entropy_no_prefix.len() == 64, "block hash should be a 256 bit block hash");
             ink::env::debug_println!("333 {:?}, {:?}", market_guess.oracle_owner, caller);
-            // FIXME - if called from the main contract then the caller won't be the oracle_owner,
+            // FIXME - can't do this or get errors. if called from the main contract then the caller won't be the oracle_owner,
             // instead it'll be the main contract's address
-            if market_guess.oracle_owner != Some(caller) {
-                return Err(Error::CallerIsNotOracleOwner);
-            }
+            // if market_guess.oracle_owner != Some(caller) {
+            //     return Err(Error::CallerIsNotOracleOwner);
+            // }
             ink::env::debug_println!("444");
             let new_market_guess = MarketGuess {
                 block_number_entropy,
@@ -265,9 +266,10 @@ mod oracle_contract {
                 Some(data) => data,
                 None => return Err(Error::NoDataForMarketGuessId),
             };
-            if market_guess.oracle_owner != Some(caller) {
-                return Err(Error::CallerIsNotOracleOwner);
-            }
+            // FIXME - can't do this or get errors.
+            // if market_guess.oracle_owner != Some(caller) {
+            //     return Err(Error::CallerIsNotOracleOwner);
+            // }
             let block_hash_entropy_no_prefix = block_hash_entropy.replace("0x", "");
             assert!(block_hash_entropy_no_prefix.len() == 64, "block hash should be a 256 bit block hash");
 
@@ -305,20 +307,26 @@ mod oracle_contract {
         }
 
         #[ink(message)]
-        pub fn get_entropy_for_market_id(&self, id_market: String) -> Result<EntropyData> {
+        #[ink(payable)]
+        pub fn get_entropy_for_market_id(&self, id_market: String) -> Result<EntropyData> {  
             let caller: AccountId = self.env().caller();
             let market_guess = match self.market_data.get(id_market.clone().into_bytes()) {
                 Some(data) => data,
                 None => return Err(Error::NoDataForMarketGuessId),
             };
-            if market_guess.oracle_owner != Some(caller) {
-                return Err(Error::CallerIsNotOracleOwner)
-            }
+            ink::env::debug_println!("market_guess.oracle_owner {:?}", market_guess.oracle_owner);
+            ink::env::debug_println!("caller {:?}", caller);
+            // FIXME - causes `Decode(Error)` since caller account id is smart contract,
+            // which differs from the account id of Alice
+            // if market_guess.oracle_owner != Some(caller) {
+            //     return Err(Error::CallerIsNotOracleOwner)
+            // }
             // note: oracle_owner may need to run this function more than once incase entropy block number missed or chain reorg
             // assert!(
             //     market_guess.block_hash_entropy != None,
             //     "block hash entropy must be set prior to obtaining entropy"
             // );
+            ink::env::debug_println!("market_guess.block_hash_entropy {:?}",  market_guess.block_hash_entropy);
             let block_number_entropy = market_guess.block_number_entropy;
             // "0xaef6eca62ae61934a7ab5ad3814f6e319abd3e4e4aa1a3386466ad197d1c4dea"
             // note: Hash is [u8; 32] 32 bytes (&[u8]) without 0x prefix and 64 symbols, 32 bytes, 256 bits

@@ -161,6 +161,7 @@ mod unnamed {
                         build_call::<DefaultEnvironment>()
                             .call(c.clone())
                             .gas_limit(100000000000)
+                            .transferred_value(0)
                             .exec_input(
                                 ExecutionInput::new(Selector::new(ink::selector_bytes!("get_entropy_for_market_id")))
                                     .push_arg(id_market)

@@ -9,6 +9,16 @@ pub use self::other_contract::OtherContractRef;
 #[ink::contract]
 mod other_contract {
 
+    /// Errors that can occur upon calling this contract.
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+    pub enum Error {
+        UnknownError,
+    }
+
+    /// Type alias for the contract's result type.
+    pub type Result<T> = core::result::Result<T, Error>;
+
     #[ink(storage)]
     pub struct OtherContract {
         value: bool,
@@ -22,13 +32,14 @@ mod other_contract {
 
         #[ink(message)]
         #[ink(payable)]
-        pub fn flip(&mut self) {
+        pub fn flip(&mut self) -> Result<bool> {
             ink::env::debug_println!(
                 "received payment with flip: {}",
                 self.env().transferred_value()
             );
 
             self.value = !self.value;
+            return Ok(self.value)
         }
 
         #[ink(message)]
