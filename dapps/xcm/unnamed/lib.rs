@@ -167,16 +167,9 @@ mod unnamed {
                     ink::env::debug_println!("res {:?}", res);
 
                     match res {
-                        EnvResult::Ok(MessageResult::Err(Error::CouldNotReadInput)) => {
-                            ink::env::debug_println!("ResponseError");
-                            return Err(Error::ResponseError);
-                        },
-                        EnvResult::Ok(MessageResult::Err(ink::LangError::CouldNotReadInput)) => {
-                            ink::env::debug_println!("ResponseError");
-                            return Err(Error::ResponseError);
-                        },
                         //
                         // Reference: https://substrate.stackexchange.com/questions/7634/how-to-properly-handle-cross-contract-call-errors/7843#7843
+                        // Note: if you get `Decode(Error)` then likely an issue in callee method
                         //
                         // Contract Success
                         //
@@ -184,25 +177,24 @@ mod unnamed {
                             ink::env::debug_println!("contract success tuple {:?}", tuple);
                             return Ok(tuple);
                         },
-                        // Contract or Lang Error
+                        // Contract Error
+                        //
+                        // About: Contract errors include handling `Err(())` responses from callee cross-contract method
+                        // e.g. `return Err(Error::CouldNotReadInput)`
+                        //
+                        EnvResult::Ok(MessageResult::Ok(ContractResult::Err(e))) => {
+                            ink::env::debug_println!("contract error {:?}", e);
+                            return Err(Error::ResponseError);
+                        },
+                        // Lang Error
                         //
                         // About: Lang errors include calling a method that does not exist
-                        // About: Contract errors include handling `Err(())` responses from callee cross-contract method
+                        // e.g. caller calling callee method `get_entropy_for_market_id_xyz` that does not exist
                         //
                         // See https://docs.rs/ink/latest/ink/enum.LangError.html
-                        EnvResult::Ok(MessageResult::Err(e)) => {
-                            ink::env::debug_println!("contract or lang error occurred {:?}", e);
-
-                            match e {
-                                ink::LangError::CouldNotReadInput => {
-                                    ink::env::debug_println!("CouldNotReadInput lang error occurred");
-                                    return Err(Error::ResponseError);
-                                },
-                                _ => {
-                                    ink::env::debug_println!("unknown lang error occurred");
-                                    return Err(Error::ResponseError);
-                                }
-                            }
+                        EnvResult::Ok(MessageResult::Err(ink::LangError::CouldNotReadInput)) => {
+                            ink::env::debug_println!("LangError::CouldNotReadInput");
+                            return Err(Error::ResponseError);
                         },
                         // Environment Error
                         //

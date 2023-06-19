@@ -378,9 +378,6 @@ mod oracle_contract {
             });
 
             let entropy_data = EntropyData(block_number_entropy, block_hash_entropy.clone(), c1_rem, c2_rem);
-            // Early exit with error for demo purposes
-            // return Err(Error::ResponseError); // Decode(Error)
-            return Err(Error::CouldNotReadInput); // Decode(Error)
             Ok(entropy_data)
         }
 
