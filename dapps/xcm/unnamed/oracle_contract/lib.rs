@@ -1,11 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use self::oracle_contract::OracleContractRef;
+pub use self::oracle_contract::Error;
 
 #[ink::contract]
 mod oracle_contract {
     use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
+    use ink::LangError::CouldNotReadInput;
     use ink::storage::{
         Lazy,
         Mapping,
@@ -128,14 +130,17 @@ mod oracle_contract {
     pub enum Error {
         /// Returned if the no data exists for given market guess id.
         NoDataForMarketGuessId,
+        NoOracleContractAddress,
         /// Returned if caller is not oracle owner of market guess id.
         CallerIsNotOracleOwner,
         InvalidUTF8Sequence,
         InvalidDigit,
+        ResponseError,
+        CouldNotReadInput,
     }
 
     /// Type alias for the contract's result type.
-    pub type Result<T> = core::result::Result<T, Error>;
+    pub type ContractResult<T> = core::result::Result<T, Error>;
 
     impl OracleContract {
         #[ink(constructor)]
@@ -197,7 +202,7 @@ mod oracle_contract {
             id_market: String,
             block_number_entropy: BlockNumber, // always require this even though it may not have changed
             block_hash_entropy: String, // Hash
-        ) -> Result<()> {
+        ) -> ContractResult<()> {
             let caller: AccountId = self.env().caller();
             ink::env::debug_println!("set_block_for_entropy_for_market_id");
             // assert!(self.exists_market_data_for_id(id_market.as_bytes()).is_ok(), "unable to find market data for given id");
@@ -259,7 +264,7 @@ mod oracle_contract {
             block_hash_entropy: String, // Hash
             c1_entropy: i16,
             c2_entropy: i16,
-        ) -> Result<()> {
+        ) -> ContractResult<()> {
             ink::env::debug_println!("set_entropy_for_market_id");
             let caller: AccountId = self.env().caller();
             let market_guess = match self.market_data.get(id_market.clone().into_bytes()) {
@@ -308,7 +313,7 @@ mod oracle_contract {
 
         #[ink(message)]
         #[ink(payable)]
-        pub fn get_entropy_for_market_id(&self, id_market: String) -> Result<EntropyData> {  
+        pub fn get_entropy_for_market_id(&self, id_market: String) -> ContractResult<EntropyData> {  
             let caller: AccountId = self.env().caller();
             let market_guess = match self.market_data.get(id_market.clone().into_bytes()) {
                 Some(data) => data,
@@ -373,6 +378,9 @@ mod oracle_contract {
             });
 
             let entropy_data = EntropyData(block_number_entropy, block_hash_entropy.clone(), c1_rem, c2_rem);
+            // Early exit with error for demo purposes
+            // return Err(Error::ResponseError); // Decode(Error)
+            return Err(Error::CouldNotReadInput); // Decode(Error)
             Ok(entropy_data)
         }
 
@@ -385,7 +393,7 @@ mod oracle_contract {
         }
 
         // helper methods
-        fn exists_market_data_for_id(&self, id_market: &[u8]) -> Result<bool> {
+        fn exists_market_data_for_id(&self, id_market: &[u8]) -> ContractResult<bool> {
             let id_market_str = match str::from_utf8(id_market) {
                 Ok(v) => v,
                 Err(_e) => return Err(Error::InvalidUTF8Sequence),

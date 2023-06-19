@@ -2,17 +2,22 @@
 
 #[ink::contract]
 mod unnamed {
-    use ink::env::{
-        call::{
-            build_create,
-            build_call,
-            ExecutionInput,
-            Selector,
+    use ink::{
+        env::{
+            call::{
+                build_create,
+                build_call,
+                ExecutionInput,
+                Selector,
+            },
+            DefaultEnvironment,
+            Result as EnvResult,
         },
-        DefaultEnvironment,
+        MessageResult,
     };
 
     use oracle_contract::OracleContractRef;
+    use oracle_contract::Error;
 
     use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
@@ -39,17 +44,8 @@ mod unnamed {
         owner: Option<OracleOwner>,
     }
 
-    /// Errors that can occur upon calling this contract.
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
-    pub enum Error {
-        /// Returned if not oracle contract address exists.
-        NoOracleContractAddress,
-        ResponseError,
-    }
-
     /// Type alias for the contract's result type.
-    pub type Result<T> = core::result::Result<T, Error>;
+    pub type ContractResult<T> = core::result::Result<T, Error>;
 
     impl Unnamed {
         /// Constructor that instantiates the OracleContract using its uploaded `code_hash`
@@ -93,7 +89,7 @@ mod unnamed {
             id_market: String,
             block_number_entropy: BlockNumber, // always require this even though it may not have changed
             block_hash_entropy: String, // Hash
-        ) -> Result<()> {
+        ) -> ContractResult<()> {
             ink::env::debug_println!("&self.oracle_contract_address {:?}", &self.oracle_contract_address);
             match &self.oracle_contract_address {
                 Some(c) => {
@@ -126,7 +122,7 @@ mod unnamed {
             block_hash_entropy: String, // Hash
             c1_entropy: i16,
             c2_entropy: i16,
-        ) -> Result<()> {
+        ) -> ContractResult<()> {
             ink::env::debug_println!("&self.oracle_contract_address {:?}", &self.oracle_contract_address);
             match &self.oracle_contract_address {
                 Some(c) => {
@@ -154,7 +150,7 @@ mod unnamed {
 
         /// Using the `OracleContractRef` we can call all the messages of the `OracleContract`
         #[ink(message)]
-        pub fn get_entropy_for_market_id(&self, id_market: String) -> Result<EntropyData> {
+        pub fn get_entropy_for_market_id(&self, id_market: String) -> ContractResult<EntropyData> {
             match &self.oracle_contract_address {
                 Some(c) => {
                     let res =
@@ -166,17 +162,72 @@ mod unnamed {
                                 ExecutionInput::new(Selector::new(ink::selector_bytes!("get_entropy_for_market_id")))
                                     .push_arg(id_market)
                             )
-                            .returns::<EntropyData>()
-                            .try_invoke()
-                            .expect("Error calling get_entropy_for_market_id.");
+                            .returns::<ContractResult<EntropyData>>()
+                            .try_invoke();
+                    ink::env::debug_println!("res {:?}", res);
+
                     match res {
-                        Ok(tuple) => {
-                            ink::env::debug_println!("tuple {:?}", tuple);
+                        EnvResult::Ok(MessageResult::Err(Error::CouldNotReadInput)) => {
+                            ink::env::debug_println!("ResponseError");
+                            return Err(Error::ResponseError);
+                        },
+                        EnvResult::Ok(MessageResult::Err(ink::LangError::CouldNotReadInput)) => {
+                            ink::env::debug_println!("ResponseError");
+                            return Err(Error::ResponseError);
+                        },
+                        //
+                        // Reference: https://substrate.stackexchange.com/questions/7634/how-to-properly-handle-cross-contract-call-errors/7843#7843
+                        //
+                        // Contract Success
+                        //
+                        EnvResult::Ok(MessageResult::Ok(ContractResult::Ok(tuple))) => {
+                            ink::env::debug_println!("contract success tuple {:?}", tuple);
                             return Ok(tuple);
                         },
-                        Err(e) => {
-                            ink::env::debug_println!("error {:?}", e);
+                        // Contract or Lang Error
+                        //
+                        // About: Lang errors include calling a method that does not exist
+                        // About: Contract errors include handling `Err(())` responses from callee cross-contract method
+                        //
+                        // See https://docs.rs/ink/latest/ink/enum.LangError.html
+                        EnvResult::Ok(MessageResult::Err(e)) => {
+                            ink::env::debug_println!("contract or lang error occurred {:?}", e);
+
+                            match e {
+                                ink::LangError::CouldNotReadInput => {
+                                    ink::env::debug_println!("CouldNotReadInput lang error occurred");
+                                    return Err(Error::ResponseError);
+                                },
+                                _ => {
+                                    ink::env::debug_println!("unknown lang error occurred");
+                                    return Err(Error::ResponseError);
+                                }
+                            }
+                        },
+                        // Environment Error
+                        //
+                        // About: These are triggered by failed assertions and panics in callee cross-contract method
+                        // Example error message:
+                        //   panicked at '<error message>', /app/dapps/xcm/unnamed/oracle_contract/lib.rs:377:13
+                        //   environment error occurred CalleeTrapped
+                        //
+                        // Note: Unable to find anything about `EnvError`s or `ink::env::Error` at
+                        // https://docs.rs/ink/latest/ink/?search=EnvError
+                        //
+                        // Error codes duplicated in two places:
+                        // - https://github.com/paritytech/ink/blob/master/crates/engine/src/ext.rs#L73
+                        // - https://github.com/paritytech/ink/blob/master/crates/env/src/engine/on_chain/ext.rs#L64
+                        //
+                        EnvResult::Err(e) => {
+                            ink::env::debug_println!("environment error occurred {:?}", e);
+
                             return Err(Error::ResponseError);
+                        },
+                        // Unimplemented Error
+                        _ => {
+                            ink::env::debug_println!("unimplemented error in get_entropy_for_market_id");
+
+                            return unimplemented!();
                         },
                     };
                 },
@@ -186,7 +237,7 @@ mod unnamed {
 
         /// Using the `OracleContractRef` we can call all the messages of the `OracleContract`
         #[ink(message)]
-        pub fn get_oracle_contract_address(&self) -> Result<AccountId> {
+        pub fn get_oracle_contract_address(&self) -> ContractResult<AccountId> {
             match &self.oracle_contract_address {
                 Some(c) => {
                     let res =
