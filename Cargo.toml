@@ -4,6 +4,7 @@ exclude = []
 
 members = [
 	"dapps/ink-rust/wasm-flipper/contract/flipper",
+	"dapps/ink-rust/IPSP22/contract/IPSP22",
 	"dapps/xcm/unnamed",
 	"dapps/basic_contract_caller",
 ]
