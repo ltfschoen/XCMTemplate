@@ -8,6 +8,7 @@
 * Build & Upload
 	* [**Quickstart** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#quick-build-upload)
 	* [**Quickstart** Build & Upload ink! Rust "Basic Contract Caller" Smart Contract to Local Testnet (using Cargo Contract)](#quick-basic-contract-caller)
+	* [**Quickstart** Build & Upload ink! Rust "IPSP22" Smart Contract to Local Testnet (using Cargo Contract)](#quick-ipsp22)
 	* [**Quickstart** Build & Upload ink! Rust "Unnamed" Smart Contract to Local Testnet (using Cargo Contract)](#quick-unnamed)
 	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
 	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
@@ -147,10 +148,31 @@ docker exec -it ink /app/docker/quickstart.sh
 		```bash
 		docker exec -it ink /bin/bash
 		```
-	* Run quickstart
+	* Run in terminal tab 1
 		```bash
 		./docker/reset.sh
+		```
+	* Run in terminal tab 2
+		```
 		./docker/quickstart-basic-contract-caller.sh
+		```
+
+### **Demo Quickstart** Build & Upload ink! Rust "IPSP22" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-ipsp22"></a>
+
+#### Run from shell inside Docker container
+
+	* Enter shell of Docker container
+		```bash
+		docker exec -it ink /bin/bash
+		```
+	* Run in terminal tab 1
+		```bash
+		./docker/reset.sh
+		```
+	* Run in terminal tab 2
+		```bash
+		cd /app
+		./docker/quickstart-ipsp22.sh
 		```
 
 ### **Demo Quickstart** Build & Upload ink! Rust "Unnamed" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-unnamed"></a>
@@ -161,9 +183,12 @@ docker exec -it ink /app/docker/quickstart.sh
 		```bash
 		docker exec -it ink /bin/bash
 		```
-	* Run quickstart
+	* Run in terminal tab 1
 		```bash
 		./docker/reset.sh
+		```
+	* Run in terminal tab 2
+		````
 		./docker/quickstart-unnamed.sh
 		```
 
