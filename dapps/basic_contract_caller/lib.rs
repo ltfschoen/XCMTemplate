@@ -9,6 +9,7 @@ mod basic_contract_caller {
             ExecutionInput,
             Selector,
         },
+        Call,
         DefaultEnvironment,
     };
     
@@ -63,6 +64,60 @@ mod basic_contract_caller {
                 other_contract: Some(other_contract),
                 other_contract_address: Some(other_contract_address),
             }
+        }
+
+        /// Reference: https://github.com/hyperledger/solang/blob/main/integration/substrate/ink/caller/lib.rs#L33-L38
+        /// Do a proxy call to `callee` and return its result.
+        #[ink(message)]
+        pub fn u32_proxy(
+            &self,
+            callee: AccountId, // contract address
+            selector: [u8; 4], // method
+            // arg: u32, // args
+            max_gas: Option<u64>,
+            transfer_value: Option<u128>,
+        ) -> bool {
+            let res = build_call::<DefaultEnvironment>()
+                .call_type(Call::new(callee).gas_limit(max_gas.unwrap_or_default()))
+                // .transferred_value(transfer_value.unwrap_or_default())
+                .transferred_value(0)
+                .exec_input(ExecutionInput::new(
+                    Selector::new(selector))
+                    // .push_arg(arg)
+                )
+                .returns::<bool>() // FIXME: This should be Result<bool, u8> to respect LanguageError
+                .try_invoke()
+                .expect("Error calling get.");
+
+            ink::env::debug_println!("res {:?}", res);
+
+            match res {
+                // Contract Success
+                EnvResult::Ok(MessageResult::Ok(ContractResult::Ok(tuple))) => {
+                    ink::env::debug_println!("contract success tuple {:?}", tuple);
+                    return Ok(tuple);
+                },
+                // Contract Error
+                EnvResult::Ok(MessageResult::Ok(ContractResult::Err(e))) => {
+                    ink::env::debug_println!("contract error {:?}", e);
+                    return Err(Error::ResponseError);
+                },
+                // Lang Error
+                EnvResult::Ok(MessageResult::Err(ink::LangError::CouldNotReadInput)) => {
+                    ink::env::debug_println!("LangError::CouldNotReadInput");
+                    return Err(Error::ResponseError);
+                },
+                // Environment Error
+                EnvResult::Err(e) => {
+                    ink::env::debug_println!("environment error occurred {:?}", e);
+                    return Err(Error::ResponseError);
+                },
+                // Unimplemented Error
+                _ => {
+                    ink::env::debug_println!("unimplemented error in u32_proxy");
+                    return unimplemented!();
+                },
+            };
         }
 
         #[ink(message)]
