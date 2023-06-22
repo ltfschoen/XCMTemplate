@@ -182,3 +182,22 @@ args=(
 	--skip-confirm
 )
 cargo contract call "${args[@]}" | grep --color=always -z 'data'
+
+# CALLEE= # contract address
+# SELECTOR="get" # method
+# ARG="" # arg
+# MAX_GAS="200000000000"
+# TRANSFER_VALUE="0" 
+# echo "Calling contract method u32_proxy ..."
+# args=(
+# 	--suri //Alice
+# 	--contract $CONTRACT_ADDR_MAIN
+# 	--message u32_proxy
+#     --args $CALLEE $SELECTOR $ARG $MAX_GAS $TRANSFER_VALUE
+# 	--execute
+#     # --gas 200000000000
+#     # --proof-size 100000000000
+#     # --skip-dry-run
+# 	--skip-confirm
+# )
+# cargo contract call "${args[@]}" | grep --color=always -z 'data'
