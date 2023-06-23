@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity >=0.8.3;
 
+// compiling with truffle automatically generates the respective ABI files for these precompiles
 // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol
 // import "../precompiles/randomness/Randomness.sol";
 import {Randomness, MIN_VRF_BLOCKS_DELAY} from "../precompiles/randomness/Randomness.sol";
@@ -9,11 +10,13 @@ import {RandomnessConsumer} from "../precompiles/randomness/RandomnessConsumer.s
 
 contract RandomNumber is RandomnessConsumer {
     // The Randomness Precompile Interface
-    Randomness public randomness =
-        Randomness(0x0000000000000000000000000000000000000809);
+
+    // create a wrapper to access the randomness precompile
+    Randomness public theRandomness;
+    address public constant randomnessPrecompileAddress = 0x0000000000000000000000000000000000000809;
 
     // Variables required for randomness requests
-    uint256 public requiredDeposit = randomness.requiredDeposit();
+    uint256 public requiredDeposit = theRandomness.requiredDeposit();
     uint64 public FULFILLMENT_GAS_LIMIT = 100000;
     // The fee can be set to any value as long as it is enough to cover
     // the fulfillment costs. Any leftover fees will be refunded to the
@@ -30,13 +33,14 @@ contract RandomNumber is RandomnessConsumer {
         // Because this contract can only perform 1 random request at a time,
         // We only need to have 1 required deposit.
         require(msg.value >= requiredDeposit);
+        theRandomness = Randomness(randomnessPrecompileAddress);
     }
 
     function requestRandomness() public payable {
         // Make sure that the value sent is enough
         require(msg.value >= MIN_FEE);
         // Request local VRF randomness
-        requestId = randomness.requestLocalVRFRandomWords(
+        requestId = theRandomness.requestLocalVRFRandomWords(
             msg.sender, // Refund address
             msg.value, // Fulfillment fee
             FULFILLMENT_GAS_LIMIT, // Gas limit for the fulfillment
@@ -46,8 +50,13 @@ contract RandomNumber is RandomnessConsumer {
         );
     }
 
+    function getRequestStatus() public view returns(Randomness.RequestStatus) {
+        Randomness.RequestStatus requestStatus = theRandomness.getRequestStatus(requestId);
+        return requestStatus;
+    }
+
     function fulfillRequest() public {
-        randomness.fulfillRequest(requestId);
+        theRandomness.fulfillRequest(requestId);
     }
 
     function fulfillRandomWords(
