@@ -105,4 +105,4 @@ shasum -a 256 moonkey
     * Compile full `truffle compile --compile-all`
 * Migrate
     * Migrate full `truffle migrate --reset --compile-all --network moonbase`
-* TODO - use for cross-contract calls
+

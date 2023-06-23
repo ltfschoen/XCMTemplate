@@ -64,10 +64,10 @@ module.exports = {
          network_id: 81,
       },
    },
-   // Solidity 0.8.20 Compiler
+   // Solidity >=0.8.3 Compiler
    compilers: {
       solc: {
-         version: '^0.8.20',
+         version: '>=0.8.3',
          settings: {
             // Fixes `"Migrations" -- evm error: InvalidCode(Opcode(95))`
             // https://docs.moonbeam.network/tutorials/eth-api/truffle-start-to-end/

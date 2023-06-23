@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity >=0.8.3;
+
+import "./lib/RandomNumber.sol";
 
 contract Flipper {
 	bool private value;
