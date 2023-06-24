@@ -50,6 +50,17 @@ module.exports = {
             };
             return new HDWalletProvider(args);
          },
+         // Try to overcome error
+         // `Uncaught Error: PollingBlockTracker - encountered an error while attempting to update latest block:
+         // undefined
+         // https://ethereum.stackexchange.com/questions/97773/truffle-migrate-rinkeby-error-pollingblocktracker-encountered-an-error-whil
+         confirmations: 10,
+         timeoutBlocks: 900000,
+         skipDryRun: false,
+         websocket: true,
+         gas: 5000000,
+         gasPrice: 40000000000,
+         networkCheckTimeout: 1000000000,
          network_id: 1287,
       },
       // faucet for SBY https://docs.astar.network/docs/build/environment/faucet
@@ -63,6 +74,12 @@ module.exports = {
          },
          network_id: 81,
       },
+   },
+   mocha: {
+      timeout: 100000000, // milliseconds
+      enableTimeouts: false,
+      bail: false,
+      retries: 100,
    },
    // Solidity >=0.8.3 Compiler
    compilers: {

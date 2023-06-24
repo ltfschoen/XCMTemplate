@@ -1,6 +1,8 @@
 // Uses Mocha and Ganache
-const RandomNumber = artifacts.require("RandomNumber");
-const Flipper = artifacts.require("Flipper");
+const Randomness = artifacts.require("../build/contracts/Randomness");
+const RandomnessConsumer = artifacts.require("../build/contracts/RandomnessConsumer");
+const RandomNumber = artifacts.require("../contracts/lib/RandomNumber");
+const Flipper = artifacts.require("../contracts/lib/Flipper");
 
 advanceBlock = () => {
     return new Promise((resolve, reject) => {
@@ -22,20 +24,35 @@ advanceBlock = () => {
 
 contract('Flipper', accounts => {
     console.log('accounts: ', accounts);
+    let randomnessInstance;
     let randomNumberInstance;
     let flipperInstance;
     // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L17C43-L17C62
     const requiredDeposit = "1000000000000000000"; // Wei (1 Ether)
+    const blockTimeout = 1000000;
     const initValue = false;
-    beforeEach(async () => {
+    beforeEach(async (done) => {
+        randomnessInstance = await Randomness.at("0x0000000000000000000000000000000000000809");
+        console.log('randomnessInstance.address:', randomnessInstance.address);
+        RandomnessConsumer.link(randomnessInstance);
+        RandomNumber.link(randomnessInstance);
+
         // Create contract with 1 Ether (contract must be payable)
-        randomNumberInstance = await RandomNumber.new({ from: accounts[0], value: requiredDeposit });
+        randomNumberInstance = await RandomNumber.deployed(); //.new({ from: accounts[0], value: requiredDeposit });
+        console.log('randomNumberInstance.address:', randomNumberInstance.address);
+        Flipper.link(randomnessInstance);
+        Flipper.link(randomNumberInstance);
         // Deploy token contract
-        flipperInstance = await Flipper.new(initValue, { from: accounts[0] });
+
+        flipperInstance = await Flipper.deployed(); //.new(initValue, { from: accounts[0] });
+        console.log('flipperInstance.address:', flipperInstance.address);
+        // delay each test to simulate throttle that isn't available in truffle
+        setTimeout(function(){ done(); }, 5000);
     });
     // Check stored value
     it("checks stored value", async () => {
         const value = await flipperInstance.get.call();
+        console.log('value:', value);
         assert.equal(value, initValue, 'value stored does not match initial value');
     });
 
@@ -43,7 +60,7 @@ contract('Flipper', accounts => {
     it("should flip the value", async () => {
         const previousValue = await flipperInstance.get.call();
         await flipperInstance.flip.call({ from: accounts[0] });
-        const newValue = await flipperInstance.flip.call();
+        const newValue = await flipperInstance.get.call();
         assert.notEqual(previousValue, newValue, 'newValue is not opposite of previousValue');
     });
 

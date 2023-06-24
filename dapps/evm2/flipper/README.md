@@ -105,4 +105,7 @@ shasum -a 256 moonkey
     * Compile full `truffle compile --compile-all`
 * Migrate
     * Migrate full `truffle migrate --reset --compile-all --network moonbase`
-
+* Test
+    * `truffle test --verbose-rpc --network moonbase`
+* References
+    * https://github.com/trufflesuite/truffle/blob/develop/packages/contract/README.md

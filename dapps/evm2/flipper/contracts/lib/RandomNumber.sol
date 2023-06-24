@@ -35,7 +35,7 @@ contract RandomNumber is RandomnessConsumer {
         requiredDeposit = theRandomness.requiredDeposit();
         // Because this contract can only perform 1 random request at a time,
         // We only need to have 1 required deposit.
-        // require(msg.value >= requiredDeposit);
+        require(msg.value >= requiredDeposit);
         VRF_BLOCKS_DELAY = MIN_VRF_BLOCKS_DELAY;
     }
 
