@@ -16,13 +16,13 @@ contract RandomNumber is RandomnessConsumer {
     address public constant randomnessPrecompileAddress = 0x0000000000000000000000000000000000000809;
 
     // Variables required for randomness requests
-    uint256 public requiredDeposit = theRandomness.requiredDeposit();
+    uint256 public requiredDeposit;
     uint64 public FULFILLMENT_GAS_LIMIT = 100000;
     // The fee can be set to any value as long as it is enough to cover
     // the fulfillment costs. Any leftover fees will be refunded to the
     // refund address specified in the requestRandomness function below
     uint256 public MIN_FEE = FULFILLMENT_GAS_LIMIT * 5 gwei;
-    uint32 public VRF_BLOCKS_DELAY = MIN_VRF_BLOCKS_DELAY;
+    uint32 public VRF_BLOCKS_DELAY;
     bytes32 public SALT_PREFIX = "change-me-to-anything";
 
     // Storage variables for the current request
@@ -30,10 +30,13 @@ contract RandomNumber is RandomnessConsumer {
     uint256[] public random;
 
     constructor() payable RandomnessConsumer() {
+        // Initialize use of Randomness dependency before trying to access it
+        theRandomness = Randomness(randomnessPrecompileAddress);
+        requiredDeposit = theRandomness.requiredDeposit();
         // Because this contract can only perform 1 random request at a time,
         // We only need to have 1 required deposit.
-        require(msg.value >= requiredDeposit);
-        theRandomness = Randomness(randomnessPrecompileAddress);
+        // require(msg.value >= requiredDeposit);
+        VRF_BLOCKS_DELAY = MIN_VRF_BLOCKS_DELAY;
     }
 
     function requestRandomness() public payable {
