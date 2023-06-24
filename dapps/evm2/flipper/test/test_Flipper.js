@@ -9,8 +9,11 @@ advanceBlock = () => {
             method: 'evm_mine',
             id: new Date().getTime()
         }, (err, result) => {
+            console.log('result: ', result);
+            console.log('err: ', err);
             if (err) { return reject(err) }
             const newBlockHash = web3.eth.getBlock('latest').hash;
+            console.log('newBlockHash: ', newBlockHash);
 
             return resolve(newBlockHash);
         })
@@ -18,6 +21,7 @@ advanceBlock = () => {
 }
 
 contract('Flipper', accounts => {
+    console.log('accounts: ', accounts);
     let randomNumberInstance;
     let flipperInstance;
     // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L17C43-L17C62
