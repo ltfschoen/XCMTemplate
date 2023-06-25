@@ -74,8 +74,9 @@ contract('Flipper', accounts => {
     it("should flip the value", async () => {
         try {
             const previousValue = await flipperInstance.get.call();
-            const value = "1000000000000000000";
-            await flipperInstance.flip.call({ from: accounts[0], value: value });
+            const value = new BN("1", 10);
+            // do not use `.call` when doing state changes to blockchain
+            await flipperInstance.flip({ from: accounts[0], value: value });
             setTimeout(function(){ done(); }, 5000);
             const newValue = await flipperInstance.get.call();
             assert.notEqual(previousValue, newValue, 'newValue is not opposite of previousValue');
@@ -87,52 +88,42 @@ contract('Flipper', accounts => {
     it("requests randomness", async () => {
         // TEMP ONLY - TRYING TO GET `requestRandomness` TO WORK
         try {
-            const randomnessPrecompileAddress = await randomNumberInstance.randomnessPrecompileAddress.call();
-            console.log('randomnessPrecompileAddress: ', randomnessPrecompileAddress);
             const fulfillmentFee = await randomNumberInstance.MIN_FEE.call();
             console.log('fulfillmentFee: ', fulfillmentFee.toString());
-            console.log('is bn', BN.isBN(fulfillmentFee));
-            console.log('web3.currentProvider: ', web3.currentProvider);
-            const refundAddress = await randomNumberInstance.requestRandomness.call(
-                { from: accounts[0] },
-                // same error with large amount
-                // { value: "1000000000000000000" },
-                { value: fulfillmentFee.toString() },
+            console.log('fulfillmentFee is bn', BN.isBN(fulfillmentFee));
+            // console.log('web3.currentProvider: ', web3.currentProvider);
+            // do not use `.call` when doing state changes to blockchain
+            const refundAddress = await randomNumberInstance.requestRandomness(
+                { from: accounts[0], value: fulfillmentFee },
             );
             console.log('refundAddress: ', refundAddress);
             const requestId = await randomNumberInstance.requestId.call();
             console.log('requestId: ', requestId);
+            // Check status of request id from the randomness precompile
+            // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L96
+            const requestStatus = await randomNumberInstance.getRequestStatus.call(requestId);
+            console.log('requestStatus: ', requestStatus);
+
+            // Wait for at least MIN_VRF_BLOCKS_DELAY but less than MAX_VRF_BLOCKS_DELAY
+            // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L13
+            // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L15
+            const MIN_VRF_BLOCKS_DELAY = await randomNumberInstance.MIN_VRF_BLOCKS_DELAY.call();
+            let currentBlock = await web3.eth.getBlock("latest");
+            console.log('currentBlock: ', currentBlock);
+            for (i=0; i<MIN_VRF_BLOCKS_DELAY.length; i++) {
+                advanceBlock();
+            }
+            currentBlock = await web3.eth.getBlock("latest");
+            console.log('currentBlock: ', currentBlock);
+
+            assert.equal(currentBlock, 2, 'wrong block');
+            assert.equal(requestStatus, 2, 'not ready as expected'); // where 2 in enum is 'READY'
+
+            await randomNumberInstance.fulfillRequest.call();
+            const random = await randomNumberInstance.random.call();
+            console.log('random number: ', random[0]);
         } catch (e) {
             console.log('error in requests randomness: ', e);
         }
-
-        // const fulfillmentFee = await randomNumberInstance.MIN_FEE.call();
-        // const refundAddress = await randomNumberInstance.requestRandomness.call(
-        //     { from: accounts[0] },
-        //     { value: fulfillmentFee },
-        // );
-        // const requestId = await randomNumberInstance.requestId.call();
-        // console.log('requestId: ', requestId);
-        // // Check status of request id from the randomness precompile
-        // // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L96
-        // const requestStatus = await randomNumberInstance.getRequestStatus.call(requestId);
-
-        // // Wait for at least MIN_VRF_BLOCKS_DELAY but less than MAX_VRF_BLOCKS_DELAY
-        // // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L13
-        // // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L15
-        // const MIN_VRF_BLOCKS_DELAY = await randomNumberInstance.MIN_VRF_BLOCKS_DELAY.call();
-        // for (i=0; i<MIN_VRF_BLOCKS_DELAY.length; i++) {
-        //     advanceBlock();
-        // }
-        // const currentBlock = await web3.eth.getBlock("latest");
-        // console.log('currentBlock: ', currentBlock);
-        // assert.equal(currentBlock, 2, 'wrong block');
-        // console.log('requestStatus: ', requestStatus);
-        // assert.equal(requestStatus, 2, 'not ready as expected'); // where 2 in enum is 'READY'
-
-        // await randomNumberInstance.fulfillRequest.call();
-        // const random = await randomNumberInstance.random.call();
-        // console.log('random number: ', random[0]);
-        // assert.equal(random[0], '1000', 'not the expected random number');
     });
 });
