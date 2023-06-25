@@ -21,7 +21,7 @@ contract RandomNumber is RandomnessConsumer {
     // The fee can be set to any value as long as it is enough to cover
     // the fulfillment costs. Any leftover fees will be refunded to the
     // refund address specified in the requestRandomness function below
-    uint256 public MIN_FEE = FULFILLMENT_GAS_LIMIT * 5 gwei;
+    uint256 public MIN_FEE = FULFILLMENT_GAS_LIMIT * 5 gwei; // 0.000000001 Ether == 1 gwei
     uint32 public VRF_BLOCKS_DELAY;
     bytes32 public SALT_PREFIX = "change-me-to-anything";
 

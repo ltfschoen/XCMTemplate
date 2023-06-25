@@ -9,6 +9,9 @@ const privateKeyDev =
 //       this is only for demostration purposes only
 const privateKeyMoonbase = process.env.MOONBASE_PRIVATE_KEY;
 
+const defaultMoonbaseEndpoint = 'https://rpc.api.moonbase.moonbeam.network';
+const defaultMoonbaseNetworkId = 1287;
+
 module.exports = {
    networks: {
       // Moonbeam Development Network
@@ -46,22 +49,28 @@ module.exports = {
             // https://github.com/trufflesuite/truffle/tree/develop/packages/hdwallet-provider
             let args = {
                privateKeys: [privateKeyMoonbase],
-               providerOrUrl: 'https://rpc.api.moonbase.moonbeam.network',
+               // providerOrUrl: defaultMoonbaseEndpoint,
+               providerOrUrl: process.env.MOONBASE_BLASTAPI_ENDPOINT,
+               pollingInterval: 20000, // default only 4000, modifying doesn't help
+               retryTimeout: 10000, // default 400, modifying doesn't help
             };
             return new HDWalletProvider(args);
          },
-         // Try to overcome error
+         // Try to overcome error, changes below might help pass more tests but not as good as
+         // using BlastApi
          // `Uncaught Error: PollingBlockTracker - encountered an error while attempting to update latest block:
          // undefined
          // https://ethereum.stackexchange.com/questions/97773/truffle-migrate-rinkeby-error-pollingblocktracker-encountered-an-error-whil
          confirmations: 10,
          timeoutBlocks: 900000,
-         skipDryRun: false,
+         skipDryRun: true,
          websocket: true,
          gas: 5000000,
-         gasPrice: 40000000000,
+         gasPrice: 50000000000, // 50 Gwei
          networkCheckTimeout: 1000000000,
-         network_id: 1287,
+         deploymentPollingInterval: 8000,
+         network_id: defaultMoonbaseNetworkId,
+         // network_id: process.env.MOONBASE_BLASTAPI_NETWORK_ID,
       },
       // faucet for SBY https://docs.astar.network/docs/build/environment/faucet
       astar_shibuya: {
@@ -76,7 +85,7 @@ module.exports = {
       },
    },
    mocha: {
-      timeout: 100000000, // milliseconds
+      timeout: 1000000000, // milliseconds
       enableTimeouts: false,
       bail: false,
       retries: 100,
