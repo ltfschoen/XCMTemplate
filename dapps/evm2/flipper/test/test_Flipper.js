@@ -18,8 +18,8 @@ let web3 = new Web3(providerInstance);
 console.log('web3.currentProvider: ', web3.currentProvider);
 // Randomness.setProvider(providerInstance);
 // RandomnessConsumer.setProvider(providerInstance);
-RandomNumber.setProvider(providerInstance);
-Flipper.setProvider(providerInstance);
+// RandomNumber.setProvider(providerInstance);
+// Flipper.setProvider(providerInstance);
 
 advanceBlock = () => {
     return new Promise((resolve, reject) => {
@@ -127,28 +127,31 @@ contract('Flipper', accounts => {
             gas = Web3.utils.toHex(150000);
             gasLimit = Web3.utils.toHex(600000);
             gasPrice = Web3.utils.toHex(21000);
-            refundAddress = await randomNumberInstance.requestRandomness(
-                {   
-                    from: accounts[0],
-                    value: fulfillmentFee,
-                    gas: gas, gasLimit: gasLimit, gasPrice: gasPrice, 
-                    syncWithContext: true
-                }
-            );
-            console.log('refundAddress: ', refundAddress);
-            // const requestId = await randomNumberInstance.requestId.call();
-            // console.log('requestId: ', requestId);
-            // // Check status of request id from the randomness precompile
-            // // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L96
-            // const requestStatus = await randomNumberInstance.getRequestStatus.call(requestId);
-            // console.log('requestStatus: ', requestStatus);
+            refundAddress = await randomNumberInstance.requestRandomness({ from: accounts[0], value: fulfillmentFee });
+            // refundAddress = await randomNumberInstance.requestRandomness(
+            //     {   
+            //         from: accounts[0],
+            //         value: fulfillmentFee,
+            //         gas: gas, gasLimit: gasLimit, gasPrice: gasPrice, 
+            //         syncWithContext: true
+            //     }
+            // );
+            // console.log('refundAddress: ', refundAddress);
+            
+            const requestId = await randomNumberInstance.requestId.call();
+            console.log('requestId: ', requestId);
+            // Check status of request id from the randomness precompile
+            // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L96
+            const requestStatus = await randomNumberInstance.getRequestStatus.call();
+            console.log('requestStatus: ', requestStatus);
 
-            // // Wait for at least MIN_VRF_BLOCKS_DELAY but less than MAX_VRF_BLOCKS_DELAY
-            // // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L13
-            // // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L15
-            // const MIN_VRF_BLOCKS_DELAY = await randomNumberInstance.MIN_VRF_BLOCKS_DELAY.call();
-            // let currentBlock = await web3.eth.getBlock("latest");
-            // console.log('currentBlock: ', currentBlock);
+            // Wait for at least MIN_VRF_BLOCKS_DELAY but less than MAX_VRF_BLOCKS_DELAY
+            // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L13
+            // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L15
+            const MIN_VRF_BLOCKS_DELAY = await randomNumberInstance.MIN_VRF_BLOCKS_DELAY.call();
+            console.log('MIN_VRF_BLOCKS_DELAY: ', MIN_VRF_BLOCKS_DELAY);
+            let currentBlock = await web3.eth.getBlock("latest");
+            console.log('currentBlock: ', currentBlock);
             // for (i=0; i<MIN_VRF_BLOCKS_DELAY.length; i++) {
             //     advanceBlock();
             // }

@@ -114,7 +114,8 @@ shasum -a 256 moonkey
     * `truffle test --verbose-rpc --network moonbase`
 * Troubleshooting
     * `Client network socket disconnected before secure TLS connection was established`
-        * Fix by running `unset https_proxy && unset http_proxy`
+        * Try fixing by running `unset https_proxy && unset http_proxy`, but this didn't actually work for me
+    * If you get error `PollingBlockTracker` then try connecting to a different ISP and disable VPN and stop using a proxy and restart access to your internet
 * References
     * https://github.com/trufflesuite/truffle/blob/develop/packages/contract/README.md
     * https://docs.web3js.org/
