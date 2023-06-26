@@ -5,10 +5,15 @@ import "./lib/RandomNumber.sol";
 
 contract Flipper {
 	bool private value;
+	address public randomNumberContractAddress;
 
 	/// Constructor that initializes the `bool` value to the given `init_value`.
 	constructor(bool initvalue) {
 		value = initvalue;
+	}
+
+	function setRandomNumberContractAddress(address _randomNumberAddress) public {
+		randomNumberContractAddress = _randomNumberAddress;
 	}
 
 	/// A message that can be called on instantiated contracts.

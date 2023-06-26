@@ -86,7 +86,7 @@ Then configure Truffle to connect to it Moonbeam Development `node_modules/.bin/
 Preferably use Moonbase Alpha TestNet `node_modules/.bin/truffle migrate --network moonbase` that requires testnet tokens from the faucet https://faucet.moonbeam.network/.
 
 Note: When running tests against Moonbase Alpha TestNet. Disconnect VPN. Try to avoid encountering errors like `Too Many Requests`, `ProviderError`, `ETIMEDOUT`, `32603`, it is important to use a dedicated endpoint that you can get for free here https://blastapi.io/ by creating an account, creating a project, choosing Moonbase Alpha Testnet from their available endpoints and clicking "Activate", and then copying either the RPC endpoint. 
-Note: I got error `TypeError: Cannot create property 'gasLimit' on string '0x464aff'` when tried using Blastapi WSS endpoint instead of RPC (https) endpoint.
+Note: I got error `TypeError: Cannot create property 'gasLimit' on string '0x464aff'` when tried using Blastapi WSS endpoint instead of RPC (https) endpoint. Note: If you change to WSS then you need to use `WebsocketProvider` instead of `HttpProvider`
 
 This is important because the public endpoint https://rpc.api.moonbase.moonbeam.network has stricter rate limiting. Ensure that you replace the public Moonbase Alpha endpoint in the truffle-config.js file with the dedicated endpoint.
 
@@ -112,5 +112,8 @@ shasum -a 256 moonkey
     * Migrate full `truffle migrate --reset --compile-all --network moonbase`
 * Test
     * `truffle test --verbose-rpc --network moonbase`
+* Troubleshooting
+    * `Client network socket disconnected before secure TLS connection was established`
+        * Fix by running `unset https_proxy && unset http_proxy`
 * References
     * https://github.com/trufflesuite/truffle/blob/develop/packages/contract/README.md
