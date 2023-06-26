@@ -2,6 +2,7 @@
   "name": "flipper",
   "version": "1.0.0",
   "dependencies": {
+    "@truffle/contract": "^4.6.25",
     "@truffle/hdwallet-provider": "^2.1.12",
     "bn.js": "^5.2.1",
     "dotenv": "^16.3.1",

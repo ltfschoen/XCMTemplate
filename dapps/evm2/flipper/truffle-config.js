@@ -51,7 +51,7 @@ module.exports = {
                privateKeys: [privateKeyMoonbase],
                // providerOrUrl: defaultMoonbaseEndpoint,
                providerOrUrl: process.env.MOONBASE_BLASTAPI_ENDPOINT,
-               pollingInterval: 20000, // default only 4000, modifying doesn't help
+               // pollingInterval: 20000, // default only 4000, modifying doesn't help
                retryTimeout: 10000, // default 400, modifying doesn't help
             };
             return new HDWalletProvider(args);
@@ -61,14 +61,14 @@ module.exports = {
          // `Uncaught Error: PollingBlockTracker - encountered an error while attempting to update latest block:
          // undefined
          // https://ethereum.stackexchange.com/questions/97773/truffle-migrate-rinkeby-error-pollingblocktracker-encountered-an-error-whil
-         confirmations: 10,
+         // confirmations: 10,
          timeoutBlocks: 900000,
-         skipDryRun: true,
-         websocket: true,
-         gas: 5000000,
-         gasPrice: 50000000000, // 50 Gwei
+         // skipDryRun: true,
+         // websocket: true,
+         // gas: 5000000,
+         // gasPrice: 50000000000, // 50 Gwei
          networkCheckTimeout: 1000000000,
-         deploymentPollingInterval: 8000,
+         // deploymentPollingInterval: 8000,
          network_id: defaultMoonbaseNetworkId,
       },
       // faucet for SBY https://docs.astar.network/docs/build/environment/faucet

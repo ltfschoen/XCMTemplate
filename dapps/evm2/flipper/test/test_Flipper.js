@@ -11,7 +11,8 @@ const Flipper = artifacts.require("../contracts/lib/Flipper");
 console.log('test_Flipper');
 
 let providerInstance = new Web3.providers.HttpProvider(process.env.MOONBASE_BLASTAPI_ENDPOINT, {}, { delay: 500, autoReconnect: true, maxAttempts: 10 });
-let web3 = new Web3();
+console.log('providerInstance: ', providerInstance);
+let web3 = new Web3(providerInstance);
 // when using BlastAPI WSS endpoint I get error `TypeError: Cannot create property 'gasLimit' on string"`
 // https://github.com/web3/web3.js/issues/3573
 console.log('web3.currentProvider: ', web3.currentProvider);
