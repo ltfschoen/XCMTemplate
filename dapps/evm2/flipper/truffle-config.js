@@ -70,7 +70,6 @@ module.exports = {
          networkCheckTimeout: 1000000000,
          deploymentPollingInterval: 8000,
          network_id: defaultMoonbaseNetworkId,
-         // network_id: process.env.MOONBASE_BLASTAPI_NETWORK_ID,
       },
       // faucet for SBY https://docs.astar.network/docs/build/environment/faucet
       astar_shibuya: {
@@ -104,4 +103,8 @@ module.exports = {
    },
    // Moonbeam Truffle Plugin & Truffle Plugin for Verifying Smart Contracts
    plugins: ['moonbeam-truffle-plugin', 'truffle-plugin-verify'],
+   // https://docs.moonbeam.network/builders/build/eth-api/verify-contracts/etherscan-plugins/#using-the-truffle-verify-plugin
+   api_keys: {
+      moonscan: process.env.MOONSCAN_API_KEY
+   }
 };

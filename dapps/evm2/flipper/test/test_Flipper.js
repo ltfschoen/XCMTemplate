@@ -10,15 +10,15 @@ const Flipper = artifacts.require("../contracts/lib/Flipper");
 
 console.log('test_Flipper');
 
-let wsProvider = new Web3.providers.WebsocketProvider(process.env.MOONBASE_BLASTAPI_ENDPOINT, {}, { delay: 500, autoReconnect: true, maxAttempts: 10 });
+let providerInstance = new Web3.providers.HttpProvider(process.env.MOONBASE_BLASTAPI_ENDPOINT, {}, { delay: 500, autoReconnect: true, maxAttempts: 10 });
 let web3 = new Web3();
 // when using BlastAPI WSS endpoint I get error `TypeError: Cannot create property 'gasLimit' on string"`
 // https://github.com/web3/web3.js/issues/3573
 console.log('web3.currentProvider: ', web3.currentProvider);
-// Randomness.setProvider(wsProvider);
-// RandomnessConsumer.setProvider(wsProvider);
-RandomNumber.setProvider(wsProvider);
-Flipper.setProvider(wsProvider);
+// Randomness.setProvider(providerInstance);
+// RandomnessConsumer.setProvider(providerInstance);
+RandomNumber.setProvider(providerInstance);
+Flipper.setProvider(providerInstance);
 
 advanceBlock = () => {
     return new Promise((resolve, reject) => {
@@ -85,7 +85,7 @@ contract('Flipper', accounts => {
         // console.log('flipperInstance.address:', flipperInstance.address);
         // delay each test to simulate throttle that isn't available in truffle
         // setTimeout(function(){ done(); }, 5000);
-        await flipperInstance.setRandomNumberContractAddress(randomNumberInstance.address);
+        // await flipperInstance.setRandomNumberContractAddress(randomNumberInstance.address);
     });
     // Check stored value
     it("checks stored value", async () => {

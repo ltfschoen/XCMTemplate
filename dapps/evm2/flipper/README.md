@@ -117,3 +117,5 @@ shasum -a 256 moonkey
         * Fix by running `unset https_proxy && unset http_proxy`
 * References
     * https://github.com/trufflesuite/truffle/blob/develop/packages/contract/README.md
+    * https://docs.web3js.org/
+    * https://evmdocs.acala.network/tutorials/hardhat-tutorials/precompiledtoken-tutorial
