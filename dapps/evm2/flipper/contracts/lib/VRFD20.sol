@@ -72,7 +72,7 @@ contract VRFD20 is VRFConsumerBaseV2 {
      */
     constructor(uint64 subscriptionId) payable VRFConsumerBaseV2(vrfCoordinator) {
         COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
-        require(msg.value > 0);
+        // require(msg.value > 0);
         s_owner = msg.sender;
         s_subscriptionId = subscriptionId;
     }

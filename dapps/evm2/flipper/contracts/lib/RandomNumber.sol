@@ -31,7 +31,7 @@ contract RandomNumber is RandomnessConsumer {
     uint256 public requestId;
     uint256[] public random;
 
-    address s_owner;
+    // address public s_owner;
 
     // map rollers to requestIds
     mapping(uint256 => address) private s_rollers;
@@ -48,13 +48,14 @@ contract RandomNumber is RandomnessConsumer {
         // Because this contract can only perform 1 random request at a time,
         // We only need to have 1 required deposit.
         require(msg.value >= requiredDeposit);
-        s_owner = msg.sender;
+        // s_owner = msg.sender;
         VRF_BLOCKS_DELAY = MIN_VRF_BLOCKS_DELAY;
     }
 
     function requestRandomness(
         address roller
-    ) public onlyOwner payable {
+    ) public payable {
+    // ) public onlyOwner payable {
         require(s_results[roller] == 0, "Already rolled");
         // Make sure that the value sent is enough
         require(msg.value >= MIN_FEE);
@@ -83,13 +84,14 @@ contract RandomNumber is RandomnessConsumer {
     }
 
     function fulfillRandomWords(
-        uint256 requestId, /* requestId */
+        uint256 reqId, /* requestId */
         uint256[] memory randomWords
     ) internal override {
         // Save the randomness results
         uint256 d20Value = (randomWords[0] % 20) + 1;
-        s_results[s_rollers[requestId]] = d20Value;
-        // random = randomWords;
+        s_results[s_rollers[reqId]] = d20Value;
+        // Save the latest for comparison
+        random = randomWords;
     }
 
     /**
@@ -103,8 +105,8 @@ contract RandomNumber is RandomnessConsumer {
         return s_results[player];
     }
 
-    modifier onlyOwner() {
-        require(msg.sender == s_owner);
-        _;
-    }
+    // modifier onlyOwner() {
+    //     require(msg.sender == s_owner);
+    //     _;
+    // }
 }

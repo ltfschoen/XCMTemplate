@@ -3,7 +3,7 @@ const { Web3 } = require('web3');
 const BN = require('bn.js');
 
 // Uses Mocha and Ganache
-const VRFChainlink = artifacts.require("../build/contracts/VRFChainlink");
+const VRFD20 = artifacts.require("../build/contracts/VRFD20");
 
 console.log('test_ChainlinkVRF');
 
@@ -12,17 +12,16 @@ console.log('providerInstance: ', providerInstance);
 let web3 = new Web3(providerInstance);
 console.log('web3.currentProvider: ', web3.currentProvider);
 
-contract('VRFChainlink', accounts => {
+contract('VRFD20', accounts => {
     console.log('accounts: ', accounts);
     let vrfChainlinkInstance;
-    let gas;
-    let gasLimit;
-    let gasPrice;
 
     beforeEach(async () => {
+        // error `Uncaught Error: invalid 1st argument: block_number value was not valid block tag or block number`
+
         console.log('beforeEach');
 
-        vrfChainlinkInstance = await VRFChainlink.deployed();
+        vrfChainlinkInstance = await VRFD20.deployed();
         console.log('vrfChainlinkInstance.address:', vrfChainlinkInstance.address);
     });
 

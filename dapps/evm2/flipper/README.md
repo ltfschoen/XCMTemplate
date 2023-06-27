@@ -112,8 +112,11 @@ shasum -a 256 moonkey
     * Migrate full `truffle migrate --reset --compile-all --network moonbase`
     * Migrate full `truffle migrate --reset --compile-all --network sepolia`
 * Test
-    * `truffle test --verbose-rpc --network moonbase`
-    * `truffle test --verbose-rpc --network sepolia`
+    * **Important:** It is necessary to first comment-out the code that is **not being compiled** in 2_deploy_contracts.j
+    * `truffle test ./test/test_Flipper.js --verbose-rpc --network moonbase`
+    * `truffle test ./test/test_ChainlinkVRF.js --network sepolia`
+* Run
+    * node ./scripts/demo.js
 
 * Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
     * View token balance https://sepolia.etherscan.io/address/0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7
@@ -126,7 +129,8 @@ shasum -a 256 moonkey
     * `Client network socket disconnected before secure TLS connection was established`
         * Try fixing by running `unset https_proxy && unset http_proxy`, but this didn't actually work for me
     * If you get error `PollingBlockTracker` then try connecting to a different ISP and disable VPN and stop using a proxy and restart access to your internet
-    * Sometimes when you run `truffle test --network moonbase` after changing some CLI options it outputs `Error: The network id specified in the truffle config (1287) does not match the one returned by the network (4619453).  Ensure that both the network and the provider are properly configured`, even though the network id in the truffle-config.js is in fact 1287, but when you run it again it might works. So just keep running the command again until it
+    * Sometimes when you run `truffle test --network moonbase` after changing some CLI options it outputs `Error: The network id specified in the truffle config (1287) does not match the one returned by the network (4619453).  Ensure that both the network and the provider are properly configured`, even though the network id in the truffle-config.js is in fact 1287 (for some reason it confuses the block number for the network id), but when you run it again it might works. So just keep running the command again until it. Or run `truffle test --network sepolia` instead of 
+    `truffle test --verbose-rpc --network sepolia`
     works or change internet connection.
 * References
     * https://github.com/trufflesuite/truffle/blob/develop/packages/contract/README.md
