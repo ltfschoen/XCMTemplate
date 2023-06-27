@@ -114,7 +114,6 @@ contract('Flipper', accounts => {
     });
 
     it("requests randomness", async () => {
-        // TEMP ONLY - TRYING TO GET `requestRandomness` TO WORK
         try {
             fulfillmentFee = await randomNumberInstance.MIN_FEE.call();
             console.log('fulfillmentFee: ', fulfillmentFee.toString());
@@ -129,7 +128,8 @@ contract('Flipper', accounts => {
             gas = Web3.utils.toHex(150000);
             gasLimit = Web3.utils.toHex(600000);
             gasPrice = Web3.utils.toHex(21000);
-            refundAddress = await randomNumberInstance.requestRandomness({ from: accounts[0], value: fulfillmentFee });
+            let roller = '0x1dd907ABb024E17d196de0D7Fe8EB507b6cCaae7';
+            refundAddress = await randomNumberInstance.requestRandomness(roller, { from: accounts[0], value: fulfillmentFee });
             // refundAddress = await randomNumberInstance.requestRandomness(
             //     {   
             //         from: accounts[0],

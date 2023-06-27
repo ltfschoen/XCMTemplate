@@ -110,13 +110,17 @@ shasum -a 256 moonkey
     * Compile full `truffle compile --compile-all`
 * Migrate
     * Migrate full `truffle migrate --reset --compile-all --network moonbase`
+    * Migrate full `truffle migrate --reset --compile-all --network sepolia`
 * Test
     * `truffle test --verbose-rpc --network moonbase`
+    * `truffle test --verbose-rpc --network sepolia`
 
 * Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
     * View token balance https://sepolia.etherscan.io/address/0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7
     * Create and fund a subscription https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number/#create-and-fund-a-subscription
     * Prepay Subscription https://vrf.chain.link/
+        * Receipt https://sepolia.etherscan.io/tx/0xcc2cd9edf90e0f3351f3398b7013a7259c0acc7cfbfc38454192324fcfdb7d6a
+    * Reference v2 contract (not implemented): https://remix.ethereum.org/#url=https://docs.chain.link/samples/VRF/VRFv2Consumer.sol&lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.18+commit.87f61d96.js
 
 * Troubleshooting
     * `Client network socket disconnected before secure TLS connection was established`

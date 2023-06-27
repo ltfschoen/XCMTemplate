@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+// Reference: https://remix.ethereum.org/#url=https://docs.chain.link/samples/VRF/VRFD20.sol&lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.18+commit.87f61d96.js
+import "../vrf/interfaces/VRFCoordinatorV2Interface.sol";
+import "../vrf/VRFConsumerBaseV2.sol";
 
 /**
  * @notice A Chainlink VRF consumer which uses randomness to mimic the rolling
@@ -26,7 +27,7 @@ contract VRFD20 is VRFConsumerBaseV2 {
     VRFCoordinatorV2Interface COORDINATOR;
 
     // Your subscription ID.
-    uint64 s_subscriptionId;
+    uint64 public s_subscriptionId;
 
     // Sepolia coordinator. For other networks,
     // see https://docs.chain.link/docs/vrf-contracts/#configurations
@@ -52,7 +53,7 @@ contract VRFD20 is VRFConsumerBaseV2 {
     // For this example, retrieve 1 random value in one request.
     // Cannot exceed VRFCoordinatorV2.MAX_NUM_WORDS.
     uint32 numWords = 1;
-    address s_owner;
+    address public s_owner;
 
     // map rollers to requestIds
     mapping(uint256 => address) private s_rollers;
@@ -69,8 +70,9 @@ contract VRFD20 is VRFConsumerBaseV2 {
      *
      * @param subscriptionId subscription id that this consumer contract can use
      */
-    constructor(uint64 subscriptionId) VRFConsumerBaseV2(vrfCoordinator) {
+    constructor(uint64 subscriptionId) payable VRFConsumerBaseV2(vrfCoordinator) {
         COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
+        require(msg.value > 0);
         s_owner = msg.sender;
         s_subscriptionId = subscriptionId;
     }
@@ -124,45 +126,14 @@ contract VRFD20 is VRFConsumerBaseV2 {
     }
 
     /**
-     * @notice Get the house assigned to the player once the address has rolled
+     * @notice Get the value rolled by a player once the address has rolled
      * @param player address
-     * @return house as a string
+     * @return id as a string
      */
-    function house(address player) public view returns (string memory) {
+    function getRolledValueForPlayer(address player) public view returns (uint256) {
         require(s_results[player] != 0, "Dice not rolled");
         require(s_results[player] != ROLL_IN_PROGRESS, "Roll in progress");
-        return getHouseName(s_results[player]);
-    }
-
-    /**
-     * @notice Get the house name from the id
-     * @param id uint256
-     * @return house name string
-     */
-    function getHouseName(uint256 id) private pure returns (string memory) {
-        string[20] memory houseNames = [
-            "Targaryen",
-            "Lannister",
-            "Stark",
-            "Tyrell",
-            "Baratheon",
-            "Martell",
-            "Tully",
-            "Bolton",
-            "Greyjoy",
-            "Arryn",
-            "Frey",
-            "Mormont",
-            "Tarley",
-            "Dayne",
-            "Umber",
-            "Valeryon",
-            "Manderly",
-            "Clegane",
-            "Glover",
-            "Karstark"
-        ];
-        return houseNames[id - 1];
+        return s_results[player];
     }
 
     modifier onlyOwner() {
