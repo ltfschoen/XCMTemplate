@@ -25,9 +25,21 @@ contract RandomNumber is RandomnessConsumer {
     uint32 public VRF_BLOCKS_DELAY;
     bytes32 public SALT_PREFIX = "change-me-to-anything";
 
+    uint256 private constant ROLL_IN_PROGRESS = 42;
+
     // Storage variables for the current request
     uint256 public requestId;
     uint256[] public random;
+
+    // address public s_owner;
+
+    // map rollers to requestIds
+    mapping(uint256 => address) private s_rollers;
+    // map vrf results to rollers
+    mapping(address => uint256) private s_results;
+
+    event DiceRolled(uint256 indexed requestId, address indexed roller);
+    event DiceLanded(uint256 indexed requestId, uint256 indexed result);
 
     constructor() payable RandomnessConsumer() {
         // Initialize use of Randomness dependency before trying to access it
@@ -36,10 +48,15 @@ contract RandomNumber is RandomnessConsumer {
         // Because this contract can only perform 1 random request at a time,
         // We only need to have 1 required deposit.
         require(msg.value >= requiredDeposit);
+        // s_owner = msg.sender;
         VRF_BLOCKS_DELAY = MIN_VRF_BLOCKS_DELAY;
     }
 
-    function requestRandomness() public payable {
+    function requestRandomness(
+        address roller
+    ) public payable {
+    // ) public onlyOwner payable {
+        require(s_results[roller] == 0, "Already rolled");
         // Make sure that the value sent is enough
         require(msg.value >= MIN_FEE);
         // Request local VRF randomness
@@ -51,6 +68,10 @@ contract RandomNumber is RandomnessConsumer {
             1, // Number of random words
             VRF_BLOCKS_DELAY // Delay before request can be fulfilled
         );
+
+        s_rollers[requestId] = roller;
+        s_results[roller] = ROLL_IN_PROGRESS;
+        emit DiceRolled(requestId, roller);
     }
 
     function getRequestStatus() public view returns(Randomness.RequestStatus) {
@@ -63,10 +84,29 @@ contract RandomNumber is RandomnessConsumer {
     }
 
     function fulfillRandomWords(
-        uint256, /* requestId */
+        uint256 reqId, /* requestId */
         uint256[] memory randomWords
     ) internal override {
         // Save the randomness results
+        uint256 d20Value = (randomWords[0] % 20) + 1;
+        s_results[s_rollers[reqId]] = d20Value;
+        // Save the latest for comparison
         random = randomWords;
     }
+
+    /**
+     * @notice Get the value rolled by a player once the address has rolled
+     * @param player address
+     * @return id as a string
+     */
+    function getRolledValueForPlayer(address player) public view returns (uint256) {
+        require(s_results[player] != 0, "Dice not rolled");
+        require(s_results[player] != ROLL_IN_PROGRESS, "Roll in progress");
+        return s_results[player];
+    }
+
+    // modifier onlyOwner() {
+    //     require(msg.sender == s_owner);
+    //     _;
+    // }
 }

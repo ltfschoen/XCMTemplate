@@ -110,13 +110,63 @@ shasum -a 256 moonkey
     * Compile full `truffle compile --compile-all`
 * Migrate
     * Migrate full `truffle migrate --reset --compile-all --network moonbase`
+    * Migrate full `truffle migrate --reset --compile-all --network sepolia`
 * Test
-    * `truffle test --verbose-rpc --network moonbase`
+    * **Important:** It is necessary to first comment-out the code that is **not being compiled** in 2_deploy_contracts.j
+    * `truffle test ./test/test_Flipper.js --verbose-rpc --network moonbase`
+    * `truffle test ./test/test_ChainlinkVRF.js --network sepolia`
+* Verify Contract - Moonbase Precompile
+
+```
+# truffle run verify Flipper --network moonbase
+Verifying contracts on moonscan
+   Verifying Flipper
+   Pass - Verified: https://moonbase.moonscan.io/address/0x1c440D264DcCBe9b7AC84edCEC99De926Db98753#code
+   Successfully verified 1 contract(s).
+Verifying contracts on sourcify
+   Failed to connect to Sourcify API at url https://sourcify.dev/server/chains
+root@ink:/app/dapps/evm2/flipper# truffle run verify RandomNumber --network moonbase
+Verifying contracts on moonscan
+   Verifying RandomNumber
+   Pass - Verified: https://moonbase.moonscan.io/address/0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b#code
+   Successfully verified 1 contract(s).
+Verifying contracts on sourcify
+   Failed to connect to Sourcify API at url https://sourcify.dev/server/chains
+```
+
+* Verify Contract - Chainlink VRF
+```
+# truffle run verify VRFD20 --network sepolia
+
+Verifying contracts on etherscan
+   No etherscan or sepolia_etherscan API Key provided
+Verifying contracts on sourcify
+   Verifying VRFD20
+   Pass - Verified: https://sourcify.dev/#/lookup/0xe22cdfA9d8C8e942B498696ef54584426d2f5Dd6
+   Successfully verified 1 contract(s).
+```
+
+* Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
+    * View token balance https://sepolia.etherscan.io/address/0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7
+    * Create and fund a subscription https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number/#create-and-fund-a-subscription
+    * Prepay Subscription https://vrf.chain.link/
+
+* Run
+    * node ./scripts/demo.js
+
+* Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
+    * View token balance https://sepolia.etherscan.io/address/0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7
+    * Create and fund a subscription https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number/#create-and-fund-a-subscription
+    * Prepay Subscription https://vrf.chain.link/
+        * Receipt https://sepolia.etherscan.io/tx/0xcc2cd9edf90e0f3351f3398b7013a7259c0acc7cfbfc38454192324fcfdb7d6a
+    * Reference v2 contract (not implemented): https://remix.ethereum.org/#url=https://docs.chain.link/samples/VRF/VRFv2Consumer.sol&lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.18+commit.87f61d96.js
+
 * Troubleshooting
     * `Client network socket disconnected before secure TLS connection was established`
         * Try fixing by running `unset https_proxy && unset http_proxy`, but this didn't actually work for me
     * If you get error `PollingBlockTracker` then try connecting to a different ISP and disable VPN and stop using a proxy and restart access to your internet
-    * Sometimes when you run `truffle test --network moonbase` after changing some CLI options it outputs `Error: The network id specified in the truffle config (1287) does not match the one returned by the network (4619453).  Ensure that both the network and the provider are properly configured`, even though the network id in the truffle-config.js is in fact 1287, but when you run it again it might works. So just keep running the command again until it
+    * Sometimes when you run `truffle test --network moonbase` after changing some CLI options it outputs `Error: The network id specified in the truffle config (1287) does not match the one returned by the network (4619453).  Ensure that both the network and the provider are properly configured`, even though the network id in the truffle-config.js is in fact 1287 (for some reason it confuses the block number for the network id), but when you run it again it might works. So just keep running the command again until it. Or run `truffle test --network sepolia` instead of 
+    `truffle test --verbose-rpc --network sepolia`
     works or change internet connection.
 * References
     * https://github.com/trufflesuite/truffle/blob/develop/packages/contract/README.md

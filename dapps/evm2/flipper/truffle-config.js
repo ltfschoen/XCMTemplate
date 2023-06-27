@@ -76,6 +76,21 @@ module.exports = {
          // deploymentPollingInterval: 8000,
          network_id: defaultMoonbaseNetworkId,
       },
+      // Chainlink Sepolia
+      sepolia: {
+         provider: () => {
+            let args = {
+               privateKeys: [privateKeyMoonbase],
+               providerOrUrl: process.env.CHAINLINK_SEPOLIA_ENDPOINT,
+               retryTimeout: 10000,
+            };
+            return new HDWalletProvider(args);
+         },
+         websocket: true,
+         gasLimit: 5000000,
+         networkCheckTimeout: 1000000000,
+         network_id: 11155111,
+      },
       // faucet for SBY https://docs.astar.network/docs/build/environment/faucet
       astar_shibuya: {
          provider: () => {
