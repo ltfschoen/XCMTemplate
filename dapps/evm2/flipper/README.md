@@ -86,7 +86,7 @@ Then configure Truffle to connect to it Moonbeam Development `node_modules/.bin/
 Preferably use Moonbase Alpha TestNet `node_modules/.bin/truffle migrate --network moonbase` that requires testnet tokens from the faucet https://faucet.moonbeam.network/.
 
 Note: When running tests against Moonbase Alpha TestNet. Disconnect VPN. Try to avoid encountering errors like `Too Many Requests`, `ProviderError`, `ETIMEDOUT`, `32603`, it is important to use a dedicated endpoint that you can get for free here https://blastapi.io/ by creating an account, creating a project, choosing Moonbase Alpha Testnet from their available endpoints and clicking "Activate", and then copying either the RPC endpoint. 
-Note: I got error `TypeError: Cannot create property 'gasLimit' on string '0x464aff'` when tried using Blastapi WSS endpoint instead of RPC (https) endpoint. Note: If you change to WSS then you need to use `WebsocketProvider` instead of `HttpProvider`
+Note: I got error `TypeError: Cannot create property 'gasLimit' on string '0x464aff'` when tried using Blastapi WSS endpoint instead of RPC (https) endpoint. Note: If you change to WSS then you need to use `WebsocketProvider` instead of `HttpProvider`. Solved this error by using `gasLimit` in truffle-config.js (it was not necessary for HTTPS)
 
 This is important because the public endpoint https://rpc.api.moonbase.moonbeam.network has stricter rate limiting. Ensure that you replace the public Moonbase Alpha endpoint in the truffle-config.js file with the dedicated endpoint.
 
@@ -116,7 +116,11 @@ shasum -a 256 moonkey
     * `Client network socket disconnected before secure TLS connection was established`
         * Try fixing by running `unset https_proxy && unset http_proxy`, but this didn't actually work for me
     * If you get error `PollingBlockTracker` then try connecting to a different ISP and disable VPN and stop using a proxy and restart access to your internet
+    * Sometimes when you run `truffle test --network moonbase` after changing some CLI options it outputs `Error: The network id specified in the truffle config (1287) does not match the one returned by the network (4619453).  Ensure that both the network and the provider are properly configured`, even though the network id in the truffle-config.js is in fact 1287, but when you run it again it might works. So just keep running the command again until it
+    works or change internet connection.
 * References
     * https://github.com/trufflesuite/truffle/blob/develop/packages/contract/README.md
     * https://docs.web3js.org/
     * https://evmdocs.acala.network/tutorials/hardhat-tutorials/precompiledtoken-tutorial
+    * Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
+    * Chainlink Faucet https://faucets.chain.link/

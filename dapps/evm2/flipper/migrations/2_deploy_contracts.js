@@ -9,7 +9,7 @@ console.log('deploying...');
 module.exports = async function (deployer) {
 
   console.log('deploy_contracts');
-  let providerInstance = new Web3.providers.HttpProvider(process.env.MOONBASE_BLASTAPI_ENDPOINT, {}, { delay: 500, autoReconnect: true, maxAttempts: 10 });
+  let providerInstance = new Web3.providers.WebsocketProvider(process.env.MOONBASE_BLASTAPI_ENDPOINT, {}, { delay: 500, autoReconnect: true, maxAttempts: 100 });
   console.log('providerInstance: ', providerInstance);
   let web3 = new Web3(providerInstance);
   console.log('web3.currentProvider: ', web3.currentProvider);

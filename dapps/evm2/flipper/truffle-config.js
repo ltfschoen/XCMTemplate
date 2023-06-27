@@ -62,11 +62,16 @@ module.exports = {
          // undefined
          // https://ethereum.stackexchange.com/questions/97773/truffle-migrate-rinkeby-error-pollingblocktracker-encountered-an-error-whil
          // confirmations: 10,
-         timeoutBlocks: 900000,
+         // timeoutBlocks: 900000,
          // skipDryRun: true,
-         // websocket: true,
+         websocket: true,
          // gas: 5000000,
          // gasPrice: 50000000000, // 50 Gwei
+         // gasLimit is required when using `WebsocketsProvider` instead of `HttpProvider`
+         // else get error `TypeError: Cannot create property 'gasLimit' on string '0x467b05'`.
+         // if this error appears even with the property set, then try changing to a different
+         // internet connection
+         gasLimit: 5000000,
          networkCheckTimeout: 1000000000,
          // deploymentPollingInterval: 8000,
          network_id: defaultMoonbaseNetworkId,
