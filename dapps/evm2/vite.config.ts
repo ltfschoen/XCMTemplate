@@ -16,10 +16,14 @@ export default defineConfig({
     ]
     },
   },
+  server: {
+    port: 5000,
+  },
   resolve: {
     alias: {
-      process: "process/browser",
+      process: "process",
       stream: "stream-browserify",
+      zlib: "browserify-zlib",
       util: "util",
     },
   },

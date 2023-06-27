@@ -1,5 +1,6 @@
 import './App.css'
-import "@biconomy-sdk-dev/web3-auth/dist/src/style.css"
+// import "@biconomy-sdk-dev/web3-auth/dist/src/style.css"
+import './style.css'
 import { useState, useEffect, useRef } from 'react'
 import SocialLogin from "@biconomy/web3-auth"
 import { ChainId } from "@biconomy/core-types";
@@ -110,7 +111,7 @@ export default function App() {
       </p>
       <a href="https://biconomy.gitbook.io/sdk/introduction/overview" target="_blank" className="read-the-docs">
   Click here to check out the docs
-    </a>
+      </a>
     </div>
   )
 }
