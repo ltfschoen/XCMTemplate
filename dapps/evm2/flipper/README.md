@@ -112,6 +112,31 @@ shasum -a 256 moonkey
     * Migrate full `truffle migrate --reset --compile-all --network moonbase`
 * Test
     * `truffle test --verbose-rpc --network moonbase`
+
+* Verify Contract
+
+```
+# truffle run verify Flipper --network moonbase
+Verifying contracts on moonscan
+   Verifying Flipper
+   Pass - Verified: https://moonbase.moonscan.io/address/0x1c440D264DcCBe9b7AC84edCEC99De926Db98753#code
+   Successfully verified 1 contract(s).
+Verifying contracts on sourcify
+   Failed to connect to Sourcify API at url https://sourcify.dev/server/chains
+root@ink:/app/dapps/evm2/flipper# truffle run verify RandomNumber --network moonbase
+Verifying contracts on moonscan
+   Verifying RandomNumber
+   Pass - Verified: https://moonbase.moonscan.io/address/0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b#code
+   Successfully verified 1 contract(s).
+Verifying contracts on sourcify
+   Failed to connect to Sourcify API at url https://sourcify.dev/server/chains
+```
+
+* Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
+    * View token balance https://sepolia.etherscan.io/address/0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7
+    * Create and fund a subscription https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number/#create-and-fund-a-subscription
+    * Prepay Subscription https://vrf.chain.link/
+
 * Troubleshooting
     * `Client network socket disconnected before secure TLS connection was established`
         * Try fixing by running `unset https_proxy && unset http_proxy`, but this didn't actually work for me
