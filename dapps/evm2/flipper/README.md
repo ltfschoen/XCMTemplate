@@ -112,6 +112,12 @@ shasum -a 256 moonkey
     * Migrate full `truffle migrate --reset --compile-all --network moonbase`
 * Test
     * `truffle test --verbose-rpc --network moonbase`
+
+* Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
+    * View token balance https://sepolia.etherscan.io/address/0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7
+    * Create and fund a subscription https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number/#create-and-fund-a-subscription
+    * Prepay Subscription https://vrf.chain.link/
+
 * Troubleshooting
     * `Client network socket disconnected before secure TLS connection was established`
         * Try fixing by running `unset https_proxy && unset http_proxy`, but this didn't actually work for me
