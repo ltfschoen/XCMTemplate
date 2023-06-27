@@ -115,6 +115,42 @@ shasum -a 256 moonkey
     * **Important:** It is necessary to first comment-out the code that is **not being compiled** in 2_deploy_contracts.j
     * `truffle test ./test/test_Flipper.js --verbose-rpc --network moonbase`
     * `truffle test ./test/test_ChainlinkVRF.js --network sepolia`
+* Verify Contract - Moonbase Precompile
+
+```
+# truffle run verify Flipper --network moonbase
+Verifying contracts on moonscan
+   Verifying Flipper
+   Pass - Verified: https://moonbase.moonscan.io/address/0x1c440D264DcCBe9b7AC84edCEC99De926Db98753#code
+   Successfully verified 1 contract(s).
+Verifying contracts on sourcify
+   Failed to connect to Sourcify API at url https://sourcify.dev/server/chains
+root@ink:/app/dapps/evm2/flipper# truffle run verify RandomNumber --network moonbase
+Verifying contracts on moonscan
+   Verifying RandomNumber
+   Pass - Verified: https://moonbase.moonscan.io/address/0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b#code
+   Successfully verified 1 contract(s).
+Verifying contracts on sourcify
+   Failed to connect to Sourcify API at url https://sourcify.dev/server/chains
+```
+
+* Verify Contract - Chainlink VRF
+```
+# truffle run verify VRFD20 --network sepolia
+
+Verifying contracts on etherscan
+   No etherscan or sepolia_etherscan API Key provided
+Verifying contracts on sourcify
+   Verifying VRFD20
+   Pass - Verified: https://sourcify.dev/#/lookup/0xe22cdfA9d8C8e942B498696ef54584426d2f5Dd6
+   Successfully verified 1 contract(s).
+```
+
+* Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
+    * View token balance https://sepolia.etherscan.io/address/0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7
+    * Create and fund a subscription https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number/#create-and-fund-a-subscription
+    * Prepay Subscription https://vrf.chain.link/
+
 * Run
     * node ./scripts/demo.js
 
