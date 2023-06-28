@@ -2,8 +2,6 @@ require('dotenv').config()
 const { Web3 } = require('web3');
 const BN = require('bn.js');
 
-// const contract = require("@truffle/contract");
-
 var VRFD20 = artifacts.require("../build/contracts/VRFD20");
 // var RandomNumber = artifacts.require("../build/contracts/RandomNumber");
 // var Flipper = artifacts.require("../build/contracts/Flipper");
