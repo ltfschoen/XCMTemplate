@@ -169,8 +169,33 @@ Verifying contracts on sourcify
     `truffle test --verbose-rpc --network sepolia`
     works or change internet connection.
 * References
+    * Hackathon submission
+        * https://moonbeam.hackerearth.com/challenges/hackathon/moonbeam-hackathon-2/dashboard
     * https://github.com/trufflesuite/truffle/blob/develop/packages/contract/README.md
     * https://docs.web3js.org/
     * https://evmdocs.acala.network/tutorials/hardhat-tutorials/precompiledtoken-tutorial
-    * Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
-    * Chainlink Faucet https://faucets.chain.link/
+    * Chainlink
+        * https://vrf.chain.link/
+        * VRF https://docs.chain.link/getting-started/intermediates-tutorial
+        * Faucet https://faucets.chain.link/
+        * https://docs.chain.link/getting-started/advanced-tutorial
+        * https://docs.chain.link/vrf/v2/subscription/supported-networks/#configurations
+        * https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number/#create-and-fund-a-subscription
+    * Alchemy 
+        * https://dashboard.alchemy.com/apps
+        * https://docs.alchemy.com/reference/api-overview
+        * https://github.com/alchemyplatform/alchemy-sdk-js
+        * https://docs.alchemy.com/docs/smart-contract-basics
+        * https://docs.alchemy.com/docs/ethers-js-provider
+        * https://docs.alchemy.com/docs/interacting-with-a-smart-contract
+    * Ethers
+        * https://docs.ethers.org/v6/api/providers/#WebSocketProvider
+    * XCM 
+        * https://docs.moonbeam.network/builders/interoperability/xcm/overview/
+        * https://github.com/AstarNetwork/ink-xvm-sdk/tree/main
+    * Polkadot.js
+        * https://docs.moonbeam.network/builders/build/substrate-api/polkadot-js-api/
+
+    * Other
+        * https://github.com/HCastano/urban-planning-in-the-paraverse-with-ink
+        * https://www.rob.tech/blog/hybrid-chains/
