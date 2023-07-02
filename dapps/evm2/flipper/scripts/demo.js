@@ -32,7 +32,7 @@ console.log('signer', signer);
 const VRFD20DeployedAtAddress = '0xe22cdfA9d8C8e942B498696ef54584426d2f5Dd6';
 // https://docs.ethers.org/v5/api/contract/example/#example-erc-20-contract--connecting-to-a-contract
 const VRFD20ContractRW = new Contract(VRFD20DeployedAtAddress, VRFD20ContractBuilt.abi, signer);
-console.log('VRFD20ContractRW', VRFD20ContractRW);
+// console.log('VRFD20ContractRW', VRFD20ContractRW);
 
 // VRFD20ContractRW.on('DiceRolled',
 //     (res) => console.log('detected DiceRolled:', res));
@@ -40,14 +40,27 @@ console.log('VRFD20ContractRW', VRFD20ContractRW);
 // VRFD20ContractRW.on('DiceLanded',
 //     (res) => console.log('detected DiceLanded:', res));
 
-// Example of using the call method
-const main = async () => {
+const setAsyncTimeout = (cb, timeout = 0) => new Promise(resolve => {
+    setTimeout(() => {
+        cb();
+        resolve();
+    }, timeout);
+});
+
+const getRolledValueForPlayer = async () => {
     // Get the latest block
-    const latestBlock = await alchemyProvider.core.getBlockNumber();
+    let latestBlock = await alchemyProvider.core.getBlockNumber();
     console.log('latestBlock', latestBlock);
 
+    const valueRolled = await VRFD20ContractRW
+        .getRolledValueForPlayer(signer.address);
+    console.log(`The valueRolled by ${signer.address} is: `, valueRolled);
+}
+
+// Example of using the call method
+const main = async () => {
     const ethersProvider = await alchemyProvider.config.getProvider();
-    console.log(ethersProvider.formatter);
+    // console.log('ethersProvider: ', ethersProvider.formatter);
 
     // Interact with VRFD20
     const s_owner = await VRFD20ContractRW.s_owner();
@@ -66,9 +79,18 @@ const main = async () => {
     const requestId = await VRFD20ContractRW.rollDice(signer.address, overrides);
     console.log("The requestId is: ", requestId.value.toString());
 
-    const valueRolled = await VRFD20ContractRW
-        .getRolledValueForPlayer(signer.address);
-    console.log(`The valueRolled by ${signer.address} is: `, valueRolled);
+    // Get the latest block
+    let latestBlock = await alchemyProvider.core.getBlockNumber();
+    console.log('latestBlock', latestBlock);
+
+    // Wait a few blocks before getting the rolled value for a player
+    await setAsyncTimeout(async () => {
+        console.log('getRolledValueForPlayer');
+        await getRolledValueForPlayer();
+    }, 60000);
+
 };
+
+
  
 main();
