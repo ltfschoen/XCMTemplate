@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config({ path: '../.env'})
 // https://docs.alchemy.com/reference/alchemy-sdk-api-surface-overview#api-surface
 const { Network, Alchemy, Contract, Utils, Wallet } = require('alchemy-sdk');
 const VRFD20ContractBuilt = require("../build/contracts/VRFD20.json");
@@ -10,7 +10,7 @@ const config = {
 };
 
 const alchemyProvider = new Alchemy(config);
-// console.log('alchemyProvider', alchemyProvider);
+console.log('alchemyProvider', alchemyProvider);
 
 // Listen to all new pending transactions
 // Note: Alchemy wraps ethers API
@@ -90,9 +90,6 @@ const main = async () => {
         // Error: call revert exception; VM Exception while processing transaction: reverted with reason string "Dice not rolled"
         await getRolledValueForPlayer();
     }, 60000);
-
 };
-
-
  
 main();
