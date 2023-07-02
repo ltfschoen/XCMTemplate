@@ -86,6 +86,8 @@ const main = async () => {
     // Wait a few blocks before getting the rolled value for a player
     await setAsyncTimeout(async () => {
         console.log('getRolledValueForPlayer');
+
+        // Error: call revert exception; VM Exception while processing transaction: reverted with reason string "Dice not rolled"
         await getRolledValueForPlayer();
     }, 60000);
 
