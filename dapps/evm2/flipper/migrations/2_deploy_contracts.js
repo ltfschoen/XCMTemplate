@@ -29,6 +29,10 @@ module.exports = async function (deployer) {
     console.log('providerInstance: ', providerInstance);
     web3 = new Web3(providerInstance);
     console.log('web3.currentProvider: ', web3.currentProvider);
+    // **Important** It is necessary to add the deployed address as the
+    // consumer address and fund the subscription id otherwise it will not
+    // be possible to roll the dice and you will get error
+    // `CALL_EXCEPTION Dice not rolled` or similar
     const subscriptionId = 3217; // https://vrf.chain.link/
     // wants 128620983229604640 wei
     const value = web3.utils.toWei('0.000001', 'ether');

@@ -68,9 +68,11 @@ const main = async () => {
 
     // let gasLimit = await VRFD20ContractRW.estimateGas.rollDice(signer.address);
     const overrides = {
+        from: signer.address,
         // gasLimit: gasLimit,
         gasLimit: 600000,
-        gasPrice: 100000,
+        // gasPrice: 100000,
+        maxPriorityFeePerGas: 2,
     };
     // Important: Must have added the latest VRFD20 contract as an approved consumer
     // contract so it can use the subscription balance when requesting randomness
@@ -87,7 +89,6 @@ const main = async () => {
     await setAsyncTimeout(async () => {
         console.log('getRolledValueForPlayer');
 
-        // Error: call revert exception; VM Exception while processing transaction: reverted with reason string "Dice not rolled"
         await getRolledValueForPlayer();
     }, 60000);
 };

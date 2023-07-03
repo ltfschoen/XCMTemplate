@@ -136,6 +136,7 @@ Verifying contracts on sourcify
 
 * Verify Contract - Chainlink VRF
 ```
+# cd flipper
 # truffle run verify VRFD20 --network sepolia
 
 Verifying contracts on etherscan
@@ -149,8 +150,14 @@ Verifying contracts on sourcify
 * Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
     * View token balance https://sepolia.etherscan.io/address/0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7
     * Create and fund a subscription https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number/#create-and-fund-a-subscription
-    * Prepay Subscription https://vrf.chain.link/
+        * Go to https://vrf.chain.link/sepolia/new.
+            * **Important** Must be in a private browser tab to clear cache
+        * https://vrf.chain.link/sepolia/3350
+            * After clicking "Add Consume" and adding a consumer address in this [tx](https://sepolia.etherscan.io/tx/0x4bfc7fe73fd20f524daf07875502f2d1e7d65032c71a0fe736d3a8ddc6cb388f) it said `Important: Your consumer contract must use the Subscription ID 3350 in the VRF request to make use of these funds.`
+        * Go to https://vrf.chain.link/sepolia/3350, click "Actions" > "Fund Subscription" to prepay subscription. [tx](https://sepolia.etherscan.io/tx/0xf2a34026f513c29f6e8a12f5b6ac7d7bae2adc619e09dcc6b011c1a6c4f89350)
 
+        * NOTE:
+            * I had already created a subscription id https://vrf.chain.link/sepolia/3217 to deploy through migrations file but had not added the consumer contract of it deployed, which i later did at https://sepolia.etherscan.io/tx/0xc689e64aca1c531fab582bbbbd86e835bb465c227d6068e001f1692f30eab3f6, and funded it in this tx https://sepolia.etherscan.io/tx/0x23e4464e74fbfb30dfd3a65042e86f37d915e143b63105f5391bcd23d45d93f6, so this is the one to use since that's the subscription id passed to the constructor when deployed
 * Run
     * node ./scripts/demo.js
 

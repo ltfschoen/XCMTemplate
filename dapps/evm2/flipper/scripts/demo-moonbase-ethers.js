@@ -95,19 +95,15 @@ const main = async () => {
     await setAsyncTimeout(async () => {
         console.log('fulfillRequest');
 
-        try {
-            // Error: insufficient funds for gas * price + value
-            await randomNumberInstance.fulfillRequest(
-                {
-                    from: signer.address,
-                    gasLimit: 600000,
-                    // gasPrice: 600000,
-                    maxPriorityFeePerGas: 2,
-                }
-            );
-        } catch (e) {
-            console.log('fulfillRequest error: ', e);
-        }
+        // Error: insufficient funds for gas * price + value
+        await randomNumberInstance.fulfillRequest(
+            {
+                from: signer.address,
+                gasLimit: 600000,
+                // gasPrice: 600000,
+                maxPriorityFeePerGas: 2,
+            }
+        );
     }, 10000);
 
     // requestStatus = await randomNumberInstance.getRequestStatus.call();
