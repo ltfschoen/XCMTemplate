@@ -4,17 +4,17 @@ const { Wallet } = require('ethers');
 const BN = require('bn.js');
 
 // https://docs.moonbeam.network/builders/build/eth-api/libraries/ethersjs/
-const providerRPCMoonbaseAlphaConfig = {
-  moonbase: {
-    name: 'moonbase-alpha',
-    rpc: 'https://rpc.api.moonbase.moonbeam.network',
-    chainId: 1287, // 0x507 in hex,
-  },
-};
 // Note: ethers v6.6.2 not yet supported by Moonbase Alpha, use v5
 // https://docs.ethers.org/v5/api/providers/#WebSocketProvider
 // so use `ethers.providers.JsonRpcProvider` instead of
 // `ethers.JsonRpcProvider`
+// const providerRPCMoonbaseAlphaConfig = {
+//   moonbase: {
+//     name: 'moonbase-alpha',
+//     rpc: 'https://rpc.api.moonbase.moonbeam.network',
+//     chainId: 1287, // 0x507 in hex,
+//   },
+// };
 // const providerMoonbaseAlphaRPC = new ethers.providers.JsonRpcProvider(
 //     providerRPCMoonbaseAlphaConfig.moonbase.rpc, 
 //     {
@@ -39,6 +39,13 @@ const signer = new Wallet(process.env.MOONBASE_PRIVATE_KEY, providerMoonbaseAlph
 console.log('signer', signer);
 
 const RandomNumberContractBuilt = require('../build/contracts/RandomNumber.json'); 
+
+const setAsyncTimeout = (cb, timeout = 0) => new Promise(resolve => {
+    setTimeout(() => {
+        cb();
+        resolve();
+    }, timeout);
+});
 
 const main = async () => {
     const contractAddressMoonbaseAlpha = '0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b';
@@ -67,7 +74,7 @@ const main = async () => {
     console.log('requestId: ', requestId.toString());
     // Check status of request id from the randomness precompile
     // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L96
-    const requestStatus = await randomNumberInstance.getRequestStatus.call();
+    let requestStatus = await randomNumberInstance.getRequestStatus.call();
     console.log('requestStatus: ', requestStatus.toString());
 
     // Wait for at least MIN_VRF_BLOCKS_DELAY but less than MAX_VRF_BLOCKS_DELAY
@@ -79,41 +86,28 @@ const main = async () => {
     let currentBlockNumber = await providerMoonbaseAlphaWS.getBlockNumber();
     console.log('currentBlockNumber: ', currentBlockNumber.toString());
 
-
     // assert.equal(requestStatus, 1, 'should still be pending'); // where 1 in enum is 'PENDING'
-    // evm_mine not defined, since can only do on Ganache not live testnet
-    // for (i=0; i<MIN_VRF_BLOCKS_DELAY.length; i++) {
-    //     advanceBlock();
-    // }
 
-    // TODO - not sure how to wait for next block number
-    // while (firstBlockNumber != nextBlockNumber) {
-        // TODO - wait for at least 2 blocks
-        // setTimeout(async function(){
-        //     console.log('setTimeout');
-        //     return nextBlockNumber;
-        // }, 20000);
-        // nextBlockNumber = await web3.eth.getBlockNumber();
-        // remove 'n' character from end of blocknumber
-    //     nextBlockNumber = currentBlockNumber.toString().replace(/[^0-9.]/g, '');
-    //     console.log('nextBlockNumber: ', nextBlockNumber);
-    // }
-    // console.log('found next block');
+    // Wait a few blocks before fulfilling the request
+    // by calling the consumer contract method fulfillRandomWords
+    await setAsyncTimeout(async () => {
+        console.log('fulfillRequest');
 
-    // currentBlockNumber = await web3.eth.getBlockNumber();
+        // Error: insufficient funds for gas * price + value
+        await randomNumberInstance.fulfillRequest(
+            {
+                from: signer.address,
+                gasLimit: 600000,
+                gasPrice: 600000,
+            }
+        );
+    }, 10000);
 
-    // assert.equal(parseNum(firstBlockNumber), parseNum(secondBlockNumber)+2, 'two blocks should have passed');
-    // assert.equal(requestStatus, 2, 'not ready as expected'); // where 2 in enum is 'READY'
+    // requestStatus = await randomNumberInstance.getRequestStatus.call();
+    // console.log('requestStatus: ', requestStatus.toString());
 
-    await randomNumberInstance.fulfillRequest(
-        {
-            from: signer.address,
-            gasLimit: 600000,
-            gasPrice: 600000,
-        }
-    );
-    const random = await randomNumberInstance.random.call();
-    console.log('random number: ', random[0]);
+    // const random = await randomNumberInstance.random.call();
+    // console.log('random number: ', random[0]);
 }
 
 main();
