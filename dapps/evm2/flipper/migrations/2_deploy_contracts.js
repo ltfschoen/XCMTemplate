@@ -33,7 +33,7 @@ module.exports = async function (deployer) {
     // consumer address and fund the subscription id otherwise it will not
     // be possible to roll the dice and you will get error
     // `CALL_EXCEPTION Dice not rolled` or similar
-    const subscriptionId = 3217; // https://vrf.chain.link/
+    const subscriptionId = 3350; // https://vrf.chain.link/
     // wants 128620983229604640 wei
     const value = web3.utils.toWei('0.000001', 'ether');
     const amount = new BN(value, 10);

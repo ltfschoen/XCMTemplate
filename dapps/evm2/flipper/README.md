@@ -154,10 +154,13 @@ Verifying contracts on sourcify
             * **Important** Must be in a private browser tab to clear cache
         * https://vrf.chain.link/sepolia/3350
             * After clicking "Add Consume" and adding a consumer address in this [tx](https://sepolia.etherscan.io/tx/0x4bfc7fe73fd20f524daf07875502f2d1e7d65032c71a0fe736d3a8ddc6cb388f) it said `Important: Your consumer contract must use the Subscription ID 3350 in the VRF request to make use of these funds.`
-        * Go to https://vrf.chain.link/sepolia/3350, click "Actions" > "Fund Subscription" to prepay subscription. [tx](https://sepolia.etherscan.io/tx/0xf2a34026f513c29f6e8a12f5b6ac7d7bae2adc619e09dcc6b011c1a6c4f89350)
+        * Go to https://vrf.chain.link/sepolia/3350, click "Actions" > "Fund Subscription" to prepay subscription. [tx](https://sepolia.etherscan.io/tx/0xf2a34026f513c29f6e8a12f5b6ac7d7bae2adc619e09dcc6b011c1a6c4f89350), relates to contract deployed to 0x9912FEa426655B1d723ADFFa5dbD915C78198c49 with that subscription id 3350
 
         * NOTE:
             * I had already created a subscription id https://vrf.chain.link/sepolia/3217 to deploy through migrations file but had not added the consumer contract of it deployed, which i later did at https://sepolia.etherscan.io/tx/0xc689e64aca1c531fab582bbbbd86e835bb465c227d6068e001f1692f30eab3f6, and funded it in this tx https://sepolia.etherscan.io/tx/0x23e4464e74fbfb30dfd3a65042e86f37d915e143b63105f5391bcd23d45d93f6, so this is the one to use since that's the subscription id passed to the constructor when deployed
+    * Fix
+        * After being unsuccessful in trying to generate a random number with subscription id 3217 and 3350, I got help in #vrf room of Chainlink on Discord from Lucas Archangelo who suggested to use the existing subscription id and redeploy and add the new contract address as the consumer. So I deployed VRFD20 to 0xE265f9a30c72A78C4b89Fc2e2C60e9327704Fa5e that has tx hash https://dashboard.tenderly.co/tx/sepolia/0x0122f8b4efb1f66dea8482edf7d4e9089946cd13a60559504a4dc63fdd0a727b?trace=0.0, so then i went to https://vrf.chain.link/sepolia/3350, and added new consumer address 0xE265f9a30c72A78C4b89Fc2e2C60e9327704Fa5e in this tx 0x397c8aedab55e475d27b87de8d63cc1f866b007698f94cea49ab2ae75f016104, then i imported all the contracts into Remix to access that contract and verified that i was interacting with that new contract. then made transaction rollDice passing my account address 0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7 as a parameter in this tx https://sepolia.etherscan.io/tx/0x558a0567c5c71ec378e6919d75d8cd02b60e97c6c87205f77f5146233a58affa, then finally in Remix i called getRolledValueForPlayer passing my account address 0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7 as a parameter, and that output the following in Remix 0: uint256: 8, so it successfully generated the random number 8. I also modified ./scripts/demo.js to load that new address and to not run rollDice since we'd already done that, and it also returned `8`.
+
 * Run
     * node ./scripts/demo.js
 
@@ -168,6 +171,8 @@ Verifying contracts on sourcify
         * Receipt https://sepolia.etherscan.io/tx/0xcc2cd9edf90e0f3351f3398b7013a7259c0acc7cfbfc38454192324fcfdb7d6a
     * Reference v2 contract (not implemented): https://remix.ethereum.org/#url=https://docs.chain.link/samples/VRF/VRFv2Consumer.sol&lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.18+commit.87f61d96.js
 
+* Debugging
+    * Details of each tx https://dashboard.tenderly.co/tx/sepolia/0x????
 * Troubleshooting
     * `Client network socket disconnected before secure TLS connection was established`
         * Try fixing by running `unset https_proxy && unset http_proxy`, but this didn't actually work for me
@@ -196,7 +201,8 @@ Verifying contracts on sourcify
         * https://docs.alchemy.com/docs/ethers-js-provider
         * https://docs.alchemy.com/docs/interacting-with-a-smart-contract
     * Ethers
-        * https://docs.ethers.org/v6/api/providers/#WebSocketProvider
+        * v5 https://docs.ethers.org/v5/api/utils/hdnode/
+        * v6 https://docs.ethers.org/v6/api/providers/#WebSocketProvider
     * XCM 
         * https://docs.moonbeam.network/builders/interoperability/xcm/overview/
         * https://github.com/AstarNetwork/ink-xvm-sdk/tree/main

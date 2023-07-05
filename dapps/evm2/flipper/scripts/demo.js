@@ -1,4 +1,8 @@
-require('dotenv').config({ path: '../.env'})
+const dotenv = require('dotenv');
+// note: change the below to '../.env' if run from in the ./scripts directory
+// otherwise get error `TypeError: Cannot read properties of undefined (reading 'toHexString')`
+// since unable to load variabels from .env file
+dotenv.config({path : './.env'});
 // https://docs.alchemy.com/reference/alchemy-sdk-api-surface-overview#api-surface
 const { Network, Alchemy, Contract, Utils, Wallet } = require('alchemy-sdk');
 const VRFD20ContractBuilt = require("../build/contracts/VRFD20.json");
@@ -29,7 +33,8 @@ const signer = new Wallet(process.env.MOONBASE_PRIVATE_KEY, alchemyProvider);
 console.log('signer', signer);
 
 // Contract
-const VRFD20DeployedAtAddress = '0xe22cdfA9d8C8e942B498696ef54584426d2f5Dd6';
+// const VRFD20DeployedAtAddress = '0xe22cdfA9d8C8e942B498696ef54584426d2f5Dd6';
+const VRFD20DeployedAtAddress = '0xE265f9a30c72A78C4b89Fc2e2C60e9327704Fa5e';
 // https://docs.ethers.org/v5/api/contract/example/#example-erc-20-contract--connecting-to-a-contract
 const VRFD20ContractRW = new Contract(VRFD20DeployedAtAddress, VRFD20ContractBuilt.abi, signer);
 // console.log('VRFD20ContractRW', VRFD20ContractRW);
@@ -54,7 +59,7 @@ const getRolledValueForPlayer = async () => {
 
     const valueRolled = await VRFD20ContractRW
         .getRolledValueForPlayer(signer.address);
-    console.log(`The valueRolled by ${signer.address} is: `, valueRolled);
+    console.log(`The valueRolled by ${signer.address} is: `, valueRolled.toString());
 }
 
 // Example of using the call method
