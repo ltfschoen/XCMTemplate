@@ -6,13 +6,14 @@
 	* [Setup Docker Container](#setup-container)
 	* [Run Cargo Contracts Node in Docker Container](#run-cargo-contracts-node)
 * Build & Upload
-	* [**Quickstart** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#quick-build-upload)
-	* [**Quickstart** Build & Upload ink! Rust "Basic Contract Caller" Smart Contract to Local Testnet (using Cargo Contract)](#quick-basic-contract-caller)
-	* [**Quickstart** Build & Upload ink! Rust "IPSP22" Smart Contract to Local Testnet (using Cargo Contract)](#quick-ipsp22)
-	* [**Quickstart** Build & Upload ink! Rust "Unnamed" Smart Contract to Local Testnet (using Cargo Contract)](#quick-unnamed)
-	* [Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia (using Truffle)](#vrfd20)
-	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
-	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
+	* [**Quickstart** Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-build-upload)
+	* [**Quickstart** Build & Upload "Basic Contract Caller" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-basic-contract-caller)
+	* [**Quickstart** Build & Upload "IPSP22" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-ipsp22)
+	* [**Quickstart** Build & Upload "Unnamed" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-unnamed)
+	* [Build & Upload Moonbeam VRF Randomness Precompile Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle)](#moonbase-vrf)
+	* [Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia Testnet (using Truffle)](#vrfd20)
+	* [Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
+	* [Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
 * Interact
 	* [Interact with ink! Python Smart Contract](#interact-python)
 	* [Interact with ink! Rust Flipper Smart Contract using Polkadot.js API](#interact-polkadot-js-flipper)
@@ -192,6 +193,10 @@ docker exec -it ink /app/docker/quickstart.sh
 		````
 		./docker/quickstart-unnamed.sh
 		```
+
+### Build & Upload Moonbeam VRF Randomness Precompile Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle) <a id="moonbase-vrf"></a>
+
+* Follow the instructions in the [VRF example README](./dapps/evm2/flipper/README.md)
 
 ### Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia Testnet (using Truffle) <a id="vrfd20"></a>
 

@@ -2,7 +2,7 @@
   "name": "flipper",
   "version": "1.0.0",
   "description": "",
-  "main": "demo.js",
+  "main": "demo-chainlink-vrf-on-ethereum-sepolia.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

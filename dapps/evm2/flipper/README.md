@@ -112,8 +112,7 @@ shasum -a 256 moonkey
     * Migrate full `truffle migrate --reset --compile-all --network moonbase`
     * Migrate full `truffle migrate --reset --compile-all --network sepolia`
 * Test
-    * **Important:** It is necessary to first comment-out the code that is **not being compiled** in 2_deploy_contracts.j
-    * `truffle test ./test/test_Flipper.js --verbose-rpc --network moonbase`
+    * `truffle test ./test/test_MoonbaseVRF.js --verbose-rpc --network moonbase`
     * `truffle test ./test/test_ChainlinkVRF.js --network sepolia`
 * Verify Contract - Moonbase Precompile
 
@@ -159,10 +158,10 @@ Verifying contracts on sourcify
         * NOTE:
             * I had already created a subscription id https://vrf.chain.link/sepolia/3217 to deploy through migrations file but had not added the consumer contract of it deployed, which i later did at https://sepolia.etherscan.io/tx/0xc689e64aca1c531fab582bbbbd86e835bb465c227d6068e001f1692f30eab3f6, and funded it in this tx https://sepolia.etherscan.io/tx/0x23e4464e74fbfb30dfd3a65042e86f37d915e143b63105f5391bcd23d45d93f6, so this is the one to use since that's the subscription id passed to the constructor when deployed
     * Fix
-        * After being unsuccessful in trying to generate a random number with subscription id 3217 and 3350, I got help in #vrf room of Chainlink on Discord from Lucas Archangelo who suggested to use the existing subscription id and redeploy and add the new contract address as the consumer. So I deployed VRFD20 to 0xE265f9a30c72A78C4b89Fc2e2C60e9327704Fa5e that has tx hash https://dashboard.tenderly.co/tx/sepolia/0x0122f8b4efb1f66dea8482edf7d4e9089946cd13a60559504a4dc63fdd0a727b?trace=0.0, so then i went to https://vrf.chain.link/sepolia/3350, and added new consumer address 0xE265f9a30c72A78C4b89Fc2e2C60e9327704Fa5e in this tx 0x397c8aedab55e475d27b87de8d63cc1f866b007698f94cea49ab2ae75f016104, then i imported all the contracts into Remix to access that contract and verified that i was interacting with that new contract. then made transaction rollDice passing my account address 0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7 as a parameter in this tx https://sepolia.etherscan.io/tx/0x558a0567c5c71ec378e6919d75d8cd02b60e97c6c87205f77f5146233a58affa, then finally in Remix i called getRolledValueForPlayer passing my account address 0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7 as a parameter, and that output the following in Remix 0: uint256: 8, so it successfully generated the random number 8. I also modified ./scripts/demo.js to load that new address and to not run rollDice since we'd already done that, and it also returned `8`.
+        * After being unsuccessful in trying to generate a random number with subscription id 3217 and 3350, I got help in #vrf room of Chainlink on Discord from Lucas Archangelo who suggested to use the existing subscription id and redeploy and add the new contract address as the consumer. So I deployed VRFD20 to 0xE265f9a30c72A78C4b89Fc2e2C60e9327704Fa5e that has tx hash https://dashboard.tenderly.co/tx/sepolia/0x0122f8b4efb1f66dea8482edf7d4e9089946cd13a60559504a4dc63fdd0a727b?trace=0.0, so then i went to https://vrf.chain.link/sepolia/3350, and added new consumer address 0xE265f9a30c72A78C4b89Fc2e2C60e9327704Fa5e in this tx 0x397c8aedab55e475d27b87de8d63cc1f866b007698f94cea49ab2ae75f016104, then i imported all the contracts into Remix to access that contract and verified that i was interacting with that new contract. then made transaction rollDice passing my account address 0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7 as a parameter in this tx https://sepolia.etherscan.io/tx/0x558a0567c5c71ec378e6919d75d8cd02b60e97c6c87205f77f5146233a58affa, then finally in Remix i called getRolledValueForPlayer passing my account address 0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7 as a parameter, and that output the following in Remix 0: uint256: 8, so it successfully generated the random number 8. I also modified ./scripts/demo-chainlink-vrf-on-ethereum-sepolia.js to load that new address and to not run rollDice since we'd already done that, and it also returned `8`.
 
 * Run
-    * node ./scripts/demo.js
+    * node ./scripts/demo-chainlink-vrf-on-ethereum-sepolia.js
 
 * Chainlink VRF https://docs.chain.link/getting-started/intermediates-tutorial
     * View token balance https://sepolia.etherscan.io/address/0x1dd907abb024e17d196de0d7fe8eb507b6ccaae7
