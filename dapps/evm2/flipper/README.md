@@ -170,6 +170,10 @@ Verifying contracts on sourcify
         * Receipt https://sepolia.etherscan.io/tx/0xcc2cd9edf90e0f3351f3398b7013a7259c0acc7cfbfc38454192324fcfdb7d6a
     * Reference v2 contract (not implemented): https://remix.ethereum.org/#url=https://docs.chain.link/samples/VRF/VRFv2Consumer.sol&lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.18+commit.87f61d96.js
 
+* TODO 
+    * allowing the owner of the VRFD20 contract to specify what block number the roll the dice relates to, since the block number will represent the start of each game
+    * allowing a random number to be rolled by a roller account calling rollDice multiple times each time there is a new game set by the owner of the VRFD20
+
 * Debugging
     * Details of each tx https://dashboard.tenderly.co/tx/sepolia/0x????
 * Troubleshooting
