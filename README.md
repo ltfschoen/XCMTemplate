@@ -1,4 +1,4 @@
-### Smart Contract in ink!
+### Smart Contracts using XCM
 
 ## Table of Contents
 
@@ -10,6 +10,7 @@
 	* [**Quickstart** Build & Upload ink! Rust "Basic Contract Caller" Smart Contract to Local Testnet (using Cargo Contract)](#quick-basic-contract-caller)
 	* [**Quickstart** Build & Upload ink! Rust "IPSP22" Smart Contract to Local Testnet (using Cargo Contract)](#quick-ipsp22)
 	* [**Quickstart** Build & Upload ink! Rust "Unnamed" Smart Contract to Local Testnet (using Cargo Contract)](#quick-unnamed)
+	* [Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia (using Truffle)](#vrfd20)
 	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
 	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
 * Interact
@@ -191,6 +192,10 @@ docker exec -it ink /app/docker/quickstart.sh
 		````
 		./docker/quickstart-unnamed.sh
 		```
+
+### Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia Testnet (using Truffle) <a id="vrfd20"></a>
+
+* Follow the instructions in the [VRF20 example README](./dapps/evm2/flipper/README.md)
 
 ### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
 
