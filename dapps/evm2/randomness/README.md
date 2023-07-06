@@ -1,4 +1,4 @@
-# Flipper
+# Randomness
 
 Note: The following was based upon Moonbeam Truffle Box https://docs.moonbeam.network/builders/build/eth-api/dev-env/truffle/
 
@@ -32,8 +32,8 @@ chmod 755 /usr/lib/node_modules/truffle/build/cli.bundled.js
 ```
 * Setup Moonbeam Truffle Box template that this has been based upon
 ```bash
-mkdir -p /app/dapps/evm/flipper
-DAPP_PATH=/app/dapps/evm/flipper 
+mkdir -p /app/dapps/evm2/randomness
+DAPP_PATH=/app/dapps/evm2/randomness 
 git clone https://github.com/PureStake/moonbeam-truffle-box $DAPP_PATH
 cd $DAPP_PATH
 ```bash
@@ -124,7 +124,7 @@ Verifying contracts on moonscan
    Successfully verified 1 contract(s).
 Verifying contracts on sourcify
    Failed to connect to Sourcify API at url https://sourcify.dev/server/chains
-root@ink:/app/dapps/evm2/flipper# truffle run verify RandomNumber --network moonbase
+root@ink:/app/dapps/evm2/randomness# truffle run verify RandomNumber --network moonbase
 Verifying contracts on moonscan
    Verifying RandomNumber
    Pass - Verified: https://moonbase.moonscan.io/address/0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b#code

@@ -5,7 +5,7 @@ Compiling your contracts...
 ✓ Fetching solc version list from solc-bin. Attempt #1
 > Compiling ./contracts/Flipper.sol
 > Compiling ./contracts/Migrations.sol
-> Artifacts written to /app/dapps/evm/flipper/build/contracts
+> Artifacts written to /app/dapps/evm2/randomness/build/contracts
 > Compiled successfully using:
    - solc: 0.8.20+commit.a1b79de6.Emscripten.clang
 
@@ -77,7 +77,7 @@ Compiling your contracts...
 > Compiling ./contracts/lib/RandomNumber.sol
 > Compiling ./contracts/precompiles/randomness/Randomness.sol
 > Compiling ./contracts/precompiles/randomness/RandomnessConsumer.sol
-> Artifacts written to /app/dapps/evm2/flipper/build/contracts
+> Artifacts written to /app/dapps/evm2/randomness/build/contracts
 > Compiled successfully using:
    - solc: 0.8.20+commit.a1b79de6.Emscripten.clang
 

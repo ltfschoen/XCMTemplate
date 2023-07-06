@@ -196,11 +196,11 @@ docker exec -it ink /app/docker/quickstart.sh
 
 ### Build & Upload Moonbeam VRF Randomness Precompile Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle) <a id="moonbase-vrf"></a>
 
-* Follow the instructions in the [VRF example README](./dapps/evm2/flipper/README.md)
+* Follow the instructions in the [VRF example README](./dapps/evm2/randomness/README.md)
 
 ### Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia Testnet (using Truffle) <a id="vrfd20"></a>
 
-* Follow the instructions in the [VRF20 example README](./dapps/evm2/flipper/README.md)
+* Follow the instructions in the [VRF20 example README](./dapps/evm2/randomness/README.md)
 
 ### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
 
