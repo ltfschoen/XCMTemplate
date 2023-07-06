@@ -1,0 +1,155 @@
+# truffle migrate --reset --compile-all --network moonbase
+
+Compiling your contracts...
+===========================
+✓ Fetching solc version list from solc-bin. Attempt #1
+> Compiling ./contracts/Flipper.sol
+> Compiling ./contracts/Migrations.sol
+> Artifacts written to /app/dapps/evm2/randomness/build/contracts
+> Compiled successfully using:
+   - solc: 0.8.20+commit.a1b79de6.Emscripten.clang
+
+
+Starting migrations...
+======================
+> Network name:    'moonbase'
+> Network id:      1287
+> Block gas limit: 15000000 (0xe4e1c0)
+
+
+1_initial_migration.js
+======================
+
+   Deploying 'Migrations'
+   ----------------------
+   > transaction hash:    0x298584422c67c41b93f62adb5c828fd3690d8bc6ccbf37d82dcab78e12fad8cd
+   > Blocks: 1            Seconds: 24
+   > contract address:    0xE691d9f144Ae51139f2f8571CA3b0cd17Db8D5A0
+   > block number:        4583829
+   > block timestamp:     1687339224
+   > account:             0x1dd907ABb024E17d196de0D7Fe8EB507b6cCaae7
+   > balance:             1.099467316625
+   > gas used:            202927 (0x318af)
+   > gas price:           2.625 gwei
+   > value sent:          0 ETH
+   > total cost:          0.000532683375 ETH
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:      0.000532683375 ETH
+
+
+2_deploy_contracts.js
+=====================
+
+   Deploying 'Flipper'
+   -------------------
+   > transaction hash:    0x5e64f8df75775a48abe17c4c82cbca6188800d9df529f2cd7d276266aefd0c0b
+   > Blocks: 1            Seconds: 32
+   > contract address:    0xa59A2606CFDAE99a18977987655a995415C39013
+   > block number:        4583832
+   > block timestamp:     1687339284
+   > account:             0x1dd907ABb024E17d196de0D7Fe8EB507b6cCaae7
+   > balance:             1.099048020125
+   > gas used:            113819 (0x1bc9b)
+   > gas price:           2.625 gwei
+   > value sent:          0 ETH
+   > total cost:          0.000298774875 ETH
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:      0.000298774875 ETH
+
+Summary
+=======
+> Total deployments:   2
+> Final cost:          0.00083145825 ETH
+
+# truffle migrate --reset --compile-all --network moonbase
+
+Compiling your contracts...
+===========================
+✓ Fetching solc version list from solc-bin. Attempt #1
+> Compiling ./contracts/Flipper.sol
+> Compiling ./contracts/Migrations.sol
+> Compiling ./contracts/lib/RandomNumber.sol
+> Compiling ./contracts/precompiles/randomness/Randomness.sol
+> Compiling ./contracts/precompiles/randomness/RandomnessConsumer.sol
+> Artifacts written to /app/dapps/evm2/randomness/build/contracts
+> Compiled successfully using:
+   - solc: 0.8.20+commit.a1b79de6.Emscripten.clang
+
+
+Starting migrations...
+======================
+> Network name:    'moonbase'
+> Network id:      1287
+> Block gas limit: 15000000 (0xe4e1c0)
+
+
+1_initial_migration.js
+======================
+
+   Replacing 'Migrations'
+   ----------------------
+   > transaction hash:    0x3d1e501f5a9ab4f7d2ceb15bec3557c13eced685cea926c1ddf0ee5bf7904fc8
+   > Blocks: 1            Seconds: 20
+   > contract address:    0xceD293233Fc7e338017Fbb52F1cc997E9cfD3556
+   > block number:        4600259
+   > block timestamp:     1687564692
+   > account:             0x1dd907ABb024E17d196de0D7Fe8EB507b6cCaae7
+   > balance:             2.196479615972105182
+   > gas used:            202971 (0x318db)
+   > gas price:           2.625 gwei
+   > value sent:          0 ETH
+   > total cost:          0.000532798875 ETH
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:      0.000532798875 ETH
+
+
+2_deploy_contracts.js
+=====================
+
+   Deploying 'RandomNumber'
+   ------------------------
+   > transaction hash:    0x86c46f35c890608b5eea11b9a2cbb31f02c8a5cb41a5f7f9b337f780104875d8
+   > Blocks: 1            Seconds: 14
+   > contract address:    0x7ae29716433406B30FB252790716a7471c1B1bBD
+   > block number:        4600263
+   > block timestamp:     1687564746
+   > account:             0x1dd907ABb024E17d196de0D7Fe8EB507b6cCaae7
+   > balance:             2.193912539222105182
+   > gas used:            932021 (0xe38b5)
+   > gas price:           2.625041913 gwei
+   > value sent:          0 ETH
+   > total cost:          0.002446594188796173 ETH
+
+
+   Replacing 'Flipper'
+   -------------------
+   > transaction hash:    0xc6605dfc04eefefa841502cfc6decf38dacdd9c381a75d4fd5b9e441530e9029
+   > Blocks: 2            Seconds: 20
+   > contract address:    0x610CE4456D5b7a988F1894397755F19D3918F699
+   > block number:        4600265
+   > block timestamp:     1687564770
+   > account:             0x1dd907ABb024E17d196de0D7Fe8EB507b6cCaae7
+   > balance:             3.293613680347105182
+   > gas used:            113851 (0x1bcbb)
+   > gas price:           2.625 gwei
+   > value sent:          0 ETH
+   > total cost:          0.000298858875 ETH
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:     0.002745453063796173 ETH
+
+Summary
+=======
+> Total deployments:   3
+> Final cost:          0.003278251938796173 ETH

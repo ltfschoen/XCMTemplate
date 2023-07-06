@@ -1,4 +1,4 @@
-### Smart Contract in ink!
+### Smart Contracts using XCM
 
 ## Table of Contents
 
@@ -6,9 +6,14 @@
 	* [Setup Docker Container](#setup-container)
 	* [Run Cargo Contracts Node in Docker Container](#run-cargo-contracts-node)
 * Build & Upload
-	* [**Quickstart** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#quick-build-upload)
-	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
-	* [Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
+	* [**Quickstart** Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-build-upload)
+	* [**Quickstart** Build & Upload "Basic Contract Caller" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-basic-contract-caller)
+	* [**Quickstart** Build & Upload "IPSP22" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-ipsp22)
+	* [**Quickstart** Build & Upload "Unnamed" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-unnamed)
+	* [Build & Upload Moonbeam VRF Randomness Precompile Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle)](#moonbase-vrf)
+	* [Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia Testnet (using Truffle)](#vrfd20)
+	* [Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
+	* [Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
 * Interact
 	* [Interact with ink! Python Smart Contract](#interact-python)
 	* [Interact with ink! Rust Flipper Smart Contract using Polkadot.js API](#interact-polkadot-js-flipper)
@@ -114,6 +119,7 @@ substrate-contracts-node --version
 ```bash
 SCN_PORT=$(docker exec -it ink lsof -ti:30333) && \
 docker exec -it ink echo $(kill -9 $SCN_PORT) && \
+docker exec -it ink /app/docker/reset.sh && \
 docker exec -it ink /app/docker/quickstart.sh
 ```
 
@@ -125,6 +131,7 @@ docker exec -it ink /app/docker/quickstart.sh
 		```
 	* Run quickstart
 		```bash
+		./docker/reset.sh
 		./docker/quickstart.sh
 		```
 
@@ -134,6 +141,66 @@ docker exec -it ink /app/docker/quickstart.sh
 	* Run substrate-contracts-node again
 	* Redeploys the Flipper contract
 	* Interacts with the Flipper contract
+
+### **Demo Quickstart** Build & Upload ink! Rust "Basic Contract Caller" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-basic-contract-caller"></a>
+
+#### Run from shell inside Docker container
+
+	* Enter shell of Docker container
+		```bash
+		docker exec -it ink /bin/bash
+		```
+	* Run in terminal tab 1
+		```bash
+		./docker/reset.sh
+		```
+	* Run in terminal tab 2
+		```
+		./docker/quickstart-basic-contract-caller.sh
+		```
+
+### **Demo Quickstart** Build & Upload ink! Rust "IPSP22" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-ipsp22"></a>
+
+#### Run from shell inside Docker container
+
+	* Enter shell of Docker container
+		```bash
+		docker exec -it ink /bin/bash
+		```
+	* Run in terminal tab 1
+		```bash
+		./docker/reset.sh
+		```
+	* Run in terminal tab 2
+		```bash
+		cd /app
+		./docker/quickstart-ipsp22.sh
+		```
+
+### **Demo Quickstart** Build & Upload ink! Rust "Unnamed" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-unnamed"></a>
+
+#### Run from shell inside Docker container
+
+	* Enter shell of Docker container
+		```bash
+		docker exec -it ink /bin/bash
+		```
+	* Run in terminal tab 1
+		```bash
+		./docker/reset.sh
+		```
+	* Run in terminal tab 2
+		````
+		./docker/quickstart-unnamed.sh
+		```
+
+### Build & Upload Moonbeam VRF Randomness Precompile Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle) <a id="moonbase-vrf"></a>
+
+* Follow the instructions in the [VRF example README](./dapps/evm2/randomness/README.md)
+
+### Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia Testnet (using Truffle) <a id="vrfd20"></a>
+
+* Follow the instructions in the [VRF20 example README](./dapps/evm2/randomness/README.md)
 
 ### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
 
@@ -249,12 +316,12 @@ Note: Try `rustup update` if you face error
 
 Local Testnet
 ```bash
-swanky contract deploy flipper --account alice -g 100000000000 -a true
+swanky contract deploy flipper --account alice -g 1000000000000 -a true
 ```
 
 Shibuya Testnet
 ```bash
-swanky contract deploy flipper --account alice --gas 100000000000 --args true --network shibuya
+swanky contract deploy flipper --account alice --gas 1000000000000 --args true --network shibuya
 ```
 Copy paste the contract address.
 
@@ -359,8 +426,8 @@ cargo contract call \
 * Note: If you don't build in "debug" mode with `cargo contract build ...` instead of `cargo contract build --release ...` and you run it using **dry run** by running extra options like the following, or if you execute as a transaction, then you won't be able to see node terminal debug logs like `tokio-runtime-worker runtime::contracts Execution finished with debug buffer...` from your use of `ink::env::debug_println!` in the smart contract
 ```bash
 	--skip-dry-run \
-	--gas 100000000000 \
-	--proof-size 100000000000
+	--gas 1000000000000 \
+	--proof-size 1000000000000
 ```
 
 ### Tips Docker Commands <a id="tips-docker"></a>
@@ -424,6 +491,9 @@ docker buildx rm --all-inactive
 		* Contracts pallet allows deployment and execution of WebAssembly-based smart contracts
 	* What trait do smart contract accounts used in the Contracts pallet of Substrate extend?
 		* `Currency` trait
+	* How to resolve `ERROR: This contract has already been uploaded with code hash`
+		* It may be because you ran a Substrate contract node on your host machine and then tried running another one in your Docker container. So it may be necessary to run `kill -9 $(lsof -ti:30333)` on
+		both the host machine and inside the Docker container. Or just restart Docker.
 
 
 * Link
