@@ -115,6 +115,7 @@ shasum -a 256 moonkey
     * `truffle test ./test/test_MoonbaseVRF.js --verbose-rpc --network moonbase`
     * `truffle test ./test/test_ChainlinkVRF.js --network sepolia`
 * Verify Contract - Moonbase Precompile
+    * Note: To view the source code on etherscan.io, it is also necessary to Verify and Publish the source code for that too by adding your Etherscan API key to the .env file under `ETHERSCAN_API_KEY`
 
 ```
 # truffle run verify Flipper --network moonbase
@@ -134,6 +135,8 @@ Verifying contracts on sourcify
 ```
 
 * Verify Contract - Chainlink VRF
+    * Note: To view the source code on etherscan.io, it is also necessary to Verify and Publish the source code for that too by adding your Etherscan API key to the .env file under `ETHERSCAN_API_KEY`
+
 ```
 # cd flipper
 # truffle run verify VRFD20 --network sepolia

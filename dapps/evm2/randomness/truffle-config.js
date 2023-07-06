@@ -125,6 +125,7 @@ module.exports = {
    plugins: ['moonbeam-truffle-plugin', 'truffle-plugin-verify'],
    // https://docs.moonbeam.network/builders/build/eth-api/verify-contracts/etherscan-plugins/#using-the-truffle-verify-plugin
    api_keys: {
-      moonscan: process.env.MOONSCAN_API_KEY
+      moonscan: process.env.MOONSCAN_API_KEY,
+      etherscan: process.env.ETHERSCAN_API_KEY,
    }
 };
