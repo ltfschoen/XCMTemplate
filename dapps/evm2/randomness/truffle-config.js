@@ -69,8 +69,8 @@ module.exports = {
          // gasPrice: 50000000000, // 50 Gwei
          // gasLimit is required when using `WebsocketsProvider` instead of `HttpProvider`
          // else get error `TypeError: Cannot create property 'gasLimit' on string '0x467b05'`.
-         // if this error appears even with the property set, then try changing to a different
-         // internet connection
+         // if this error appears even with the property set, then try reconnecting to the internet,
+         // or changing to a different
          gasLimit: 5000000,
          networkCheckTimeout: 1000000000,
          // deploymentPollingInterval: 8000,

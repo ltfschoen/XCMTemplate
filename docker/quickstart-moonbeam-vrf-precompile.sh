@@ -15,11 +15,13 @@ PARENT_DIR=$( echo $(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")") )
 # truffle compile --compile-all
 
 # echo "Migrating contracts..."
-# truffle migrate --reset --compile-all --network sepolia
+# truffle migrate --reset --compile-all --network moonbase
+
+# truffle run verify RandomNumber --network moonbase
 
 # TODO - get the deployed contract address from the output
-#        and pass that as a variable to the demo-chainlink-vrf-on-ethereum-sepolia.js script
-#        (which gets the contract at that address and then call `rollDice`
+#        and pass that as a variable to the demo-moonbeam-vrf-on-moonbase-alpha.js script
+#        (which gets the contract at that address and then call `requestRandomness`
 #        and waits some blocks before getting the random number)
 
 # echo "Request randomness then obtain a randomness status then a random number"

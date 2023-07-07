@@ -15,7 +15,7 @@ PARENT_DIR=$( echo $(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")") )
 # truffle compile --compile-all
 
 # echo "Migrating contracts..."
-# truffle migrate --reset --compile-all --network moonbase
+# truffle migrate --reset --compile-all --network sepolia
 
 # TODO - get the deployed contract address from the output
 #        and pass that as a variable to the demo-chainlink-vrf-on-ethereum-sepolia.js script
