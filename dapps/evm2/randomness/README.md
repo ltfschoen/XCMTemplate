@@ -125,6 +125,7 @@ Verifying contracts on moonscan
    Successfully verified 1 contract(s).
 Verifying contracts on sourcify
    Failed to connect to Sourcify API at url https://sourcify.dev/server/chains
+truffle run verify RandomNumber --network moonbase
 root@ink:/app/dapps/evm2/randomness# truffle run verify RandomNumber --network moonbase
 Verifying contracts on moonscan
    Verifying RandomNumber

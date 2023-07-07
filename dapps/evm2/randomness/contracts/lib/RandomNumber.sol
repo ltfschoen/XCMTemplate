@@ -58,15 +58,16 @@ contract RandomNumber is RandomnessConsumer {
     // ) public onlyOwner payable {
         require(s_results[roller] == 0, "Already rolled");
         // Make sure that the value sent is enough
-        require(msg.value >= MIN_FEE);
+        require(msg.value >= MIN_FEE, "Insufficient fulfillment fee");
         // Request local VRF randomness
-        requestId = theRandomness.requestLocalVRFRandomWords(
+        requestId = theRandomness.requestRelayBabeEpochRandomWords(
             msg.sender, // Refund address
             msg.value, // Fulfillment fee
             FULFILLMENT_GAS_LIMIT, // Gas limit for the fulfillment
             SALT_PREFIX ^ bytes32(requestId++), // A salt to generate unique results
-            1, // Number of random words
-            VRF_BLOCKS_DELAY // Delay before request can be fulfilled
+            1 // Number of random words
+            // 1, // Number of random words
+            // VRF_BLOCKS_DELAY // Delay before request can be fulfilled
         );
 
         s_rollers[requestId] = roller;

@@ -1,4 +1,7 @@
-require('dotenv').config({ path: '../.env'})
+require('dotenv').config({ path: './.env'})
+// note: change the below to '../.env' if run from in the ./scripts directory
+// otherwise get error `TypeError: Cannot read properties of undefined (reading 'toHexString')`
+// since unable to load variabels from .env file
 const ethers = require('ethers');
 const { Wallet } = require('ethers');
 const BN = require('bn.js');
@@ -48,12 +51,13 @@ const setAsyncTimeout = (cb, timeout = 0) => new Promise(resolve => {
 });
 
 const main = async () => {
-    const contractAddressMoonbaseAlpha = '0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b';
+    // const contractAddressMoonbaseAlpha = '0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b';
+    const contractAddressMoonbaseAlpha = '0x92108215DDB52e34837C5f8e744DBCf4BB994b99';
     const randomNumberInstance = new ethers.Contract(
         contractAddressMoonbaseAlpha, RandomNumberContractBuilt.abi, signer);
     console.log('randomNumberInstance: ', randomNumberInstance);
     const fulfillmentFee = await randomNumberInstance.MIN_FEE.call();
-    console.log('fulfillmentFee: ', fulfillmentFee.toString());
+    console.log('fulfillmentFee MIN_FEE is: ', fulfillmentFee.toString());
     console.log('fulfillmentFee is bn', BN.isBN(fulfillmentFee));
 
     console.log('x: ', ethers.utils.formatEther(fulfillmentFee));
@@ -104,13 +108,17 @@ const main = async () => {
                 maxPriorityFeePerGas: 2,
             }
         );
-    }, 10000);
 
-    // requestStatus = await randomNumberInstance.getRequestStatus.call();
-    // console.log('requestStatus: ', requestStatus.toString());
+        currentBlockNumber = await providerMoonbaseAlphaWS.getBlockNumber();
+        console.log('currentBlockNumber: ', currentBlockNumber.toString());
 
-    // const random = await randomNumberInstance.random.call();
-    // console.log('random number: ', random[0]);
+        requestStatus = await randomNumberInstance.getRequestStatus.call();
+        console.log('requestStatus: ', requestStatus.toString());
+
+        // `random` is a non-payable method
+        const random = await randomNumberInstance.functions.random(0);
+        console.log('random number: ', random);
+    }, 30000);
 }
 
 main();
