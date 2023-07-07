@@ -40,6 +40,7 @@ contract RandomNumber is RandomnessConsumer {
 
     event DiceRolled(uint256 indexed requestId, address indexed roller);
     event DiceLanded(uint256 indexed requestId, uint256 indexed result);
+    event DiceRollFulfilled(uint256 indexed requestId, uint256 d20Value);
 
     constructor() payable RandomnessConsumer() {
         // Initialize use of Randomness dependency before trying to access it
@@ -95,6 +96,7 @@ contract RandomNumber is RandomnessConsumer {
         s_results[s_rollers[reqId]] = d20Value;
         // Save the latest for comparison
         random = randomWords;
+        emit DiceRollFulfilled(requestId, d20Value);
     }
 
     /**

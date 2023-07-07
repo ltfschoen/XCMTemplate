@@ -44,25 +44,19 @@ console.log('signer', signer);
 
 const RandomNumberContractBuilt = require('../build/contracts/RandomNumber.json'); 
 
-// const setAsyncTimeout = (cb, timeout = 0) => new Promise(resolve => {
-//     setTimeout(() => {
-//         cb();
-//         resolve();
-//     }, timeout);
-// });
-// const wait = (seconds) => 
-//    new Promise(resolve => 
-//       setTimeout(() => resolve(true), seconds * 1000)
-//    );
-
 const main = async () => {
     // const contractAddressMoonbaseAlpha = '0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b'; 
     // const contractAddressMoonbaseAlpha = '0x92108215DDB52e34837C5f8e744DBCf4BB994b99'; // uses babeVRF
-    const contractAddressMoonbaseAlpha = '0x6075fE62F6698893d4008fccC19c90dbDA37ab39'; // uses local VRF
+    const contractAddressMoonbaseAlpha = '0x591BaEcCfaaC1e2569104125719b0686195B803C'; // uses local VRF
     
     const randomNumberInstance = new ethers.Contract(
         contractAddressMoonbaseAlpha, RandomNumberContractBuilt.abi, signer);
     console.log('randomNumberInstance: ', randomNumberInstance);
+
+    randomNumberInstance.on('DiceRolled', (res) => console.log('detected DiceRolled:', res));
+    randomNumberInstance.on('DiceLanded', (res) => console.log('detected DiceLanded:', res));
+    randomNumberInstance.on('DiceRollFulfilled', (res) => console.log('detected DiceRollFulfilled:', res));
+
     const fulfillmentFee = await randomNumberInstance.MIN_FEE.call();
     console.log('fulfillmentFee MIN_FEE is: ', fulfillmentFee.toString());
     console.log('fulfillmentFee is bn', BN.isBN(fulfillmentFee));
@@ -103,13 +97,10 @@ const main = async () => {
 
     console.log('Please wait...');
     // Wait a few blocks before fulfilling the request
-    // by calling the consumer contract method fulfillRandomWords
-    // await setAsyncTimeout(async () => {
-    //     console.log('fulfillRequest');
-    // }, 70000);
-    // await wait(70);
-    await new Promise((resolve, reject) => setTimeout(resolve, 70000));
-    console.log('finished fulfillRequest');
+    // and calling the consumer contract method fulfillRandomWords
+    await new Promise((resolve, reject) => setTimeout(resolve, 300000)); // 300k millisec is 5 mins
+    
+    console.log('proceeding to fulfillRequest process...');
 
     // if using `requestRelayBabeEpochRandomWords` then the following applies:
     // "For BABE epoch randomness, you do not need to specify a delay but can
@@ -129,10 +120,10 @@ const main = async () => {
     // again so it only runs below calls 
     requestStatus = await randomNumberInstance.getRequestStatus.call();
     console.log('requestStatus: ', requestStatus.toString());
-    assert.equal(requestStatus, 2, 'should be ready status after waiting a minute using local vrf'); // where 2 in enum is 'READY'
+    assert.equal(requestStatus, 2, 'should be ready status after waiting a minute using local vrf'); // where 2 in enum is 'READY'    
 
     // Error: insufficient funds for gas * price + value
-    await randomNumberInstance.fulfillRequest(
+    let fulfilled = await randomNumberInstance.fulfillRequest(
         {
             from: signer.address,
             gasLimit: 600000,
@@ -140,6 +131,7 @@ const main = async () => {
             maxPriorityFeePerGas: 2,
         }
     );
+    console.log('fulfilled');
 
     currentBlockNumber = await providerMoonbaseAlphaWS.getBlockNumber();
     console.log('currentBlockNumber: ', currentBlockNumber.toString());
