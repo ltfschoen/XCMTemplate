@@ -1,11 +1,13 @@
 require('dotenv').config({ path: './.env'})
 // note: change the below to '../.env' if run from in the ./scripts directory
 // otherwise get error `TypeError: Cannot read properties of undefined (reading 'toHexString')`
-// since unable to load variabels from .env file
+// since unable to load variables from .env file
+const process = require('process');
 const ethers = require('ethers');
 const { Wallet } = require('ethers');
 const BN = require('bn.js');
 const assert = require('assert');
+
 
 // https://docs.moonbeam.network/builders/build/eth-api/libraries/ethersjs/
 // Note: ethers v6.6.2 not yet supported by Moonbase Alpha, use v5
@@ -45,9 +47,11 @@ console.log('signer', signer);
 const RandomNumberContractBuilt = require('../build/contracts/RandomNumber.json'); 
 
 const main = async () => {
+    let contractAddressArg = process.argv[2];
+
     // const contractAddressMoonbaseAlpha = '0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b'; 
     // const contractAddressMoonbaseAlpha = '0x92108215DDB52e34837C5f8e744DBCf4BB994b99'; // uses babeVRF
-    const contractAddressMoonbaseAlpha = '0xfA5D2bAbF81b8C5066f13776FE9d1fF5846ed7E3'; // uses local VRF
+    const contractAddressMoonbaseAlpha = contractAddressArg; // uses local VRF
     
     const randomNumberInstance = new ethers.Contract(
         contractAddressMoonbaseAlpha, RandomNumberContractBuilt.abi, signer);
@@ -98,11 +102,9 @@ const main = async () => {
     console.log('Please wait...');
     // Wait a few blocks before fulfilling the request
     // and calling the consumer contract method fulfillRandomWords
-    await new Promise((resolve, reject) => {
-        setTimeout(() => { return resolve() }, 300000);
-    }); // 300k millisec is 5 mins
+    await new Promise((resolve, reject) => setTimeout(resolve, 70000)); // 300k millisec is 5 mins
     
-    console.log('proceeding to fulfillRequest process...');
+    console.log('Ready to proceed with fulfillRequest process...');
 
     // if using `requestRelayBabeEpochRandomWords` then the following applies:
     // "For BABE epoch randomness, you do not need to specify a delay but can
@@ -117,43 +119,16 @@ const main = async () => {
     // However, if you use `requestLocalVRFRandomWords` in RandomNumber.sol instead then
     // you only need to wait 1 minute or so.
 
-    // FIXME - the code below doesn't get run at all and no errors. it only runs if
-    // comment out lines above such as `requestRandomness` and then run this script
-    // again so it only runs below calls 
-    requestStatus = await randomNumberInstance.getRequestStatus.call();
-    console.log('requestStatus: ', requestStatus.toString());
-    assert.equal(requestStatus, 2, 'should be ready status after waiting a minute using local vrf'); // where 2 in enum is 'READY'    
-
-    // Error: insufficient funds for gas * price + value
-    let fulfilled = await randomNumberInstance.fulfillRequest(
-        {
-            from: signer.address,
-            gasLimit: 600000,
-            // gasPrice: 600000,
-            maxPriorityFeePerGas: 2,
-        }
-    );
-    console.log('fulfilled');
-
-    currentBlockNumber = await providerMoonbaseAlphaWS.getBlockNumber();
-    console.log('currentBlockNumber: ', currentBlockNumber.toString());
-
-    requestStatus = await randomNumberInstance.getRequestStatus.call();
-    console.log('requestStatus: ', requestStatus.toString());
-
-    // `random` is a non-payable method
-    const random = await randomNumberInstance.functions.random(0);
-    console.log('random number: ', random.length && random[0].toString());
-
-    const randomUsingModulus = await randomNumberInstance.functions.getRolledValueForPlayer(signer.address);
-    console.log('randomUsingModulus: ', randomUsingModulus.toString());
+    // Note: a separate file needs to be called to fulfill the request since further code in
+    // this file does not run.  
 }
 
 function panic(error)
 {
-    console.error(error);
+    console.error('error: ', error);
     process.exit(1);
 }
 
 // https://stackoverflow.com/a/57241059/3208553
-main().catch(panic).finally(clearInterval.bind(null, setInterval(a=>a, 1000000000)));
+// main().catch(panic).finally(clearInterval.bind(null, setInterval(a=>a, 1000000000)));
+main().catch(panic);
