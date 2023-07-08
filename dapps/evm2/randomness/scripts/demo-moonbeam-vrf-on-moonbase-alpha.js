@@ -47,7 +47,7 @@ const RandomNumberContractBuilt = require('../build/contracts/RandomNumber.json'
 const main = async () => {
     // const contractAddressMoonbaseAlpha = '0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b'; 
     // const contractAddressMoonbaseAlpha = '0x92108215DDB52e34837C5f8e744DBCf4BB994b99'; // uses babeVRF
-    const contractAddressMoonbaseAlpha = '0x591BaEcCfaaC1e2569104125719b0686195B803C'; // uses local VRF
+    const contractAddressMoonbaseAlpha = '0xfA5D2bAbF81b8C5066f13776FE9d1fF5846ed7E3'; // uses local VRF
     
     const randomNumberInstance = new ethers.Contract(
         contractAddressMoonbaseAlpha, RandomNumberContractBuilt.abi, signer);
@@ -98,7 +98,9 @@ const main = async () => {
     console.log('Please wait...');
     // Wait a few blocks before fulfilling the request
     // and calling the consumer contract method fulfillRandomWords
-    await new Promise((resolve, reject) => setTimeout(resolve, 300000)); // 300k millisec is 5 mins
+    await new Promise((resolve, reject) => {
+        setTimeout(() => { return resolve() }, 300000);
+    }); // 300k millisec is 5 mins
     
     console.log('proceeding to fulfillRequest process...');
 
@@ -147,4 +149,11 @@ const main = async () => {
     console.log('randomUsingModulus: ', randomUsingModulus.toString());
 }
 
-main();
+function panic(error)
+{
+    console.error(error);
+    process.exit(1);
+}
+
+// https://stackoverflow.com/a/57241059/3208553
+main().catch(panic).finally(clearInterval.bind(null, setInterval(a=>a, 1000000000)));
