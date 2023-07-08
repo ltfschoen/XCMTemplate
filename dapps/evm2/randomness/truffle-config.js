@@ -69,8 +69,8 @@ module.exports = {
          // gasPrice: 50000000000, // 50 Gwei
          // gasLimit is required when using `WebsocketsProvider` instead of `HttpProvider`
          // else get error `TypeError: Cannot create property 'gasLimit' on string '0x467b05'`.
-         // if this error appears even with the property set, then try changing to a different
-         // internet connection
+         // if this error appears even with the property set, then try reconnecting to the internet,
+         // or changing to a different
          gasLimit: 5000000,
          networkCheckTimeout: 1000000000,
          // deploymentPollingInterval: 8000,
@@ -125,6 +125,7 @@ module.exports = {
    plugins: ['moonbeam-truffle-plugin', 'truffle-plugin-verify'],
    // https://docs.moonbeam.network/builders/build/eth-api/verify-contracts/etherscan-plugins/#using-the-truffle-verify-plugin
    api_keys: {
-      moonscan: process.env.MOONSCAN_API_KEY
+      moonscan: process.env.MOONSCAN_API_KEY,
+      etherscan: process.env.ETHERSCAN_API_KEY,
    }
 };

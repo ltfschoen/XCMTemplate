@@ -1,7 +1,13 @@
-require('dotenv').config({ path: '../.env'})
+require('dotenv').config({ path: './.env'})
+// note: change the below to '../.env' if run from in the ./scripts directory
+// otherwise get error `TypeError: Cannot read properties of undefined (reading 'toHexString')`
+// since unable to load variables from .env file
+const process = require('process');
 const ethers = require('ethers');
 const { Wallet } = require('ethers');
 const BN = require('bn.js');
+const assert = require('assert');
+
 
 // https://docs.moonbeam.network/builders/build/eth-api/libraries/ethersjs/
 // Note: ethers v6.6.2 not yet supported by Moonbase Alpha, use v5
@@ -40,20 +46,23 @@ console.log('signer', signer);
 
 const RandomNumberContractBuilt = require('../build/contracts/RandomNumber.json'); 
 
-const setAsyncTimeout = (cb, timeout = 0) => new Promise(resolve => {
-    setTimeout(() => {
-        cb();
-        resolve();
-    }, timeout);
-});
-
 const main = async () => {
-    const contractAddressMoonbaseAlpha = '0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b';
+    let contractAddressArg = process.argv[2];
+
+    // const contractAddressMoonbaseAlpha = '0x4027755C05514421fe00f4Fde0bD3F8475ce8A6b'; 
+    // const contractAddressMoonbaseAlpha = '0x92108215DDB52e34837C5f8e744DBCf4BB994b99'; // uses babeVRF
+    const contractAddressMoonbaseAlpha = contractAddressArg; // uses local VRF
+    
     const randomNumberInstance = new ethers.Contract(
         contractAddressMoonbaseAlpha, RandomNumberContractBuilt.abi, signer);
     console.log('randomNumberInstance: ', randomNumberInstance);
+
+    randomNumberInstance.on('DiceRolled', (res) => console.log('detected DiceRolled:', res));
+    randomNumberInstance.on('DiceLanded', (res) => console.log('detected DiceLanded:', res));
+    randomNumberInstance.on('DiceRollFulfilled', (res) => console.log('detected DiceRollFulfilled:', res));
+
     const fulfillmentFee = await randomNumberInstance.MIN_FEE.call();
-    console.log('fulfillmentFee: ', fulfillmentFee.toString());
+    console.log('fulfillmentFee MIN_FEE is: ', fulfillmentFee.toString());
     console.log('fulfillmentFee is bn', BN.isBN(fulfillmentFee));
 
     console.log('x: ', ethers.utils.formatEther(fulfillmentFee));
@@ -74,10 +83,6 @@ const main = async () => {
     
     const requestId = await randomNumberInstance.requestId.call();
     console.log('requestId: ', requestId.toString());
-    // Check status of request id from the randomness precompile
-    // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L96
-    let requestStatus = await randomNumberInstance.getRequestStatus.call();
-    console.log('requestStatus: ', requestStatus.toString());
 
     // Wait for at least MIN_VRF_BLOCKS_DELAY but less than MAX_VRF_BLOCKS_DELAY
     // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L13
@@ -88,29 +93,42 @@ const main = async () => {
     let currentBlockNumber = await providerMoonbaseAlphaWS.getBlockNumber();
     console.log('currentBlockNumber: ', currentBlockNumber.toString());
 
-    // assert.equal(requestStatus, 1, 'should still be pending'); // where 1 in enum is 'PENDING'
+    // Check status of request id from the randomness precompile
+    // https://github.com/PureStake/moonbeam/blob/master/precompiles/randomness/Randomness.sol#L96
+    let requestStatus = await randomNumberInstance.getRequestStatus.call();
+    console.log('requestStatus: ', requestStatus.toString());
+    assert.equal(requestStatus, 1, 'should still be pending'); // where 1 in enum is 'PENDING'
 
+    console.log('Please wait...');
     // Wait a few blocks before fulfilling the request
-    // by calling the consumer contract method fulfillRandomWords
-    await setAsyncTimeout(async () => {
-        console.log('fulfillRequest');
+    // and calling the consumer contract method fulfillRandomWords
+    await new Promise((resolve, reject) => setTimeout(resolve, 70000)); // 300k millisec is 5 mins
+    
+    console.log('Ready to proceed with fulfillRequest process...');
 
-        // Error: insufficient funds for gas * price + value
-        await randomNumberInstance.fulfillRequest(
-            {
-                from: signer.address,
-                gasLimit: 600000,
-                // gasPrice: 600000,
-                maxPriorityFeePerGas: 2,
-            }
-        );
-    }, 10000);
+    // if using `requestRelayBabeEpochRandomWords` then the following applies:
+    // "For BABE epoch randomness, you do not need to specify a delay but can
+    // fulfill the request at the beginning of the 2nd epoch following the current one"
+    // https://docs.moonbeam.network/builders/pallets-precompiles/precompiles/randomness/#:~:text=requestLocalVRFRandomWords
+    // So if you use `requestRelayBabeEpochRandomWords` in RandomNumber.sol for babeEpoch randomness then the minimum wait
+    // time is the 2nd epoch, which is about 1 hour in Kusama (Moonriver) and
+    // 4 hours in Polkadot (Moonbeam), so you would have to wait that long after running
+    // `requestRandomness` until the response of calling `getRequestStatus` would change
+    // from `1` (Pending) to `2` (Ready) and you can then run `fulfillRequest` and
+    // `random` to get the generated random number.
+    // However, if you use `requestLocalVRFRandomWords` in RandomNumber.sol instead then
+    // you only need to wait 1 minute or so.
 
-    // requestStatus = await randomNumberInstance.getRequestStatus.call();
-    // console.log('requestStatus: ', requestStatus.toString());
-
-    // const random = await randomNumberInstance.random.call();
-    // console.log('random number: ', random[0]);
+    // Note: a separate file needs to be called to fulfill the request since further code in
+    // this file does not run.  
 }
 
-main();
+function panic(error)
+{
+    console.error('error: ', error);
+    process.exit(1);
+}
+
+// https://stackoverflow.com/a/57241059/3208553
+// main().catch(panic).finally(clearInterval.bind(null, setInterval(a=>a, 1000000000)));
+main().catch(panic);

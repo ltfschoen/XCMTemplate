@@ -40,6 +40,7 @@ contract RandomNumber is RandomnessConsumer {
 
     event DiceRolled(uint256 indexed requestId, address indexed roller);
     event DiceLanded(uint256 indexed requestId, uint256 indexed result);
+    event DiceRollFulfilled(uint256 indexed requestId, uint256 d20Value);
 
     constructor() payable RandomnessConsumer() {
         // Initialize use of Randomness dependency before trying to access it
@@ -58,13 +59,16 @@ contract RandomNumber is RandomnessConsumer {
     // ) public onlyOwner payable {
         require(s_results[roller] == 0, "Already rolled");
         // Make sure that the value sent is enough
-        require(msg.value >= MIN_FEE);
+        require(msg.value >= MIN_FEE, "Insufficient fulfillment fee");
         // Request local VRF randomness
+        
         requestId = theRandomness.requestLocalVRFRandomWords(
+        // requestId = theRandomness.requestRelayBabeEpochRandomWords(
             msg.sender, // Refund address
             msg.value, // Fulfillment fee
             FULFILLMENT_GAS_LIMIT, // Gas limit for the fulfillment
             SALT_PREFIX ^ bytes32(requestId++), // A salt to generate unique results
+            // 1 // Number of random words
             1, // Number of random words
             VRF_BLOCKS_DELAY // Delay before request can be fulfilled
         );
@@ -92,6 +96,7 @@ contract RandomNumber is RandomnessConsumer {
         s_results[s_rollers[reqId]] = d20Value;
         // Save the latest for comparison
         random = randomWords;
+        emit DiceRollFulfilled(requestId, d20Value);
     }
 
     /**
