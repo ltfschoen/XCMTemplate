@@ -23,7 +23,7 @@ OUTPUT_CONTRACT_HASH_SUB=$(
     truffle run verify RandomNumber --network moonbase | tail -2
 )
 # get the deployed contract address from the output
-# and pass that as a variable to the demo-moonbeam-vrf-on-moonbase-alpha.js script
+# and pass that as a variable to the demo-moonbeam-vrf-on-moonbase-alpha-part1.js script
 # (which gets the contract at that address and then call `requestRandomness`
 # and waits some blocks before getting the random number)
 echo "Finished verifying contract..."
@@ -37,7 +37,7 @@ echo $OUTPUT_CONTRACT_HASH_SUB_TRIMMED
 # if you get error `TypeError: Cannot create property 'gasLimit' on string '0x478a6a'` or similar
 # then restart your internet connection
 echo "Request randomness"
-node $PROJECT_ROOT/scripts/demo-moonbeam-vrf-on-moonbase-alpha.js $OUTPUT_CONTRACT_HASH_SUB_TRIMMED
+node $PROJECT_ROOT/scripts/demo-moonbeam-vrf-on-moonbase-alpha-part1.js $OUTPUT_CONTRACT_HASH_SUB_TRIMMED
 
 echo "Obtain a randomness status, fulfill and get random number"
 node $PROJECT_ROOT/scripts/demo-moonbeam-vrf-on-moonbase-alpha-part2.js $OUTPUT_CONTRACT_HASH_SUB_TRIMMED
