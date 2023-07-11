@@ -42,7 +42,7 @@ const main = async () => {
     console.log('flipperGameRandomNumberInstance: ', flipperGameRandomNumberInstance);
 
     await flipperGameRandomNumberInstance.setFlipperGameContractAddress(
-        contractAddressFlipperGameMoonbaseAlphaArg,
+        contractAddressFlipperGameMoonbaseAlphaArg.toString(),
         {
             from: signer.address,
             gasLimit: 600000,

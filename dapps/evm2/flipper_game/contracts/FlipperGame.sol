@@ -74,11 +74,6 @@ contract FlipperGame {
     }
 
     function createGame(uint256 _initialGuess) external payable returns(uint256) {
-        FlipperGameRandomNumber instanceFlipperGameRandomNumber =
-            FlipperGameRandomNumber(flipperGameRandomNumberContractAddress);
-        uint256 minFee = instanceFlipperGameRandomNumber.MIN_FEE();
-        // Make sure that the value sent is enough
-        require(msg.value >= minFee, "Insufficient fulfillment fee");
         require(_initialGuess <= 20);
         blockNumber = block.number;
         blockHashPrevious = blockhash(blockNumber - 1);
@@ -164,6 +159,12 @@ contract FlipperGame {
     }
 
     function requestRandomessAnswerOfGame(uint256 _gameId) external payable {
+        FlipperGameRandomNumber instanceFlipperGameRandomNumber =
+            FlipperGameRandomNumber(flipperGameRandomNumberContractAddress);
+        uint256 minFee = instanceFlipperGameRandomNumber.MIN_FEE();
+        // Make sure that the value sent is enough
+        require(msg.value >= minFee, "Insufficient fulfillment fee");
+
         blockNumber = block.number;
         require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
         require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
@@ -171,9 +172,7 @@ contract FlipperGame {
 
         requestedAtBlockNumberForGameId[_gameId].requestedRandomnessAtBlock = blockNumber;
 
-        FlipperGameRandomNumber instanceFlipperGameRandomNumber =
-            FlipperGameRandomNumber(flipperGameRandomNumberContractAddress);
-        instanceFlipperGameRandomNumber.requestRandomness(address(this), _gameId);
+        instanceFlipperGameRandomNumber.requestRandomness{value: msg.value}(address(this), _gameId);
     }
 
     function requestFulfillAnswerOfGame(uint256 _gameId) external payable {
