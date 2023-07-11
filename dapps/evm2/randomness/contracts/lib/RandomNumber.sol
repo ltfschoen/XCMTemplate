@@ -22,6 +22,7 @@ contract RandomNumber is RandomnessConsumer {
     // the fulfillment costs. Any leftover fees will be refunded to the
     // refund address specified in the requestRandomness function below
     uint256 public MIN_FEE = FULFILLMENT_GAS_LIMIT * 5 gwei; // 0.000000001 Ether == 1 gwei
+    // https://docs.moonbeam.network/learn/features/randomness/
     uint32 public VRF_BLOCKS_DELAY;
     bytes32 public SALT_PREFIX = "change-me-to-anything";
 
