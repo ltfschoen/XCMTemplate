@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.3;
 
-import {RandomNumber} from "./lib/RandomNumber.sol";
+import {FlipperGameRandomNumber} from "./lib/FlipperGameRandomNumber.sol";
 
 contract FlipperGame {
-    uint256 private constant BLOCKS_ALLOW_GUESS = 100;
+    uint private constant BLOCKS_ALLOW_GUESS = 100;
+    uint private constant BLOCKS_ALLOW_RANDOMNESS = 12; // 70 sec @ 6 sec/block
+    uint private constant BLOCKS_ALLOW_FULFILL = 7; // 40 sec @ 6 sec/block
+
     uint public blockNumber;
     // bytes32 public blockHashNow;
     bytes32 public blockHashPrevious;
     bool public hasCalledFallbackFn;
     address public s_owner;
-    address public randomNumberContractAddress;
+    address public flipperGameRandomNumberContractAddress;
     uint256 public gameId = 0;
     uint256 public playerGuessId = 0;
     uint256 public answerId = 0;
@@ -21,6 +24,7 @@ contract FlipperGame {
         bytes32 startGameAtBlockHash; // blockHashPrevious
         address createdBy;
         uint createdAtBlock;
+        uint endGuessesAtBlock;
     }
 
     struct PlayerStruct {
@@ -33,15 +37,20 @@ contract FlipperGame {
         uint256 id;
         uint256 gameId;
         address guessByPlayerAddress;
-        uint8 guess;
+        uint256 guess;
         uint createdAtBlock;
     }
 
     struct AnswerStruct {
         uint256 id;
         uint256 gameId;
-        uint8 answer;
+        uint256 answer;
         uint createdAtBlock;
+    }
+
+    struct RequestBlockStruct {
+        uint256 requestedRandomnessAtBlock;
+        uint256 requestedFulfillAtBlock;
     }
 
     mapping(address => uint) public playerBalance;
@@ -49,23 +58,27 @@ contract FlipperGame {
     mapping(uint256 => PlayerStruct[]) public playersForGameId;
     mapping(address => uint256[]) public gameIdsForPlayerId;
     mapping(uint256 => PlayerGuessStruct[]) public playerGuessForPlayerOfGameId;
+    mapping(uint256 => RequestBlockStruct) public requestedAtBlockNumberForGameId;
     mapping(uint256 => AnswerStruct) public answerForGameId;
 
-    event CreatedGame(uint256 gameId, bytes32 blockHashPrevious, address createdBy,
-        uint createdAtBlock, uint endGuessesAtBlockNumber);
-    event AddedPlayerToGame(uint256 gameId, address playerAddress, uint createdAtBlock);
-    event AddedGuessForPlayerOfGame(uint256 gameId, uint256 playerGuessId,
-        address guessByPlayerAddress, uint8 guess, uint createdAtBlock);
-    event AddedAnswerForGame(uint256 gameId, uint256 answerId, address answerByAddress,
-        uint8 answer, uint createdAtBlock);
+    event CreatedGame(uint256 indexed gameId, bytes32 blockHashPrevious, address indexed createdBy,
+        uint indexed createdAtBlock, uint endGuessesAtBlock);
+    event AddedPlayerToGame(uint256 indexed gameId, address indexed playerAddress, uint indexed createdAtBlock);
+    event AddedGuessForPlayerOfGame(uint256 indexed gameId, uint256 indexed playerGuessId,
+        address indexed guessByPlayerAddress, uint256 guess, uint createdAtBlock);
+    event AddedAnswerForGame(uint256 indexed gameId, uint256 indexed answerId, address answerByAddress,
+        uint256 answer, uint indexed createdAtBlock);
 
     constructor() {
         s_owner = msg.sender;
     }
 
-    function createGame(uint8 _initialGuess) external payable returns(uint256) {
+    function createGame(uint256 _initialGuess) external payable returns(uint256) {
+        FlipperGameRandomNumber instanceFlipperGameRandomNumber =
+            FlipperGameRandomNumber(flipperGameRandomNumberContractAddress);
+        uint256 minFee = instanceFlipperGameRandomNumber.MIN_FEE();
         // Make sure that the value sent is enough
-        require(msg.value >= RandomNumber.MIN_FEE, "Insufficient fulfillment fee");
+        require(msg.value >= minFee, "Insufficient fulfillment fee");
         require(_initialGuess <= 20);
         blockNumber = block.number;
         blockHashPrevious = blockhash(blockNumber - 1);
@@ -78,7 +91,7 @@ contract FlipperGame {
             startGameAtBlockHash: blockHashPrevious,
             createdBy: msg.sender,
             createdAtBlock: blockNumber,
-            endGuessesAtBlockNumber: blockNumber + BLOCKS_ALLOW_GUESS
+            endGuessesAtBlock: blockNumber + BLOCKS_ALLOW_GUESS
         });
 
         gameForGameId[_gameId] = gameInstance;
@@ -89,11 +102,11 @@ contract FlipperGame {
         return _gameId;
     }
 
-    function addPlayerToGame(uint256 _gameId, uint8 _initialGuess) payable public {
+    function addPlayerToGame(uint256 _gameId, uint256 _initialGuess) payable public {
         blockNumber = block.number;
         require(hasPlayerForGameId(_gameId) == false, "only one instance of same player address per game");
         require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
-        require(blockNumber <= gameForGameId[_gameId].endGuessesAtBlockNumber,
+        require(blockNumber <= gameForGameId[_gameId].endGuessesAtBlock,
             "add player to game only allowed before block number when guesses end");
         PlayerStruct memory playerInstance = PlayerStruct({
             playerAddress: msg.sender,
@@ -110,7 +123,7 @@ contract FlipperGame {
 
     function hasPlayerForGameId(uint256 _gameId) public view returns (bool) {
         for (uint i = 0; i < playersForGameId[_gameId].length; i++) {
-            if (_gameId[_gameId][i] == msg.sender) {
+            if (playersForGameId[_gameId][i].playerAddress == msg.sender) {
                 return true;
             }
         }
@@ -126,12 +139,12 @@ contract FlipperGame {
         return false;
     }
 
-    function addGuessForPlayerOfGame(uint256 _gameId, uint8 _guess) internal returns(uint8) {
+    function addGuessForPlayerOfGame(uint256 _gameId, uint256 _guess) internal returns(uint256) {
         require(_guess <= 20);
         require(hasPlayerGuessedForGameId(_gameId) == false, "only one guess per player per game");
         blockNumber = block.number;
         require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
-        require(blockNumber <= gameForGameId[_gameId].endGuessesAtBlockNumber,
+        require(blockNumber <= gameForGameId[_gameId].endGuessesAtBlock,
             "guesses only allowed before block number when guesses end");
         playerGuessId = playerGuessId + 1;
         uint256 _playerGuessId = playerGuessId;
@@ -150,23 +163,57 @@ contract FlipperGame {
         return _guess;
     }
 
-    function addAnswerToGame(uint256 _gameId) external returns(uint8) {
+    function requestRandomessAnswerOfGame(uint256 _gameId) external payable {
         blockNumber = block.number;
         require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
-        require(blockNumber > gameForGameId[_gameId].endGuessesAtBlockNumber,
+        require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
             "answer only allowed after block number when guesses end");
 
-        // TODO
+        requestedAtBlockNumberForGameId[_gameId].requestedRandomnessAtBlock = blockNumber;
 
-        require(answer <= 20);
-
-        emit AddedAnswerForGame(_gameId, answerId, msg.sender, answer, blockNumber);
+        FlipperGameRandomNumber instanceFlipperGameRandomNumber =
+            FlipperGameRandomNumber(flipperGameRandomNumberContractAddress);
+        instanceFlipperGameRandomNumber.requestRandomness(address(this), _gameId);
     }
 
-    function setRandomNumberContractAddress(address _randomNumberAddress)
-        public onlyOwner payable
+    function requestFulfillAnswerOfGame(uint256 _gameId) external payable {
+        blockNumber = block.number;
+        require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
+        require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
+            "answer only allowed after block number when guesses end");
+        require(blockNumber >= requestedAtBlockNumberForGameId[_gameId].requestedRandomnessAtBlock + BLOCKS_ALLOW_RANDOMNESS,
+            "request fulfill only after waiting sufficient blocks after requesting randomness");
+
+        requestedAtBlockNumberForGameId[_gameId].requestedFulfillAtBlock = blockNumber;
+
+        FlipperGameRandomNumber instanceFlipperGameRandomNumber =
+            FlipperGameRandomNumber(flipperGameRandomNumberContractAddress);
+        instanceFlipperGameRandomNumber.fulfillRequest();
+    }
+
+    function fetchAndAddAnswerToGame(uint256 _gameId) external returns(uint256) {
+        blockNumber = block.number;
+        require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
+        require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
+            "answer only allowed after block number when guesses end");
+        require(blockNumber >= requestedAtBlockNumberForGameId[_gameId].requestedFulfillAtBlock + BLOCKS_ALLOW_FULFILL,
+            "fetch answer only after waiting sufficient blocks to fulfill");
+
+        FlipperGameRandomNumber instanceFlipperGameRandomNumber =
+            FlipperGameRandomNumber(flipperGameRandomNumberContractAddress);
+        uint256 answer = instanceFlipperGameRandomNumber.getFlippedValueForGameId(_gameId);
+
+        require(answer <= 20, "answer not within expected range of values");
+
+        emit AddedAnswerForGame(_gameId, answerId, msg.sender, answer, blockNumber);
+
+        return answer;
+    }
+
+    function setFlipperGameRandomNumberContractAddress(address _flipperGameRandomNumberContractAddress)
+        public onlyOwner
     {
-        randomNumberContractAddress = _randomNumberAddress;
+        flipperGameRandomNumberContractAddress = _flipperGameRandomNumberContractAddress;
     }
 
     // fallback function
