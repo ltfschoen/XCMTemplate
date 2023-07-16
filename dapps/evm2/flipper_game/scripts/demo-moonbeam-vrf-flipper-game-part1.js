@@ -186,69 +186,6 @@ const main = async () => {
     await new Promise((resolve, reject) => setTimeout(resolve, 70000));
     
     console.log('Ready to proceed with fulfillRequest process...');
-
-    currentBlockNumber = await providerMoonbaseAlphaWS.getBlockNumber();
-    console.log('currentBlockNumber: ', currentBlockNumber.toString());
-
-    requestStatus = await flipperGameRandomNumberInstance.getRequestStatus.call();
-    console.log('requestStatus: ', requestStatus.toString());
-    assert.equal(requestStatus, 2, 'should be ready status after waiting a minute using local vrf'); // where 2 in enum is 'READY'    
-
-    // Error: insufficient funds for gas * price + value
-    tx = await flipperGameInstance.requestFulfillAnswerOfGame(
-        gameId.toString(10),
-        {
-            from: signer.address,
-            gasLimit: 600000,
-            // gasPrice: 600000,
-            maxPriorityFeePerGas: 2,
-        }
-    );
-    console.log('Fulfilled. Please wait a few blocks until the random number is ready...');
-
-    console.log('tx.hash requestFulfillAnswerOfGame: ', tx.hash);
-    receipt = await tx.wait();
-    console.log('receipt requestFulfillAnswerOfGame: ', receipt);
-
-    let d20Value;
-    for (let event of receipt.events) {
-        if (event.event == 'FlipFulfilled') {
-            console.log('requestFulfillAnswerOfGame with d20Value: ', event.args.d20Value.toString());
-            d20Value = new BN(event.args.d20Value.toString(), 10);
-        }
-    }
-
-    // Wait at least a few of blocks for it to be fulfilled
-    await new Promise((resolve, reject) => setTimeout(resolve, 40000));
-
-    currentBlockNumber = await providerMoonbaseAlphaWS.getBlockNumber();
-    console.log('currentBlockNumber: ', currentBlockNumber.toString());
-
-    requestStatus = await flipperGameRandomNumberInstance.getRequestStatus.call();
-    console.log('requestStatus: ', requestStatus.toString());
-
-    // tx = await flipperGameInstance.functions.fetchAndAddAnswerToGame(
-    tx = await flipperGameInstance.fetchAndAddAnswerToGame(
-        gameId.toString(10),
-        {
-            from: signer.address,
-            gasLimit: 600000,
-            maxPriorityFeePerGas: 2,
-        }
-    );
-    console.log('tx.hash fetchAndAddAnswerToGame: ', tx.hash);
-    receipt = await tx.wait();
-    console.log('receipt fetchAndAddAnswerToGame: ', receipt);
-
-    let answer;
-    for (let event of receipt.events) {
-        if (event.event == 'AddedAnswerForGame') {
-            console.log('fetchAndAddAnswerToGame with answer: ', event.args.answer.toString());
-            answer = new BN(event.args.answer.toString(), 10);
-        }
-    }
-
-    console.log('answer: ', answer.toString(10));
 }
 
 function panic(error)
