@@ -57,8 +57,5 @@ echo $OUTPUT_CONTRACT_HASH_RN_TRIMMED
 
 # if you get error `TypeError: Cannot create property 'gasLimit' on string '0x478a6a'` or similar
 # then restart your internet connection
-echo "Request randomness"
+echo "Request randomness, obtain a randomness status, fulfill and get random number"
 node $PROJECT_ROOT/scripts/demo-moonbeam-vrf-flipper-game-part1.js $OUTPUT_CONTRACT_HASH_TRIMMED $OUTPUT_CONTRACT_HASH_RN_TRIMMED
-
-# echo "Obtain a randomness status, fulfill and get random number"
-# node $PROJECT_ROOT/scripts/demo-moonbeam-vrf-flipper-game-part2.js $OUTPUT_CONTRACT_HASH_TRIMMED $OUTPUT_CONTRACT_HASH_RN_TRIMMED

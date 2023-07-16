@@ -60,7 +60,6 @@ contract FlipperGame {
     mapping(uint256 => PlayerGuessStruct[]) public playerGuessForPlayerOfGameId;
     mapping(uint256 => RequestBlockStruct) public requestedAtBlockNumberForGameId;
     mapping(uint256 => AnswerStruct) public answerForGameId;
-
     event CreatedGame(uint256 indexed gameId, bytes32 blockHashPrevious, address indexed createdBy,
         uint indexed createdAtBlock, uint endGuessesAtBlock);
     event AddedPlayerToGame(uint256 indexed gameId, address indexed playerAddress, uint indexed createdAtBlock);
@@ -73,7 +72,17 @@ contract FlipperGame {
         s_owner = msg.sender;
     }
 
-    function createGame(uint256 _initialGuess) external payable returns(uint256) {
+    // transaction function immediately returns a transaction object.
+    // and to store data it needs time to be included in block.
+    // but in the EVM if it is not a `view` EVM functions then it cannot return values.
+    // so instead of returning the uint256 after it is mined and included in a block
+    // instead we will use best practice of instead storing the `gameId` in an event
+    // and emit this event in `createGame` and in JavaScript code wait for the
+    // transaction to be included in a block and then look for the gameId as part of
+    // the event in the transaction receipt.
+    //
+    // credit: @KevinMoonbeam
+    function createGame(uint256 _initialGuess) external payable {
         require(_initialGuess <= 20);
         blockNumber = block.number;
         blockHashPrevious = blockhash(blockNumber - 1);
@@ -93,11 +102,9 @@ contract FlipperGame {
         gamesList.push(gameInstance);    
 
         emit CreatedGame(_gameId, blockHashPrevious, msg.sender, blockNumber, blockNumber + BLOCKS_ALLOW_GUESS);
-
-        return _gameId;
     }
 
-    function addPlayerToGame(uint256 _gameId, uint256 _initialGuess) payable public {
+    function addPlayerToGame(uint256 _gameId, uint256 _initialGuess) public payable {
         blockNumber = block.number;
         require(hasPlayerForGameId(_gameId) == false, "only one instance of same player address per game");
         require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
@@ -109,7 +116,7 @@ contract FlipperGame {
             createdAtBlock: blockNumber
         });
         playersForGameId[_gameId].push(playerInstance);
-        gameIdsForPlayerId[msg.sender].push(_gameId);
+        // gameIdsForPlayerId[msg.sender].push(_gameId); // don't do this here, we're already doing it in `addGuessForPlayerOfGame`
 
         addGuessForPlayerOfGame(_gameId, _initialGuess);
 
@@ -167,8 +174,9 @@ contract FlipperGame {
 
         blockNumber = block.number;
         require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
-        require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
-            "answer only allowed after block number when guesses end");
+        // TODO - enable only in production
+        // require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
+        //     "answer only allowed after block number when guesses end");
 
         requestedAtBlockNumberForGameId[_gameId].requestedRandomnessAtBlock = blockNumber;
 
@@ -178,10 +186,12 @@ contract FlipperGame {
     function requestFulfillAnswerOfGame(uint256 _gameId) external payable {
         blockNumber = block.number;
         require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
-        require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
-            "answer only allowed after block number when guesses end");
-        require(blockNumber >= requestedAtBlockNumberForGameId[_gameId].requestedRandomnessAtBlock + BLOCKS_ALLOW_RANDOMNESS,
-            "request fulfill only after waiting sufficient blocks after requesting randomness");
+        // TODO - enable only in production
+        // require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
+        //     "answer only allowed after block number when guesses end");
+        // TODO - enable only in production
+        // require(blockNumber >= requestedAtBlockNumberForGameId[_gameId].requestedRandomnessAtBlock + BLOCKS_ALLOW_RANDOMNESS,
+        //     "request fulfill only after waiting sufficient blocks after requesting randomness");
 
         requestedAtBlockNumberForGameId[_gameId].requestedFulfillAtBlock = blockNumber;
 
@@ -190,13 +200,15 @@ contract FlipperGame {
         instanceFlipperGameRandomNumber.fulfillRequest();
     }
 
-    function fetchAndAddAnswerToGame(uint256 _gameId) external returns(uint256) {
+    function fetchAndAddAnswerToGame(uint256 _gameId) external {
         blockNumber = block.number;
         require(blockNumber >= gameForGameId[_gameId].createdAtBlock);
-        require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
-            "answer only allowed after block number when guesses end");
-        require(blockNumber >= requestedAtBlockNumberForGameId[_gameId].requestedFulfillAtBlock + BLOCKS_ALLOW_FULFILL,
-            "fetch answer only after waiting sufficient blocks to fulfill");
+        // TODO - enable only in production
+        // require(blockNumber > gameForGameId[_gameId].endGuessesAtBlock,
+        //     "answer only allowed after block number when guesses end");
+        // TODO - enable only in production
+        // require(blockNumber >= requestedAtBlockNumberForGameId[_gameId].requestedFulfillAtBlock + BLOCKS_ALLOW_FULFILL,
+        //     "fetch answer only after waiting sufficient blocks to fulfill");
 
         FlipperGameRandomNumber instanceFlipperGameRandomNumber =
             FlipperGameRandomNumber(flipperGameRandomNumberContractAddress);
@@ -205,8 +217,6 @@ contract FlipperGame {
         require(answer <= 20, "answer not within expected range of values");
 
         emit AddedAnswerForGame(_gameId, answerId, msg.sender, answer, blockNumber);
-
-        return answer;
     }
 
     function setFlipperGameRandomNumberContractAddress(address _flipperGameRandomNumberContractAddress)
