@@ -57,5 +57,11 @@ echo $OUTPUT_CONTRACT_HASH_RN_TRIMMED
 
 # if you get error `TypeError: Cannot create property 'gasLimit' on string '0x478a6a'` or similar
 # then restart your internet connection
-echo "Request randomness, obtain a randomness status, fulfill and get random number"
+echo "Request randomness"
 node $PROJECT_ROOT/scripts/demo-moonbeam-vrf-flipper-game-part1.js $OUTPUT_CONTRACT_HASH_TRIMMED $OUTPUT_CONTRACT_HASH_RN_TRIMMED
+
+# FIXME - instead of hard-coding the gameId below, obtain the `gameId` generated from running demo-moonbeam-vrf-flipper-game-part1.js
+# but this isn't really important as we're only generating the initial gameId of 1 in this test
+GAME_ID="1"
+echo "Obtain a randomness status, fulfill and get random number"
+node $PROJECT_ROOT/scripts/demo-moonbeam-vrf-flipper-game-part2.js $OUTPUT_CONTRACT_HASH_TRIMMED $OUTPUT_CONTRACT_HASH_RN_TRIMMED $GAME_ID
