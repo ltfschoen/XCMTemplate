@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod unnamed {
+mod rand_future {
     use ink::{
         env::{
             call::{
@@ -37,7 +37,7 @@ mod unnamed {
     /// to add new static storage fields to your contract.
     #[derive(Default)]
     #[ink(storage)]
-    pub struct Unnamed {
+    pub struct RandFuture {
         /// Store a reference to the `OracleContract`.
         oracle_contract: Option<OracleContractRef>,
         oracle_contract_address: Option<AccountId>,
@@ -47,7 +47,7 @@ mod unnamed {
     /// Type alias for the contract's result type.
     pub type ContractResult<T> = core::result::Result<T, Error>;
 
-    impl Unnamed {
+    impl RandFuture {
         /// Constructor that instantiates the OracleContract using its uploaded `code_hash`
         #[ink(constructor)]
         pub fn new(
@@ -200,7 +200,7 @@ mod unnamed {
                         //
                         // About: These are triggered by failed assertions and panics in callee cross-contract method
                         // Example error message:
-                        //   panicked at '<error message>', /app/dapps/xcm/unnamed/oracle_contract/lib.rs:377:13
+                        //   panicked at '<error message>', /app/dapps/ink-rust/rand-future/oracle_contract/lib.rs:377:13
                         //   environment error occurred CalleeTrapped
                         //
                         // Note: Unable to find anything about `EnvError`s or `ink::env::Error` at
@@ -269,17 +269,17 @@ mod unnamed {
         // /// We test if the default constructor does its job.
         // #[ink::test]
         // fn default_works() {
-        //     let unnamed = Unnamed::default();
-        //     assert_eq!(unnamed.get(), false);
+        //     let rand_future = RandFuture::default();
+        //     assert_eq!(rand_future.get(), false);
         // }
 
         // /// We test a simple use case of our contract.
         // #[ink::test]
         // fn it_works() {
-        //     let mut unnamed = Unnamed::new(false);
-        //     assert_eq!(unnamed.get(), false);
-        //     unnamed.flip();
-        //     assert_eq!(unnamed.get(), true);
+        //     let mut rand_future = RandFuture::new(false);
+        //     assert_eq!(rand_future.get(), false);
+        //     rand_future.flip();
+        //     assert_eq!(rand_future.get(), true);
         // }
     }
 
@@ -304,18 +304,18 @@ mod unnamed {
         #[ink_e2e::test]
         async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // // Given
-            // let constructor = UnnamedRef::default();
+            // let constructor = RandFutureRef::default();
 
             // // When
             // let contract_account_id = client
-            //     .instantiate("unnamed", &ink_e2e::alice(), constructor, 0, None)
+            //     .instantiate("rand_future", &ink_e2e::alice(), constructor, 0, None)
             //     .await
             //     .expect("instantiate failed")
             //     .account_id;
 
             // // Then
-            // let get = build_message::<UnnamedRef>(contract_account_id.clone())
-            //     .call(|unnamed| unnamed.get());
+            // let get = build_message::<RandFutureRef>(contract_account_id.clone())
+            //     .call(|rand_future| rand_future.get());
             // let get_result = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
             // assert!(matches!(get_result.return_value(), false));
 
@@ -326,29 +326,29 @@ mod unnamed {
         #[ink_e2e::test]
         async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // // Given
-            // let constructor = UnnamedRef::new(false);
+            // let constructor = RandFutureRef::new(false);
             // let contract_account_id = client
-            //     .instantiate("unnamed", &ink_e2e::bob(), constructor, 0, None)
+            //     .instantiate("rand_future", &ink_e2e::bob(), constructor, 0, None)
             //     .await
             //     .expect("instantiate failed")
             //     .account_id;
 
-            // let get = build_message::<UnnamedRef>(contract_account_id.clone())
-            //     .call(|unnamed| unnamed.get());
+            // let get = build_message::<RandFutureRef>(contract_account_id.clone())
+            //     .call(|rand_future| rand_future.get());
             // let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             // assert!(matches!(get_result.return_value(), false));
 
             // // When
-            // let flip = build_message::<UnnamedRef>(contract_account_id.clone())
-            //     .call(|unnamed| unnamed.flip());
+            // let flip = build_message::<RandFutureRef>(contract_account_id.clone())
+            //     .call(|rand_future| rand_future.flip());
             // let _flip_result = client
             //     .call(&ink_e2e::bob(), flip, 0, None)
             //     .await
             //     .expect("flip failed");
 
             // // Then
-            // let get = build_message::<UnnamedRef>(contract_account_id.clone())
-            //     .call(|unnamed| unnamed.get());
+            // let get = build_message::<RandFutureRef>(contract_account_id.clone())
+            //     .call(|rand_future| rand_future.get());
             // let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             // assert!(matches!(get_result.return_value(), true));
 
