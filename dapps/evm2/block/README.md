@@ -2,6 +2,9 @@
 
 Note: The following was based upon dapps/evm2/randomness
 
+It is necessary since unable to get block hash using ink!
+See https://github.com/paritytech/ink/issues/1849
+
 ## Getting started
 
 * See installation steps for dapps/evm2/randomness
@@ -26,3 +29,7 @@ node ./scripts/demo-block-hash.js $BLOCK_CONTRACT_ADDRESS
     * `docker run -it --pull=always docker.io/parity/subkey:latest generate --network astar`
 
 * Faucet for Shibuya https://portal.astar.network/shibuya-testnet/assets
+
+* Troubleshooting
+    * If you get error `Error: The network id specified in the truffle config (81) does not match the one returned by the network (4261879)`, where it confuses the network id with the block number, or `TypeError: Cannot create property 'gasLimit' on string '0x410800'`
+        * Restart or change your internet connection
