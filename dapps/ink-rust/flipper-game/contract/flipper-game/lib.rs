@@ -1,11 +1,31 @@
 // https://github.com/paritytech/cargo-contract/issues/1130
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+// TODO - replace below with the `EVM_ID` is for Shibuya
+/// EVM ID (from Astar runtime)
+const EVM_ID: u8 = 0x0F;
+
 use ink_lang as ink;
 
 // https://use.ink/ink-vs-solidity
-#[ink::contract]
+#[ink::contract(env = xvm_environment::XvmDefaultEnvironment)]
 mod flipper_game {
+    // Note: Copy Block.sol into Remix then compile and click "Compilation Details"
+    // then find the function hashes under `FUNCTIONHASHES`
+    // ======= BLOCK.sol =======
+    // Function signatures:
+    // 2c1dfe03: getPreviousBlockHashByOffset(uint256,uint256)
+    //
+    const GET_PREVIOUS_BLOCK_HASH_BY_OFFSET_SELECTOR: [u8; 4] = hex!["2c1dfe03"];
+
+    use ethabi::{
+        ethereum_types::{
+            H160,
+            U256,
+        },
+        Token,
+    };
+
     use ink::storage::{
         // https://use.ink/ink-vs-solidity/#mapping-declaration
         traits::SpreadAllocate,
@@ -14,6 +34,8 @@ mod flipper_game {
     use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
     use ink::primitives::Hash;
+
+    use hex_literal::hex;
 
     // https://use.ink/ink-vs-solidity/#errors-and-returning
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -25,6 +47,17 @@ mod flipper_game {
     
     // result type
     pub type Result<T> = core::result::Result<T, Error>;
+
+    #[ink(event)]
+    pub struct RetrievedBlockHash {
+        #[ink(topic)]
+        offset_block_number: BlockNumber,
+        #[ink(topic)]
+        offset_block_number: BlockNumber,
+        #[ink(topic)]
+        offset_block_hash: u128,
+        offset: u128,
+    }
 
     #[ink(event)]
     pub struct CreatedGame {
@@ -184,10 +217,8 @@ mod flipper_game {
                 BLOCKS_ALLOW_RANDOMNESS: 12, // 70 sec @ 6 sec/block
                 BLOCKS_ALLOW_FULFILL: 7, // 40 sec @ 6 sec/block
                 block_number: Self::env().block_number(),
-                // TODO - how to get the blockhash using ink! see related TODO further below
-                // block_hash_now: ???,
-                // TODO - how to get the blockhash using ink! see related TODO further below
-                // block_hash_previous: ???,
+                // block_hash_now: Default::default(),
+                block_hash_previous: Default::default(),
                 has_called_fallback_fn: false,
                 s_owner: Self::env().caller(),
                 game_id: 0,
@@ -204,14 +235,70 @@ mod flipper_game {
             }
         }
 
+        /// XVM call to Solidity contract returns previous block hash
+        #[ink(message)]
+        pub fn get_previous_block_hash_by_offset(
+            &self,
+            // H160 address, where [u8; 20] means 20-byte length array, 160 bits
+            evm_address: [u8; 20], // Contract Address on Shibuya where Block.sol deployed for XVM calls to get block hash
+            offset: u128, // Get block hash for block with offset, where -1 would be the block before the current block
+        ) -> u128 {
+            let block_number = self.env().block_number();
+
+            let encoded_input = self.get_previous_block_hash_by_offset_encode(block_number, offset);
+
+            // calls the XVM pallet via the chain extensions
+            let result = self.env()
+                .extension()
+                .xvm_call(
+                    super::EVM_ID,
+                    Vec::from(evm_address.as_ref()),
+                    // encoded argument is callable target public contract functions
+                    // including its selector
+                    encoded_input,
+                );
+
+            let block_hash;
+            // convert response from bytes32 to u128 since only
+            // up to u128 is supported by ink!
+            // https://docs.rs/ethabi/latest/ethabi/enum.Token.html
+            if let Ok([Token::FixedBytes(bytes)]) = ethabi::decode(
+                &[ethabi::ParamType::FixedBytes(32)],
+                &result.expect("xvm_call failed"),
+            )
+            .as_deref()
+            {
+                block_hash = bytes.as_u128();
+            } else {
+                panic!("failed to decode xvm_call result")
+            }
+
+            self.env().emit_event(RetrievedBlockHash {
+                current_block_number: block_number,
+                offset_block_number: block_number - offset,
+                offset_block_hash: block_hash,
+                offset: offset,
+            });
+
+            block_hash
+        }
+
         #[ink(message, payable)]
-        pub fn create_game(&mut self, _initial_guess: u128) -> Result<()> {
+        pub fn create_game(
+            &mut self,
+            _initial_guess: u128,
+            evm_address: [u8; 20], // Contract Address on Shibuya where Block.sol deployed for XVM calls to get block hash
+            offset: u128,
+        ) -> Result<()> {
             assert!(_initial_guess <= 20, "initial guess too high");
 
             self.block_number = self.env().block_number();
-            // TODO - how to get the blockhash using ink! as below is how to do it in Solidity
             // https://substrate.stackexchange.com/questions/2993/inkhow-to-get-the-latest-confirmed-block-hash
-            // block_hash_previous = blockhash(block_number - 1),
+            block_hash_previous = Self::get_previous_block_hash_by_offset(
+                // H160 address, where [u8; 20] means 20-byte length array, 160 bits
+                evm_address: [u8; 20],
+                offset: u128,
+            );
             self.game_id += 1;
 
             let game_instance = GameStruct {
@@ -418,6 +505,15 @@ mod flipper_game {
             self.flipper_game_random_number_contract_address = _flipper_game_random_number_contract_address;
 
             Ok(())
+        }
+
+        // https://medium.com/astar-network/cross-virtual-machine-creating-a-portal-to-the-future-of-smart-contracts-a96c6d2f79b8
+        #[ink(message)]
+        fn get_previous_block_hash_by_offset_encode(block_number: U256, offset: U256) -> Vec<u8> {
+            let mut encoded = GET_PREVIOUS_BLOCK_HASH_BY_OFFSET_SELECTOR.to_vec();
+            let input = [Token::Uint(block_number), Token::Uint(offset)];
+            encoded.extend(&ethabi::encode(&input));
+            encoded
         }
 
         // Fallback function 
