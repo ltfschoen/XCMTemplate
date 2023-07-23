@@ -11,7 +11,8 @@ const assert = require('assert');
 const providerShibuyaWS = new ethers.providers.WebSocketProvider(
     // process.env.SHIBUYA_ENDPOINT,
     // "wss://rpc.shibuya.astar.network",
-    "wss://shibuya-rpc.dwellir.com",
+    // "wss://shibuya-rpc.dwellir.com",
+    "wss://shibuya.public.blastapi.io",
     {
         name: "shibuya",
         chainId: 81,
