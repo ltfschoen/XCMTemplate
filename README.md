@@ -32,7 +32,7 @@
 	* This is useful if you're on an old macOS Catalina and Apple won't allow you to do further software updates, so you cannot install `brew install protobuf` to install necessary dependencies.
 
 * Install and run [Docker](https://www.docker.com/)
-* Generate .env file from sample file
+* Generate .env file from sample file with `cp .env.example .env`
 	* Generate a Substrate-based account on an air-gapped machine using [Subkey](https://support.polkadot.network/support/solutions/articles/65000180519-how-to-create-an-account-in-subkey) or by installing [Subkey in Docker](https://github.com/paritytech/substrate/tree/master/docker) on an air-gapped machine
 	* Add the mnemonic phrase of the Substrate-based account to the value of `LS_CONTRACTS` in the .env file.
 	* Obtain testnet tokens from faucet at https://use.ink/faucet/
@@ -42,21 +42,12 @@
 	* Cargo Contract
 	* Substrate Contracts Node
 * Configure amount of CPUs and memory of the host machine the Docker container should use in ./docker/docker.sh. Use `docker update` to change the configuration https://docs.docker.com/engine/reference/commandline/container_update/
-* Update dependencies in ./dapps/ink-rust/wasm-flipper/package.json https://stackoverflow.com/a/70588930/3208553
-	```
-	cd ./dapps/ink-rust/wasm-flipper/
-	yarn upgrade
-	```
-* Update dependencies in ./dapps/ink-rust/wasm-flipper/contract/flipper/Cargo.toml
-	```
-	cd ./dapps/ink-rust/wasm-flipper/contract/flipper/
-	cargo update
-	```
 * Run Docker container and follow the terminal log instructions.
 	* Note: Optionally **exclude** installing substrate-contracts-node by running `time ./docker/docker.sh "without_node"` since including it will increase build time substantially and may not be necessary if you are deploying to remote testnets
+	* Important Note: If you are using a Macbook Pro M2 that uses the platform `linux/arm64/v8` then that platform will not be supported and give error `qemu-x86_64: Could not open '/lib64/ld-linux-x86-64.so.2': No such file or directory`, so to get around that you need to specify `--platform linux/x86_64 \` in ./docker/docker.sh whenever you run `docker build` and `docker run`. If you are using a different host machine platform then you may remove those lines of code.
 
 	```bash
-	touch .env && cp .env.example .env
+	cp .env.example .env
 	time ./docker/docker.sh
 	```
 
@@ -82,6 +73,16 @@ cargo-contract --version
 ```bash
 substrate-contracts-node --version
 ```
+* Optionally update dependencies in ./dapps/ink-rust/wasm-flipper/package.json https://stackoverflow.com/a/70588930/3208553
+	```
+	cd ./dapps/ink-rust/wasm-flipper/
+	yarn upgrade
+	```
+* Optionally update dependencies in ./dapps/ink-rust/wasm-flipper/contract/flipper/Cargo.toml
+	```
+	cd ./dapps/ink-rust/wasm-flipper/contract/flipper/
+	cargo update
+	```
 
 ### Run Cargo Contracts Node in Docker Container <a id="run-cargo-contracts-node"></a>
 
