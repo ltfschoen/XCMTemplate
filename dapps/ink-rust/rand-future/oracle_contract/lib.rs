@@ -201,6 +201,8 @@ mod oracle_contract {
             &mut self,
             id_market: String,
             block_number_entropy: BlockNumber, // always require this even though it may not have changed
+            // TODO - in future try to obtain the block hash from within the Solidity function using an environment function
+            // see https://github.com/paritytech/ink/issues/1849
             block_hash_entropy: String, // Hash
         ) -> ContractResult<()> {
             let caller: AccountId = self.env().caller();

@@ -9,7 +9,9 @@
 	* [**Quickstart** Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-build-upload)
 	* [**Quickstart** Build & Upload "Basic Contract Caller" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-basic-contract-caller)
 	* [**Quickstart** Build & Upload "IPSP22" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-ipsp22)
-	* [**Quickstart** Build & Upload "Unnamed" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-unnamed)
+	* [**Quickstart** Build & Upload "Rand-Future" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#quick-rand-future)
+	* [Build & Upload "Block.sol" (Block Hash) Solidity Smart Contract to Shibuya Testnet](#build-upload-block)
+	* [Build & Upload Moonbeam VRF Randomness Precompile **Flipper Game** Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle)](#moonbase-vrf-flipper-game)
 	* [Build & Upload Moonbeam VRF Randomness Precompile Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle)](#moonbase-vrf)
 	* [Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia Testnet (using Truffle)](#vrfd20)
 	* [Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
@@ -178,7 +180,7 @@ docker exec -it ink /app/docker/quickstart.sh
 		./docker/quickstart-ipsp22.sh
 		```
 
-### **Demo Quickstart** Build & Upload ink! Rust "Unnamed" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-unnamed"></a>
+### **Demo Quickstart** Build & Upload ink! Rust "Rand-Future" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-rand-future"></a>
 
 #### Run from shell inside Docker container
 
@@ -192,8 +194,21 @@ docker exec -it ink /app/docker/quickstart.sh
 		```
 	* Run in terminal tab 2
 		````
-		./docker/quickstart-unnamed.sh
+		./docker/quickstart-rand-future.sh
 		```
+
+### Build & Upload "Block.sol" (Block Hash) Solidity Smart Contract to Shibuya Testnet <a id="build-upload-block"></a>
+
+Follow instructions in [Block.sol README](./dapps/evm2/block/README.md)
+
+### Build & Upload Moonbeam VRF Randomness Precompile **Flipper Game** Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle) <a id="moonbase-vrf-flipper-game"></a>
+
+* Follow the instructions in the [VRF example README](./dapps/evm2/flipper_game/README.md) and install necessary dependencies then run the following from this directory
+
+```bash
+nvm use v16.18.1
+./docker/quickstart-moonbeam-vrf-precompile-flipper-game.sh
+```
 
 ### Build & Upload Moonbeam VRF Randomness Precompile Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle) <a id="moonbase-vrf"></a>
 

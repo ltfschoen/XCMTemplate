@@ -1,0 +1,32 @@
+[package]
+name = "flipper_game"
+version = "0.1.0"
+authors = ["Luke Schoen <contact@clawbird.com>"]
+edition = "2021"
+
+[dependencies]
+# https://github.com/paritytech/ink/releases
+ink = { version = "4.2.0", default-features = false }
+ethabi = { git = "https://github.com/akru/ethabi", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3.5.0", default-features = false, features = ["derive"] }
+scale-info = { version = "2.7", default-features = false, features = ["derive"], optional = true }
+
+xvm-environment = { path = "../../lib/xvm-environment", default-features = false }
+
+[dev-dependencies]
+ink_e2e = "4.2.0"
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+    "xvm-environment/std",
+]
+ink-as-dependency = []
+e2e-tests = []

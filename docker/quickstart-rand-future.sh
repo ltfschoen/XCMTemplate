@@ -2,7 +2,7 @@
 
 # compatibility cargo-contract v3.0.1
 #
-# start a fresh substrate-contracts-node and upload the "unnamed" ink!
+# start a fresh substrate-contracts-node and upload the "rand-future" ink!
 # smart contracts to it and then instantiate and call a method
 #
 # if you want to sky dry run then find/replace `--skip-dry-run` with `#--skip-dry-run`
@@ -16,12 +16,12 @@ trap "echo; exit" HUP
 PARENT_DIR=$( echo $(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")") )
 
 echo "Building contracts..."
-cd $PARENT_DIR/dapps/xcm/unnamed
-PROJECT_ROOT=$PARENT_DIR/dapps/xcm/unnamed
+cd $PARENT_DIR/dapps/ink-rust/rand-future
+PROJECT_ROOT=$PARENT_DIR/dapps/ink-rust/rand-future
 cargo contract build \
-    --manifest-path $PARENT_DIR/dapps/xcm/unnamed/Cargo.toml
+    --manifest-path $PARENT_DIR/dapps/ink-rust/rand-future/Cargo.toml
 cargo contract build \
-    --manifest-path $PARENT_DIR/dapps/xcm/unnamed/oracle_contract/Cargo.toml
+    --manifest-path $PARENT_DIR/dapps/ink-rust/rand-future/oracle_contract/Cargo.toml
 
 cd $PROJECT_ROOT
 echo "Uploading sub-contract..."
@@ -57,7 +57,7 @@ args=(
 	--execute
     # --skip-dry-run
 	--skip-confirm
-    $PARENT_DIR/target/ink/unnamed/unnamed.wasm
+    $PARENT_DIR/target/ink/rand_future/rand_future.wasm
 )
 OUTPUT_CODE_HASH_MAIN=$(
     cargo contract upload "${args[@]}" | tail -1
@@ -90,7 +90,7 @@ cd $PROJECT_ROOT
 
 echo "Instantiating sub-contract..."
 args=(
-    --manifest-path $PARENT_DIR/dapps/xcm/unnamed/oracle_contract/Cargo.toml
+    --manifest-path $PARENT_DIR/dapps/ink-rust/rand-future/oracle_contract/Cargo.toml
     --suri //Alice
     --constructor new
     --args $ARG_ID_MARKET "100" "228" "500"
@@ -116,7 +116,7 @@ echo $CONTRACT_ADDR_SUB
 echo "Instantiating main-contract..."
 
 args=(
-    --manifest-path $PARENT_DIR/dapps/xcm/unnamed/Cargo.toml
+    --manifest-path $PARENT_DIR/dapps/ink-rust/rand-future/Cargo.toml
     --suri //Alice
     --constructor new
     --args $CODE_HASH_SUB $CONTRACT_ADDR_SUB $ARG_ID_MARKET "100" "228" "500"
