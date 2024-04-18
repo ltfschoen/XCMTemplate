@@ -302,16 +302,10 @@ export NVM_DIR="$HOME/.nvm"
 
 Install Swanky CLI https://github.com/AstarNetwork/swanky-cli
 ```bash
-cd dapps/ink-rust/wasm-flipper
+cd dapps/ink-rust
 nvm install
 nvm use
 yarn global add @astar-network/swanky-cli@3.1.0
-```
-
-0. Init
-
-```bash
-cd contract
 ```
 
 Show Swanky help https://docs.astar.network/docs/build/wasm/swanky-suite/cli/
@@ -319,12 +313,33 @@ Show Swanky help https://docs.astar.network/docs/build/wasm/swanky-suite/cli/
 swanky help --nested-commands
 ```
 
-Add Flipper example (only if it does not exist yet) to generate https://github.com/AstarNetwork/wasm-flipper
-```
+#### Create New Flipper template
+
+Add Flipper smart contract template (only if that folder does not exist yet) to generate https://github.com/AstarNetwork/wasm-flipper.
+```bash
 swanky init flipper
 ```
 Note: Choose `ink` as a contract language and `flipper` as template and a chosen contract name.
 Optionally choose from `Y/N` when asking to download the Swanky Node (NOT required if already using Substrate Contracts Node).
+
+If you chose to download the Swanky Node then run it in your local environment:
+```bash
+cd ./flipper
+yarn
+yarn run run-node
+```
+Note: The command `yarn run run-node` runs `swanky node start` 
+
+#### Use Existing wasm-flipper Example
+
+> Warning: It is old and outdated and may not work
+
+0. Init
+
+```bash
+cd ./wasm-flipper
+cd contract
+```
 
 1. Start the local node
 
@@ -333,6 +348,8 @@ If you chose to download the Swanky Node then run it in your local environment:
 cd flipper
 swanky node start
 ```
+
+### Compile Contract
 
 2. Build the contract
 
