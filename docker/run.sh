@@ -19,7 +19,7 @@
         apt-utils libssl-dev make cmake graphviz \
         git pkg-config curl time rhash ca-certificates jq \
         python3 python3-pip lsof ruby ruby-bundler git-restore-mtime xz-utils zstd unzip gnupg protobuf-compiler && \
-    apt-get install -y vim wget net-tools && \
+    apt-get install -y vim wget net-tools openssl && \
 # add clang 14 repo
     echo "deb http://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" >> /etc/apt/sources.list.d/llvm-toolchain-${DEBIAN_CODENAME}-14.list; \
     echo "deb-src http://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" >> /etc/apt/sources.list.d/llvm-toolchain-${DEBIAN_CODENAME}-14.list; \

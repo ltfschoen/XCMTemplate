@@ -35,9 +35,16 @@ source $PARENT_DIR/.env.example
 source $PARENT_DIR/.env
 
 # https://stackoverflow.com/a/25554904/3208553
+# note: `--platform linux/x86_64` required on Macbook Pro M2 otherwise get error
+# `qemu-x86_64: Could not open '/lib64/ld-linux-x86-64.so.2': No such file or directory`
+# since the requested images platform (linux/amd64) may not match the detected host platform
+# that uses (linux/arm64/v8)
+# 
+# see https://stackoverflow.com/questions/68630526/lib64-ld-linux-x86-64-so-2-no-such-file-or-directory-error
 set +e
 bash -e <<TRY
   DOCKER_BUILDKIT=0 docker build \
+    --platform linux/x86_64 \
     -f ${PARENT_DIR}/docker/Dockerfile \
     --build-arg WITHOUT_CONTRACTS_NODE=${WITHOUT_CONTRACTS_NODE} \
     --build-arg DOCKER_DEFAULT_PLATFORM=${DOCKER_DEFAULT_PLATFORM} \
@@ -48,6 +55,7 @@ TRY
 if [ $? -ne 0 ]; then
     printf "\n*** Detected error running 'docker build'. Trying 'docker buildx' instead...\n"
     DOCKER_BUILDKIT=0 docker buildx build \
+        --platform linux/x86_64 \
         -f ${PARENT_DIR}/docker/Dockerfile \
         --build-arg WITHOUT_CONTRACTS_NODE=${WITHOUT_CONTRACTS_NODE} \
         --build-arg DOCKER_DEFAULT_PLATFORM=${DOCKER_DEFAULT_PLATFORM} \
@@ -63,6 +71,7 @@ docker ps -a
 # memory measured in bytes
 # restart alternative "no"
 docker run -it -d \
+    --platform linux/x86_64 \
     --env-file "${PARENT_DIR}/.env" \
     --hostname ink \
     --name ink \
