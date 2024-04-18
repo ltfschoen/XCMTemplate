@@ -36,6 +36,7 @@
 	* Generate a Substrate-based account on an air-gapped machine using [Subkey](https://support.polkadot.network/support/solutions/articles/65000180519-how-to-create-an-account-in-subkey) or by installing [Subkey in Docker](https://github.com/paritytech/substrate/tree/master/docker) on an air-gapped machine
 	* Add the mnemonic phrase of the Substrate-based account to the value of `LS_CONTRACTS` in the .env file.
 	* Obtain testnet tokens from faucet at https://use.ink/faucet/
+	* Obtain testnet Shibuya from faucet at https://portal.astar.network/shibuya-testnet/assets
 * Check versions used in Dockerfile:
 	* Rust nightly version
 	* Node.js version
@@ -43,12 +44,13 @@
 	* Substrate Contracts Node
 * Configure amount of CPUs and memory of the host machine the Docker container should use in ./docker/docker.sh. Use `docker update` to change the configuration https://docs.docker.com/engine/reference/commandline/container_update/
 * Run Docker container and follow the terminal log instructions.
-	* Note: Optionally **exclude** installing substrate-contracts-node by running `time ./docker/docker.sh "without_node"` since including it will increase build time substantially and may not be necessary if you are deploying to remote testnets
-	* Important Note: If you are using a Macbook Pro M2 that uses the platform `linux/arm64/v8` then that platform will not be supported and give error `qemu-x86_64: Could not open '/lib64/ld-linux-x86-64.so.2': No such file or directory`, so to get around that you need to specify `--platform linux/x86_64 \` in ./docker/docker.sh whenever you run `docker build` and `docker run`. If you are using a different host machine platform then you may remove those lines of code.
+	* Note: Optionally **exclude** installing substrate-contracts-node by running `time ./docker/docker.sh "without_contracts_node"` since including it will increase build time substantially and may not be necessary if you are deploying to remote testnets.
+	* Important Note: If you are on a Mac OS with Rosetta (e.g. M1, M2, M3) then run with: `time ./docker/docker.sh "" "linux/amd64"` (where 2nd argument is "linux/amm64" x86_64 and 1st argument could be `"use_contracts_node"` or `"without_contracts_node"`) (otherwise on macOS it may use `"linux/arm64"` by default). Check what you are using by running `uname -a` on your host machine.
+		* Note: If you are using it this way on Rosetta (Apple Silicon) it will work but it will run much slower than directly on your host without Docker or with Docker container on an x86 machine, if that is possible to you.
 
 	```bash
-	cp .env.example .env
-	time ./docker/docker.sh
+	touch .env && cp .env.example .env
+	time ./docker/docker.sh "use_contracts_node"
 	```
 
 * Check Memory & CPU usage. Update memory limits in docker-compose.yml
@@ -86,7 +88,7 @@ substrate-contracts-node --version
 
 ### Run Cargo Contracts Node in Docker Container <a id="run-cargo-contracts-node"></a>
 
-* **Important** This is only available if you did not run ./docker/run.sh using "without_node" argument
+* **Important** This is only available if you did not run ./docker/run.sh using "without_contracts_node" argument
 
 #### Run Node
 
@@ -285,21 +287,59 @@ cargo contract upload --suri //Alice \
 
 ### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI) <a id="build-upload-swanky"></a>
 
-Install Swanky CLI https://github.com/AstarNetwork/swanky-cli
+* Enter the Docker container shell in a new terminal window if necessary:
+	```bash
+	docker exec -it ink /bin/bash
+	```
+
+* Install NVM
 ```bash
-cd dapps/ink-rust/wasm-flipper
-nvm use
-yarn global add @astar-network/swanky-cli@2.1.2
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 ```
 
-0. Init
-
+Install Swanky CLI https://github.com/AstarNetwork/swanky-cli
 ```bash
-cd contract
+cd dapps/ink-rust
+nvm install
+nvm use
+yarn global add @astar-network/swanky-cli@3.1.0
+```
+
+Show Swanky help https://docs.astar.network/docs/build/wasm/swanky-suite/cli/
+```
+swanky help --nested-commands
+```
+
+#### Create New Flipper template
+
+Add Flipper smart contract template (only if that folder does not exist yet) to generate https://github.com/AstarNetwork/wasm-flipper.
+```bash
 swanky init flipper
 ```
 Note: Choose `ink` as a contract language and `flipper` as template and a chosen contract name.
 Optionally choose from `Y/N` when asking to download the Swanky Node (NOT required if already using Substrate Contracts Node).
+
+If you chose to download the Swanky Node then run it in your local environment:
+```bash
+cd ./flipper
+yarn
+yarn run run-node
+```
+Note: The command `yarn run run-node` runs `swanky node start` 
+
+#### Use Existing wasm-flipper Example
+
+> Warning: It is old and outdated and may not work
+
+0. Init
+
+```bash
+cd ./wasm-flipper
+cd contract
+```
 
 1. Start the local node
 
@@ -308,6 +348,8 @@ If you chose to download the Swanky Node then run it in your local environment:
 cd flipper
 swanky node start
 ```
+
+### Compile Contract
 
 2. Build the contract
 
@@ -333,6 +375,7 @@ Copy paste the contract address.
 4. Update `WS_PROVIDER` to check if it connects to Shibuya or localhost in ./dapps/ink-rust/wasm-flipper/ui/components/app.tsx
 
 5. View in block explorer if deploy on Astar https://astar.subscan.io/wasm_contract_dashboard?tab=contract
+Note: If you deployed on Shibuya then go to https://shibuya.subscan.io/
 
 ### Interact with ink! Python Smart Contract <a id="interact-python"></a>
 
@@ -351,6 +394,8 @@ python3 ./src/app.py
 	```
 
 * Note: If you get error `ValueError: Invalid mnemonic: invalid word in phrase` then you needed to set account mnemonic phrase as the value of `LS_CONTRACT` in the .env file and obtain testnet tokens for it from faucet at https://use.ink/faucet/
+
+Obtain Shibuya from faucet at https://portal.astar.network/shibuya-testnet/assets
 
 ### Interact with ink! Rust Flipper Smart Contract using Polkadot.js API <a id="interact-polkadot-js-flipper"></a>
 

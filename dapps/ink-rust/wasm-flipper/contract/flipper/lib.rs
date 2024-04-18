@@ -40,9 +40,13 @@ mod flipper {
         /// A message that can be called on instantiated contracts.
         /// This one flips the value of the stored `bool` from `true`
         /// to `false` and vice versa.
+        ///
+        /// To avoid typechain-polkadot [issue](https://github.com/727-Ventures/typechain-polkadot/issues/19)
+        /// returning bool intentionally until it is resolved.
         #[ink(message)]
-        pub fn flip(&mut self) {
+        pub fn flip(&mut self) -> bool {
             self.value = !self.value;
+            self.value
         }
 
         /// Simply returns the current value of our `bool`.

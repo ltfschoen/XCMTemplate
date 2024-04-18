@@ -3,7 +3,8 @@
 trap "echo; exit" INT
 trap "echo; exit" HUP
 
-WITHOUT_NODE=$1
+WITHOUT_CONTRACTS_NODE=$1
+DOCKER_DEFAULT_PLATFORM=$2
 
 # if they call this script from project root or from within docker/ folder then
 # in both cases the PARENT_DIR will refer to the project root where the .env file is.
@@ -45,7 +46,9 @@ bash -e <<TRY
   DOCKER_BUILDKIT=0 docker build \
     --platform linux/x86_64 \
     -f ${PARENT_DIR}/docker/Dockerfile \
-    --build-arg WITHOUT_NODE=${WITHOUT_NODE} \
+    --build-arg WITHOUT_CONTRACTS_NODE=${WITHOUT_CONTRACTS_NODE} \
+    --build-arg DOCKER_DEFAULT_PLATFORM=${DOCKER_DEFAULT_PLATFORM} \
+    --platform ${DOCKER_DEFAULT_PLATFORM} \
     --no-cache \
     --tag ink:latest ./
 TRY
@@ -54,7 +57,9 @@ if [ $? -ne 0 ]; then
     DOCKER_BUILDKIT=0 docker buildx build \
         --platform linux/x86_64 \
         -f ${PARENT_DIR}/docker/Dockerfile \
-        --build-arg WITHOUT_NODE=${WITHOUT_NODE} \
+        --build-arg WITHOUT_CONTRACTS_NODE=${WITHOUT_CONTRACTS_NODE} \
+        --build-arg DOCKER_DEFAULT_PLATFORM=${DOCKER_DEFAULT_PLATFORM} \
+        --platform ${DOCKER_DEFAULT_PLATFORM} \
         --no-cache \
         --tag ink:latest ./
 fi
