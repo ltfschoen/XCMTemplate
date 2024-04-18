@@ -1,6 +1,14 @@
 #!/bin/bash
 
-	WITHOUT_NODE=$1
+	DEBIAN_CODENAME=$1
+	HOME=$2
+	RUST_NIGHTLY=$3
+	CARGO_CONTRACT_VERSION=$4
+	SUBSTRATE_CONTRACTS_NODE_VERSION=$5
+	NODE_VERSION_MAJOR=$6
+	WITHOUT_CONTRACTS_NODE=$7
+
+	echo "run.sh arguments: $1, $2, $3, $4, $5, $6, $7"
 
     trap "echo; exit" INT
     trap "echo; exit" HUP
@@ -13,8 +21,8 @@
         python3 python3-pip lsof ruby ruby-bundler git-restore-mtime xz-utils zstd unzip gnupg protobuf-compiler && \
     apt-get install -y vim wget net-tools && \
 # add clang 14 repo
-    echo "deb http://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" >> /etc/apt/sources.list.d/llvm-toochain-${DEBIAN_CODENAME}-14.list; \
-    echo "deb-src http://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" >> /etc/apt/sources.list.d/llvm-toochain-${DEBIAN_CODENAME}-14.list; \
+    echo "deb http://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" >> /etc/apt/sources.list.d/llvm-toolchain-${DEBIAN_CODENAME}-14.list; \
+    echo "deb-src http://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" >> /etc/apt/sources.list.d/llvm-toolchain-${DEBIAN_CODENAME}-14.list; \
     apt-get -y update; \
     apt-get install -y --no-install-recommends \
         clang-14 lldb-14 lld-14 libclang-14-dev && \
@@ -85,7 +93,7 @@
     #     --locked --branch master --force && \
 	cargo install cargo-contract --version ${CARGO_CONTRACT_VERSION}
 
-	if [[ ${WITHOUT_NODE} == "without_node" ]]; then
+	if [[ ${WITHOUT_CONTRACTS_NODE} == "without_contracts_node" ]]; then
 		echo "skipping installation of substrate-contracts-node"
 	else
 		echo "installing substrate-contracts-node"
@@ -100,14 +108,19 @@
 		# rm -r artifacts substrate-contracts-node.zip && \
 		# chmod +x /usr/local/cargo/bin/substrate-contracts-node && \
 		#
-		cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --tag ${SUBSTRATE_CONTRACTS_NODE_VERSION} --force --locked && \
+		# https://github.com/paritytech/substrate-contracts-node/issues/232
+		# cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --tag ${SUBSTRATE_CONTRACTS_NODE_VERSION} --force --locked && \
+		git clone https://github.com/paritytech/substrate-contracts-node.git && \
+		cd substrate-contracts-node && \
+		git checkout ${SUBSTRATE_CONTRACTS_NODE_VERSION} && \
+		cargo install --path ./node --force --locked && \
 		chmod +x /usr/local/cargo/bin/substrate-contracts-node && \
 		echo $( substrate-contracts-node --version | awk 'NF' )
 	fi
 
-	# We use `estuary` as a lightweight cargo registry in the CI to test if
-	# publishing `cargo-contract` to it and installing it from there works.
-	cargo install --git https://github.com/onelson/estuary.git --force && \
+	# # We use `estuary` as a lightweight cargo registry in the CI to test if
+	# # publishing `cargo-contract` to it and installing it from there works.
+	# cargo install --git https://github.com/onelson/estuary.git --force && \
 	#
 	apt-get install -y --no-install-recommends zlib1g-dev npm wabt gcc g++ && \
 	npm install --ignore-scripts -g yarn && \
@@ -124,7 +137,7 @@
 	# Versions
 	rustup show && \
 	cargo --version && \
-	estuary --version && \
+	# estuary --version && \
 	node --version && \
 	npm --version && \
 	yarn --version && \
