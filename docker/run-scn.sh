@@ -15,8 +15,7 @@ SCN_PATH="/usr/local/cargo/bin/substrate-contracts-node"
 DB_STORAGE="/tmp/ink"
 NAME="ink-template"
 TCP_PORT=30333
-RPC_PORT=9933
-WS_PORT=9944
+RPC_PORT=9944
 TELEMETRY_URL="wss://telemetry.polkadot.io/submit/ 0"
 DETECT_LOG="tokio-runtime-worker runtime::contracts"
 
@@ -29,8 +28,6 @@ $SCN_PATH \
 	--force-authoring \
 	--port $TCP_PORT \
 	--rpc-port $RPC_PORT \
-	--ws-port $WS_PORT \
-	--unsafe-ws-external \
 	--rpc-methods Unsafe \
 	--unsafe-rpc-external \
 	--rpc-cors all \
