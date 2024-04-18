@@ -13,7 +13,7 @@
 	* [Build & Upload Moonbeam VRF Randomness Precompile Solidity Smart Contract to Moonbase Alpha Testnet (using Truffle)](#moonbase-vrf)
 	* [Build & Upload Chainlink VRFD20 Randomness Solidity Smart Contract to Ethereum Sepolia Testnet (using Truffle)](#vrfd20)
 	* [Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Cargo Contract)](#build-upload)
-	* [Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
+	* [**UNSUPPORTED** Build & Upload "Flipper" ink! Rust Smart Contract to Local Testnet (using Swanky CLI)](#build-upload-swanky)
 * Interact
 	* [Interact with ink! Python Smart Contract](#interact-python)
 	* [Interact with ink! Rust Flipper Smart Contract using Polkadot.js API](#interact-polkadot-js-flipper)
@@ -117,6 +117,8 @@ substrate-contracts-node --version
 
 ### **Demo Quickstart** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-build-upload"></a>
 
+* First run a Cargo Contracts Node, by following the steps in the section "Run Cargo Contracts Node in Docker Container"
+
 #### Option 1: Run from host machine
 
 ```bash
@@ -147,6 +149,8 @@ docker exec -it ink /app/docker/quickstart.sh
 
 ### **Demo Quickstart** Build & Upload ink! Rust "Basic Contract Caller" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-basic-contract-caller"></a>
 
+* First run a Cargo Contracts Node, by following the steps in the section "Run Cargo Contracts Node in Docker Container"
+
 #### Run from shell inside Docker container
 
 	* Enter shell of Docker container
@@ -163,6 +167,8 @@ docker exec -it ink /app/docker/quickstart.sh
 		```
 
 ### **Demo Quickstart** Build & Upload ink! Rust "IPSP22" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-ipsp22"></a>
+
+* First run a Cargo Contracts Node, by following the steps in the section "Run Cargo Contracts Node in Docker Container"
 
 #### Run from shell inside Docker container
 
@@ -183,6 +189,8 @@ docker exec -it ink /app/docker/quickstart.sh
 ### **Demo Quickstart** Build & Upload ink! Rust "Unnamed" Smart Contract to Local Testnet (using Cargo Contract) <a id="quick-unnamed"></a>
 
 #### Run from shell inside Docker container
+
+	* First run a Cargo Contracts Node, by following the steps in the section "Run Cargo Contracts Node in Docker Container"
 
 	* Enter shell of Docker container
 		```bash
@@ -211,7 +219,9 @@ docker exec -it ink /app/docker/quickstart.sh
 
 ### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Cargo Contract) <a id="build-upload"></a>
 
-* Create Rust project with template
+* First run a Cargo Contracts Node, by following the steps in the section "Run Cargo Contracts Node in Docker Container"
+
+* Create Rust project with template. Note that the flipper folder may already exist
 ```
 cd dapps/ink-rust/wasm-flipper/contract
 cargo contract new flipper
@@ -285,7 +295,15 @@ cargo contract upload --suri //Alice \
 		2023-05-11 05:56:15.591  INFO tokio-runtime-worker substrate: 💤 Idle (0 peers), best: #1 (0x9bc4…be22), finalized #0 (0x18c5…59af), ⬇ 0 ⬆ 0
 		```
 
-### Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI) <a id="build-upload-swanky"></a>
+### **UNSUPPORTED** Build & Upload ink! Rust Flipper Smart Contract to Local Testnet (using Swanky CLI) <a id="build-upload-swanky"></a>
+
+> **WARNING**: Swanky CLI is not supported by this repository using Docker until this issue is resolved https://github.com/inkdevhub/swanky-cli/issues/222#issuecomment-2062847896
+> **WARNING**: Swanky CLI only supports older versions of ink!, cargo-contract, and rustc, so you might need to downgrade to the following versions to get it to work, as mentioned here https://github.com/inkdevhub/swanky-cli/issues/222#issuecomment-2062847896
+* ink v4.2.1 or v5 to ink 4.0.0
+* cargo-contract v4.1.0 to v2.1.0
+* rustc 1.77.2 (25ef9e3d8 2024-04-09) to rustc to 1.69 (2023-03-21)
+
+The versions that are used in the Docker container are specified in ./docker/Dockerfile.
 
 * Enter the Docker container shell in a new terminal window if necessary:
 	```bash
